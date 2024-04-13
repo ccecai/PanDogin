@@ -77,7 +77,7 @@ void Remote_Controller(void)
             }
             else
             {
-                Turn('l','s');
+                Turn('l','f');
             }
 
             break;
@@ -88,17 +88,23 @@ void Remote_Controller(void)
             }
             else
             {
-                Turn('r','s');
+                Turn('r','f');
             }
             break;
         case 10:
-            Trot(Forward,1);
+            if(dpstate == 52)
+                Trot(Forward,3);
+            else
+                Trot(Forward,1);
             break;
         case 11:
-            Trot(Backward,1);
+            if(dpstate == 52)
+                Trot(Backward,3);
+            else
+                Trot(Backward,1);
             break;
         case 20:
-            ExecuteJump(Standard_Jump,70);
+            ExecuteJump(Standard_Jump,67);
             break;
         case 21:
             ExecuteJump(High_Jump,70);

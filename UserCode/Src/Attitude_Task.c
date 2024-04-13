@@ -9,7 +9,6 @@ enum DPStates dpstate = NONE;
 float NewHeartbeat = 0;//心跳值
 //全局姿态控制
 int Global_IMU_Control = 0;
-float Direct = 0;
 float TargetAngle = 0;
 int Race_count = 0;
 uint8_t IMU_Stand_flag = 0;
@@ -23,26 +22,6 @@ void StandUp_Posture(void)
     SetCoupledThetaPositionAll();
 }
 
-void StandUp_Posture_IMU(void)
-{
-    static float x_want = 0, y_want = 0;
-    AllLegsSpeedLimit(SpeedMode_VERYFAST);
-
-    if (x_want == 0 && y_want == 0)
-    {
-        SetCartesianPositionAll_Delay(x_want,21.3,500);
-    }
-    if ((-90.0f + IMU_EulerAngle.EulerAngle[Pitch]) <= 0)
-    {
-        x_want =  21.3f * cosf((-90.0f + IMU_EulerAngle.EulerAngle[Pitch]) * PI / 180.0f);
-        y_want = -21.3f * sinf((-90.0f + IMU_EulerAngle.EulerAngle[Pitch]) * PI / 180.0f);
-    }
-
-    IMU_Stand_flag = 1;
-
-    SetCartesianPositionAll_Delay(x_want,y_want,0);
-}
-
 void LieDown_Posture(void)
 {
     AllLegsSpeedLimit(SpeedMode_VERYSLOW);
@@ -53,17 +32,15 @@ void LieDown_Posture(void)
 }
 void MarkingTime(void)
 {
+    NewHeartbeat = 5;
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
     ChangeGainOfPID(10.0f,0.2f,0.6f,0);
-//    ChangeYawOfPID(50.0f,0.5f,2500.0f,10.0f);
-//    YawControl(yawwant, &state_detached_params[2], 1.0f);
     gait_detached(state_detached_params[2],0.0f, 0.5f, 0.5f, 0.0f,
                   1.0f,1.0f,1.0f,1.0f);
 }
 //实际运行Trot步态
 void Trot(float direction,int8_t kind)
 {
-    Direct = direction;
     switch(kind)
     {
         case 0://小步Trot
@@ -80,7 +57,7 @@ void Trot(float direction,int8_t kind)
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
             ChangeGainOfPID(20.0f,0.2f,0.6f,0);
-            ChangeYawOfPID(0.0f,0.0f,3000.0f,10.0f);
+            ChangeYawOfPID(0.1f,0.01f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[1], direction);
             gait_detached(state_detached_params[1],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
@@ -89,7 +66,7 @@ void Trot(float direction,int8_t kind)
             Solpe_flag = 0;
             AllLegsSpeedLimit(SpeedMode_EARLYEX);
             NewHeartbeat = 5;
-            ChangeGainOfPID(15.5f,0.2f,0.6f,0);
+            ChangeGainOfPID(17.0f,0.2f,0.6f,0);
             ChangeYawOfPID(0.35f,0.035f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[4], direction);
             gait_detached(state_detached_params[4],0.0f, 0.5f, 0.5f, 0.0f,
@@ -98,7 +75,7 @@ void Trot(float direction,int8_t kind)
         case 3://斜坡
             Solpe_flag = 1;
             AllLegsSpeedLimit(30.0f);
-            NewHeartbeat = 5;
+            NewHeartbeat = 6;
             ChangeGainOfPID(23.0f,0.2f,0.6f,0);
             ChangeYawOfPID(0.1f,0.01f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[8], direction);
@@ -127,36 +104,45 @@ void Turn(int state_flag,int speed_flag)
 
     if(speed_flag == 'f')
     {
-        length = 20.0f;
-        state_detached_params[0].detached_params_0.freq = 4.5f;
-        state_detached_params[0].detached_params_1.freq = 4.5f;
-        state_detached_params[0].detached_params_2.freq = 4.5f;
-        state_detached_params[0].detached_params_3.freq = 4.5f;
+        length = 16.0f;
+        state_detached_params[0].detached_params_0.freq = 5.5f;
+        state_detached_params[0].detached_params_1.freq = 5.5f;
+        state_detached_params[0].detached_params_2.freq = 5.5f;
+        state_detached_params[0].detached_params_3.freq = 5.5f;
     }
     else if(speed_flag == 's')
     {
         length = 12.0f;
-        state_detached_params[0].detached_params_0.freq = 3.2f;
-        state_detached_params[0].detached_params_1.freq = 3.2f;
-        state_detached_params[0].detached_params_2.freq = 3.2f;
-        state_detached_params[0].detached_params_3.freq = 3.2f;
+        state_detached_params[0].detached_params_0.freq = 5.2f;
+        state_detached_params[0].detached_params_1.freq = 5.2f;
+        state_detached_params[0].detached_params_2.freq = 5.2f;
+        state_detached_params[0].detached_params_3.freq = 5.2f;
     }
 
     NewHeartbeat = 5;
     AllLegsSpeedLimit(SpeedMode_EXTREME);
     ChangeGainOfPID(17.0f,0.2f,0.6f,0);
+
     switch (state_flag) {
         case 'l':
             state_detached_params[0].detached_params_0.step_length = -length;
             state_detached_params[0].detached_params_1.step_length = -length;
             state_detached_params[0].detached_params_2.step_length = length;
             state_detached_params[0].detached_params_3.step_length = length;
+//            state_detached_params[0].detached_params_0.step_length = -21.0f;
+//            state_detached_params[0].detached_params_1.step_length = -21.0f;
+//            state_detached_params[0].detached_params_2.step_length = -1.0f;
+//            state_detached_params[0].detached_params_3.step_length = -1.0f;
             break;
         case 'r':
             state_detached_params[0].detached_params_0.step_length = length;
             state_detached_params[0].detached_params_1.step_length = length;
             state_detached_params[0].detached_params_2.step_length = -length;
             state_detached_params[0].detached_params_3.step_length = -length;
+//            state_detached_params[0].detached_params_0.step_length = -1.0f;
+//            state_detached_params[0].detached_params_1.step_length = -1.0f;
+//            state_detached_params[0].detached_params_2.step_length = -21.0f;
+//            state_detached_params[0].detached_params_3.step_length = -21.0f;
             break;
         default:
             break;
@@ -309,29 +295,17 @@ void KneelPosture(void)//跪下
 
 void Race_Competition(void)
 {
-    if(Race_count == 0 && Distance >= 80.0f)
+    if(Race_count == 0 && Distance >= 160.0f)
     {
-//        if(Distance <= 200.0f)
-//        {
-//            Change_SinStateDetachedParams(state_detached_params,1,1,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,2,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,3,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,4,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//
-//        }
-
         Trot(Backward,1);
     }
 
-    if(Distance < 80.0f && Race_count == 0)
+    if(Distance < 160.0f && Race_count == 0)
     {
-//        StandUp_Posture();
-//        osDelay(800);
         while (IMU_EulerAngle.EulerAngle[Yaw] < 135.0f)
         {
             Turn('l','s');
         }
-//        TargetAngle = -151.5f;
         for (int i = 0; i < 5; ++i) {
             distance[i] = 300;
         }
@@ -341,36 +315,17 @@ void Race_Competition(void)
         Race_count++;
         StandUp_Posture();
         osDelay(200);
-
-//        Change_SinStateDetachedParams(state_detached_params,1,1,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,2,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,3,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,4,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-
-
     }
-    if(Race_count == 1 && Distance >= 71.0f)
+    if(Race_count == 1 && Distance >= 95.0f)
     {
-//        if(Distance <= 200.0f)
-//        {
-//            Change_SinStateDetachedParams(state_detached_params,1,1,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,2,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,3,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,4,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//
-//        }
-
         Trot(Backward,1);
     }
-    if(Distance < 71.0f && Race_count == 1)
+    if(Distance < 95.0f && Race_count == 1)
     {
-//        StandUp_Posture();
-//        osDelay(800);
         while (IMU_EulerAngle.EulerAngle[Yaw] < -91.0f || IMU_EulerAngle.EulerAngle[Yaw] > -89.0f)
         {
             Turn('l','s');
         }
-//        TargetAngle = 0;
         for (int i = 0; i < 5; ++i) {
             distance[i] = 300;
         }
@@ -381,35 +336,19 @@ void Race_Competition(void)
         StandUp_Posture();
         osDelay(200);
 
-//        Change_SinStateDetachedParams(state_detached_params,1,1,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,2,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,3,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,4,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-
-
     }
-    if(Race_count == 2 && Distance >= 80.0f)
+    if(Race_count == 2 && Distance >= 160.0f)
     {
-//        if(Distance <= 200.0f)
-//        {
-//            Change_SinStateDetachedParams(state_detached_params,1,1,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,2,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,3,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,4,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//
-//        }
-
         Trot(Backward,1);
     }
-    if(Race_count == 2 && Distance < 80.0f)
+    if(Race_count == 2 && Distance < 160.0f)
     {
-//        StandUp_Posture();
-//        osDelay(800);
+
         while (IMU_EulerAngle.EulerAngle[Yaw] > 136.0f || IMU_EulerAngle.EulerAngle[Yaw] < 134.0f)
         {
             Turn('r','s');
         }
-//        TargetAngle = 0;
+
         for (int i = 0; i < 5; ++i) {
             distance[i] = 300;
         }
@@ -420,30 +359,16 @@ void Race_Competition(void)
         StandUp_Posture();
         osDelay(200);
 
-//        Change_SinStateDetachedParams(state_detached_params,1,1,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,2,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,3,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//        Change_SinStateDetachedParams(state_detached_params,1,4,22.3f, 27.0f,  2.2f, 0.15f, 0.35f, 5.2f);
 
 
     }
     if(Race_count == 3 && Distance >= 70.0f)
     {
-//        if(Distance <= 200.0f)
-//        {
-//            Change_SinStateDetachedParams(state_detached_params,1,1,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,2,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,3,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//            Change_SinStateDetachedParams(state_detached_params,1,4,22.3f, 20.0f,  2.2f, 0.15f, 0.35f, 5.2f);
-//
-//        }
-
         Trot(Backward,1);
     }
     if(Race_count == 3 && Distance < 70.0f)
     {
         StandUp_Posture();
-//        osDelay(200);
     }
 }
 

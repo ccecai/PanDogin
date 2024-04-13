@@ -118,7 +118,7 @@ void MX_FREERTOS_Init(void) {
   GO1Init_TaskHandle = osThreadCreate(osThread(GO1Init_Task), NULL);
 
   /* definition and creation of Visual */
-  osThreadDef(Visual, VisualTask, osPriorityHigh, 0, 256);
+  osThreadDef(Visual, VisualTask, osPriorityRealtime, 0, 512);
   VisualHandle = osThreadCreate(osThread(Visual), NULL);
 
   /* definition and creation of NRFTask */
@@ -134,7 +134,7 @@ void MX_FREERTOS_Init(void) {
   GO_OutputLeftHandle = osThreadCreate(osThread(GO_OutputLeft), NULL);
 
   /* definition and creation of GO_Outputright */
-  osThreadDef(GO_Outputright, GO_OutputrightTask, osPriorityLow, 0, 256);
+  osThreadDef(GO_Outputright, GO_OutputrightTask, osPriorityHigh, 0, 256);
   GO_OutputrightHandle = osThreadCreate(osThread(GO_Outputright), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -163,7 +163,7 @@ void StartDebug(void const * argument)
   /* USER CODE BEGIN StartDebug */
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
-    Control_Flag(1,0);//选择是否开启陀螺仪与视觉纠偏开关
+    Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
     IMU_Slove(1);//是否开启障碍时腿时刻保持竖直
 
     printf("Init_Ready\n");
@@ -192,8 +192,6 @@ void StartDebug(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_BlueTeeth_RemoteControl */
-
-
 void BlueTeeth_RemoteControl(void const * argument)
 {
   /* USER CODE BEGIN BlueTeeth_RemoteControl */
@@ -202,9 +200,9 @@ void BlueTeeth_RemoteControl(void const * argument)
   {
       Remote_Controller();
 //      usart_printf("%d,%d\n",gpstate,dpstate);
-//      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
-//                   state_detached_params[1].detached_params_0.freq,state_detached_params[1].detached_params_2.step_length,state_detached_params[1].detached_params_2.freq);
-//      usart_printf("%f,%f\n",visual.distance,visual.offset);
+      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
+                   state_detached_params[1].detached_params_0.freq,state_detached_params[1].detached_params_2.step_length,state_detached_params[1].detached_params_2.freq);
+      //usart_printf("%f,%f\n",visual.distance,visual.offset);
 //      usart_printf("%f,%f,%f.%f\n", AngleLoop[1].Out_put,AngleLoop[2].Out_put,AngleLoop[3].Out_put,AngleLoop[4].Out_put);
 //      usart_printf("%f,%f,%d,%f,%f,%d,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,Race_count,visual.distance,visual.offset,gpstate,x,y);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",Yaw_PID_Loop.Setpoint,IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,state_detached_params[1].detached_params_0.step_length,state_detached_params[1].detached_params_2.step_length,visual.offset);
@@ -243,8 +241,8 @@ void GO1Init(void const * argument)
     Roll_PID_Loop.Output_limit = 15.0f;
 
     PID_Init(&VisualLoop);
-    VisualLoop.P = 0.2f;
-    VisualLoop.D = 0.03f;
+    VisualLoop.P = 0.1f;
+    VisualLoop.D = 0.04f;
     VisualLoop.SumError = 4000.0f;
     VisualLoop.Output_limit = 15.0f;
 
@@ -280,11 +278,9 @@ void VisualTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-//        visual_process();
-      usart_printf("%d,%d,%d,%d,%d,%d\n",visual.data_8[0],visual.data_8[1],visual.data_8[2]
-              ,visual.data_8[3],visual.data_8[4],visual.data_8[5]);
-//      if(visual.data_8[1] == 1 && gpstate != 0 && gpstate != 3 && gpstate != 1)
-//          MarkingTime();
+        visual_process();
+     // usart_printf("%d,%d,%d,%d,%d,%d\n",visual.data_8[0],visual.data_8[1],visual.data_8[2]
+//              ,visual.data_8[3],visual.data_8[4],visual.data_8[5]);
 
       osDelay(1);
   }

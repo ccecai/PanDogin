@@ -28,8 +28,8 @@
 #define LegStandLenth 16.0f //
 #define LegSquatLenth 12.0f //
 //腿长限位
-#define StepLenthMin 4.0f
-#define StepLenthMax 32.0f //大小大概在45cm
+#define StepLenthMin 25.0f
+#define StepLenthMax 35.0f //大小大概在45cm
 #define StepLenthMax_Half (LegLenthExtremeMax*0.866f*0.9f)
 //状态数上限配置
 #define StatesMaxNum 20

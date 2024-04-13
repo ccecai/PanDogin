@@ -104,12 +104,9 @@ extern uint8_t Solpe_flag;
 
 void MarkingTime(void);
 void StandUp_Posture(void);
-void StandUp_Posture_IMU(void);
-void Test_Move(void);
 void Trot(float direction,int8_t kind);
 void Walk(float direction,uint8_t speed);
 void LieDown_Posture(void);
-void Dog_Posture(void);
 void EndPosture(void);
 void Turn(int state_flag,int speed_flag);
 void Handshake(void);

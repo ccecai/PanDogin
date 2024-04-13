@@ -27,14 +27,11 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         const float jump_landlegheight = LegStandLenth; //落地时腿长度  [cm]，理论上应等于LegStandLenth
         //下蹲，准备起跳，持续时间为prep_time
         AllLegsSpeedLimit(SpeedMode_EARLYEX);
-        ChangeGainOfPID(10.0f, 3.6f, 0, 0);//使用刚度小，阻尼大的增益
+        ChangeGainOfPID(10.0f, 2.0f, 0, 0);//使用刚度小，阻尼大的增益
         SetPolarPositionAll_Delay(JumpAngle + 3, stance_height, prep_time);
 
 //        if(IMU_EulerAngle.EulerAngle[Pitch] > 3.0f || IMU_EulerAngle.EulerAngle[Pitch] < -3.0f)
-//        {
-//            gpstate = 1;
-//            return 0;
-//        }
+
 
         //芜湖起飞（核心），持续时间为launch_time
         AllLegsSpeedLimit(30.0f);//速度拉满
