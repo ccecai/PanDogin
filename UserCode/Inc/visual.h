@@ -9,11 +9,11 @@
 #include "queue.h"
 #include "cmsis_os.h"
 
-#define Length_of_visual 7
+#define Length_of_visual 12
 
 typedef struct
 {
-    uint8_t data_8[7];
+    uint8_t data_8[12];
     float distance;
     float offset;
 }Visial_data;

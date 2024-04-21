@@ -34,7 +34,7 @@ void MarkingTime(void)
 {
     NewHeartbeat = 5;
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
-    ChangeGainOfPID(10.0f,0.2f,0.6f,0);
+    ChangeGainOfPID(10.0f,0.8f,0.6f,0);
     gait_detached(state_detached_params[2],0.0f, 0.5f, 0.5f, 0.0f,
                   1.0f,1.0f,1.0f,1.0f);
 }
@@ -56,7 +56,7 @@ void Trot(float direction,int8_t kind)
             Solpe_flag = 0;
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(20.0f,0.2f,0.6f,0);
+            ChangeGainOfPID(20.0f,0.8f,0.6f,0);
             ChangeYawOfPID(0.1f,0.01f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[1], direction);
             gait_detached(state_detached_params[1],0.0f, 0.5f, 0.5f, 0.0f,
@@ -66,17 +66,17 @@ void Trot(float direction,int8_t kind)
             Solpe_flag = 0;
             AllLegsSpeedLimit(SpeedMode_EARLYEX);
             NewHeartbeat = 5;
-            ChangeGainOfPID(17.0f,0.2f,0.6f,0);
+            ChangeGainOfPID(17.0f,0.8f,0.6f,0);
             ChangeYawOfPID(0.35f,0.035f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[4], direction);
             gait_detached(state_detached_params[4],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
             break;
         case 3://Ð±ÆÂ
-            Solpe_flag = 1;
-            AllLegsSpeedLimit(30.0f);
-            NewHeartbeat = 6;
-            ChangeGainOfPID(23.0f,0.2f,0.6f,0);
+//            Solpe_flag = 1;
+            AllLegsSpeedLimit(18.0f);
+            NewHeartbeat = 4;
+            ChangeGainOfPID(18.0f,0.2f,0.6f,0);
             ChangeYawOfPID(0.1f,0.01f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[8], direction);
             gait_detached(state_detached_params[8],0.0f, 0.5f, 0.5f, 0.0f,
@@ -90,12 +90,12 @@ void Trot(float direction,int8_t kind)
 //Âý²½
 void Walk(float direction,uint8_t speed)
 {
-    NewHeartbeat = 4;
-    AllLegsSpeedLimit(SpeedMode_FAST);
-    ChangeGainOfPID(3.5f,0,0.6f,0);
-    ChangeYawOfPID(100.0f,0.5f,2500.0f,10.0f);
-    YawControl(yawwant, &state_detached_params[3], direction);
-    gait_detached(state_detached_params[3],0.0,0.75,0.5,0.25,direction,direction,direction,direction);
+    AllLegsSpeedLimit(30.0f);
+    NewHeartbeat = 5;
+    ChangeGainOfPID(20.0f,0.8f,0.6f,0);
+//    ChangeYawOfPID(100.0f,0.5f,2500.0f,10.0f);
+//    YawControl(yawwant, &state_detached_params[3], direction);
+    gait_detached(state_detached_params[8],0.0,0.75,0.5,0.25,direction,direction,direction,direction);
 }
 //×ªÍä²½Ì¬
 void Turn(int state_flag,int speed_flag)
@@ -112,16 +112,16 @@ void Turn(int state_flag,int speed_flag)
     }
     else if(speed_flag == 's')
     {
-        length = 12.0f;
-        state_detached_params[0].detached_params_0.freq = 5.2f;
-        state_detached_params[0].detached_params_1.freq = 5.2f;
-        state_detached_params[0].detached_params_2.freq = 5.2f;
-        state_detached_params[0].detached_params_3.freq = 5.2f;
+        length = 6.5f;
+        state_detached_params[0].detached_params_0.freq = 2.5f;
+        state_detached_params[0].detached_params_1.freq = 2.5f;
+        state_detached_params[0].detached_params_2.freq = 2.5f;
+        state_detached_params[0].detached_params_3.freq = 2.5f;
     }
 
     NewHeartbeat = 5;
     AllLegsSpeedLimit(SpeedMode_EXTREME);
-    ChangeGainOfPID(17.0f,0.2f,0.6f,0);
+    ChangeGainOfPID(17.0f,0.8f,0.6f,0);
 
     switch (state_flag) {
         case 'l':
@@ -129,20 +129,20 @@ void Turn(int state_flag,int speed_flag)
             state_detached_params[0].detached_params_1.step_length = -length;
             state_detached_params[0].detached_params_2.step_length = length;
             state_detached_params[0].detached_params_3.step_length = length;
-//            state_detached_params[0].detached_params_0.step_length = -21.0f;
-//            state_detached_params[0].detached_params_1.step_length = -21.0f;
-//            state_detached_params[0].detached_params_2.step_length = -1.0f;
-//            state_detached_params[0].detached_params_3.step_length = -1.0f;
+//            state_detached_params[0].detached_params_0.step_length = -23.0f;
+//            state_detached_params[0].detached_params_1.step_length = -23.0f;
+//            state_detached_params[0].detached_params_2.step_length = -0.8f;
+//            state_detached_params[0].detached_params_3.step_length = -0.8f;
             break;
         case 'r':
             state_detached_params[0].detached_params_0.step_length = length;
             state_detached_params[0].detached_params_1.step_length = length;
             state_detached_params[0].detached_params_2.step_length = -length;
             state_detached_params[0].detached_params_3.step_length = -length;
-//            state_detached_params[0].detached_params_0.step_length = -1.0f;
-//            state_detached_params[0].detached_params_1.step_length = -1.0f;
-//            state_detached_params[0].detached_params_2.step_length = -21.0f;
-//            state_detached_params[0].detached_params_3.step_length = -21.0f;
+//            state_detached_params[0].detached_params_0.step_length = -0.8f;
+//            state_detached_params[0].detached_params_1.step_length = -0.8f;
+//            state_detached_params[0].detached_params_2.step_length = -23.0f;
+//            state_detached_params[0].detached_params_3.step_length = -23.0f;
             break;
         default:
             break;
@@ -374,9 +374,9 @@ void Race_Competition(void)
 
 int ll(void)
 {
-    while(visual.data_8[1] > 96)
+    while(visual.data_8[1] > 82)
     {
-        Trot(Backward,1);
+        Trot(Backward,2);
     }
 
     StandUp_Posture();
@@ -389,13 +389,13 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,70);
+    ExecuteJump(High_Jump,68);
     osDelay(600);
-    while(visual.data_8[5] < 11 || visual.data_8[5] > 18)
+    while(visual.data_8[5] < 12 || visual.data_8[5] > 17)
     {
-        if(visual.data_8[5] < 11)
+        if(visual.data_8[5] < 12)
             Trot(Forward,2);
-        if(visual.data_8[5] > 18)
+        if(visual.data_8[5] > 17)
             Trot(Backward,2);
     }
     while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
@@ -418,14 +418,14 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,70);
+    ExecuteJump(High_Jump,68);
     osDelay(700);
 
-    while(visual.data_8[5] < 11 || visual.data_8[5] > 18)
+    while(visual.data_8[5] < 12 || visual.data_8[5] > 17)
     {
-        if(visual.data_8[5] < 11)
+        if(visual.data_8[5] < 12)
             Trot(Forward,2);
-        if(visual.data_8[5] > 18)
+        if(visual.data_8[5] > 17)
             Trot(Backward,2);
     }
 
@@ -449,16 +449,8 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,70);
+    ExecuteJump(High_Jump,68);
     osDelay(700);
-
-//    while(visual.data_8[5] < 11 || visual.data_8[5] > 18)
-//    {
-//        if(visual.data_8[5] < 11)
-//            Trot(Forward,2);
-//        if(visual.data_8[5] > 18)
-//            Trot(Backward,2);
-//    }
 
     while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
     {
@@ -478,7 +470,64 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,70);
+    ExecuteJump(High_Jump,68);
+    osDelay(700);
+
+    while(visual.data_8[9] > 13)
+        Trot(Backward,2);
+
+    StandUp_Posture();
+    osDelay(200);
+
+    for (int i = 0; i < 500; ++i) {
+        MarkingTime();
+    }
+
+    ExecuteJump(Leap_Jump,76);
+    osDelay(700);
+
+    while(visual.data_8[10] < 20 || visual.data_8[10] > 28)
+    {
+        if(visual.data_8[10] < 20)
+            Trot(Backward,2);
+        if(visual.data_8[10] > 28)
+            Trot(Forward,2);
+    }
+    while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
+    {
+        if(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f)
+            Turn('r','s');
+        if(IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
+            Turn('l','s');
+    }
+
+    for (int i = 0; i < 500; ++i) {
+        MarkingTime();
+    }
+
+    ExecuteJump(Leap_Jump,76);
+    osDelay(700);
+
+    while(visual.data_8[10] < 20 || visual.data_8[10] > 28)
+    {
+        if(visual.data_8[10] < 20)
+            Trot(Backward,2);
+        if(visual.data_8[10] > 28)
+            Trot(Forward,2);
+    }
+    while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
+    {
+        if(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f)
+            Turn('r','s');
+        if(IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
+            Turn('l','s');
+    }
+    for (int i = 0; i < 500; ++i) {
+        MarkingTime();
+    }
+
+    ExecuteJump(High_Jump,62);
+
 
     return 0;
 

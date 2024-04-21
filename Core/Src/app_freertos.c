@@ -130,7 +130,7 @@ void MX_FREERTOS_Init(void) {
   TripodHeadHandle = osThreadCreate(osThread(TripodHead), NULL);
 
   /* definition and creation of GO_OutputLeft */
-  osThreadDef(GO_OutputLeft, GO_OutputLeftTask, osPriorityHigh, 0, 256);
+  osThreadDef(GO_OutputLeft, GO_OutputLeftTask, osPriorityRealtime, 0, 256);
   GO_OutputLeftHandle = osThreadCreate(osThread(GO_OutputLeft), NULL);
 
   /* definition and creation of GO_Outputright */
@@ -199,14 +199,15 @@ void BlueTeeth_RemoteControl(void const * argument)
   for(;;)
   {
       Remote_Controller();
+//      usart_printf("%d,%d,%d,%d\n",began_pos[3],end_pos[3],began_pos[4],end_pos[4]);
 //      usart_printf("%d,%d\n",gpstate,dpstate);
-      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
-                   state_detached_params[1].detached_params_0.freq,state_detached_params[1].detached_params_2.step_length,state_detached_params[1].detached_params_2.freq);
+//      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
+//                   state_detached_params[1].detached_params_0.freq,state_detached_params[1].detached_params_2.step_length,state_detached_params[1].detached_params_2.freq);
       //usart_printf("%f,%f\n",visual.distance,visual.offset);
 //      usart_printf("%f,%f,%f.%f\n", AngleLoop[1].Out_put,AngleLoop[2].Out_put,AngleLoop[3].Out_put,AngleLoop[4].Out_put);
 //      usart_printf("%f,%f,%d,%f,%f,%d,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,Race_count,visual.distance,visual.offset,gpstate,x,y);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",Yaw_PID_Loop.Setpoint,IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,state_detached_params[1].detached_params_0.step_length,state_detached_params[1].detached_params_2.step_length,visual.offset);
-//      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
+      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
     osDelay(1);
   }
   /* USER CODE END BlueTeeth_RemoteControl */
@@ -241,7 +242,7 @@ void GO1Init(void const * argument)
     Roll_PID_Loop.Output_limit = 15.0f;
 
     PID_Init(&VisualLoop);
-    VisualLoop.P = 0.1f;
+    VisualLoop.P = 0.12f;
     VisualLoop.D = 0.04f;
     VisualLoop.SumError = 4000.0f;
     VisualLoop.Output_limit = 15.0f;
@@ -278,9 +279,9 @@ void VisualTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-        visual_process();
-     // usart_printf("%d,%d,%d,%d,%d,%d\n",visual.data_8[0],visual.data_8[1],visual.data_8[2]
-//              ,visual.data_8[3],visual.data_8[4],visual.data_8[5]);
+//        visual_process();
+//      usart_printf("%d,%d,%f,%f\n",visual.data_8[1],visual.data_8[5],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Yaw]
+//              );
 
       osDelay(1);
   }
@@ -335,7 +336,7 @@ void TripodHeadTask(void const * argument)
       SetPoint_IMU(&M2006_Speed, M2006_Position.Out_put);
       PID_PosLocM2006(&M2006_Speed,struct_debug1[0].speed);
 
-      set_current(&hfdcan2,0x200,M2006_Speed.Out_put,0,0,0);
+      set_current(&hfdcan1,0x200,M2006_Speed.Out_put,0,0,0);
 
     osDelay(5);
   }

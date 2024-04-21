@@ -17,10 +17,15 @@ uint8_t reverse_move_flag = 0;
 //float offset_back_0 = 0.741f;//(-121.9f)
 //float offset_back_1 = 1.098685f;//207.2f
 
-float offset_front_0 = 0.635f;
+float offset_front_0 = 0.63f;
 float offset_front_1 = 1.012291f;
-float offset_back_0 = 0.615f;//(-121.9f)
+float offset_back_0 = 0.63f;//(-121.9f)
 float offset_back_1 = 1.012291f;//207.2f
+
+//float offset_front_0 = 0.44486654f;
+//float offset_front_1 = 0.8589177f;
+//float offset_back_0 = 0.5077524f;//(-121.9f)
+//float offset_back_1 = 0.9690287f;//207.2f
 
 //float offset_front_0 = 0.62f;
 //float offset_front_1 = 0.993f;
@@ -228,8 +233,17 @@ void SinTrajectory (float t,GaitParams params, float gaitOffset,float leg_direti
     //足尖摆动相
     if (gp <= flightPercent) // //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
     {
-        x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
-        y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
+//        if(leg_diretion == Forward)
+//        {
+//            x0 = (gp/flightPercent)*stepLength - stepLength/2.0ff;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
+//            y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
+//        }
+//        else
+//        {
+            x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
+            y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
+//        }
+
     }
         //足尖支撑相
     else ////摆动总是从正弦轨迹的起始位置处执行。
@@ -275,14 +289,14 @@ void SinTrajectory_Slope (float t,GaitParams params, float gaitOffset,float leg_
     if (gp <= flightPercent) // //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
     {
         x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
-        y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight - time_slope*(gp/flightPercent);////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
+        y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
     }
         //足尖支撑相
     else ////摆动总是从正弦轨迹的起始位置处执行。
     {
         float percentBack = (gp-flightPercent)/(1.0f-flightPercent);//percentBack与(gp/flightPercent)是一个道理
         x0 = -percentBack*stepLength + stepLength/2.0f;////一般来说，首次进入时总是从stepLength/2开始，然后之后就向后运动。
-        y0 = downAMP*sin(PI*percentBack) + stanceHeight - time_slope*(1-percentBack);//
+        y0 = downAMP*sin(PI*percentBack) + stanceHeight;//
     }
     ////经过坐标系转换后得到最终结果(angle目前都是0，从而x=x0，y=y0)
     x =  cos(angle*PI/180)*x0 + sin(angle*PI/180)*y0;
@@ -373,17 +387,17 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 //            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f},
 //            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f}
                 1,//大步Trot（快速）,现在最高点y轴坐标应该大于15，最大不超过32
-                {21.5f, 30.0f,  2.2f, 0.37f, 0.36f, 5.5f},
-                {21.5f, 30.0f,  2.2f, 0.37f, 0.36f, 5.5f},
-                {21.5f, 30.0f,  2.2f, 0.37f, 0.36f, 5.5f},
-                {21.5f, 30.0f,  2.2f, 0.37f, 0.36f, 5.5f}
+                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f},
+                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f},
+                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f},
+                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f}
         },
         {
             2,//原地踏步//出现多种步态基高差距过大是会失效
-            {18.0f, 0.05f,  5.0f, 1.0f, 0.3f, 3.0f},
-            {18.0f, 0.05f,  5.0f, 1.0f, 0.3f, 3.0f},
-            {18.0f, 0.05f,  5.0f, 1.0f, 0.3f, 3.0f},
-            {18.0f, 0.05f,  5.0f, 1.0f, 0.3f, 3.0f}
+            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f},
+            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f},
+            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f},
+            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f}
         },
         {
             3,//Walk步态（没有调好）
@@ -398,10 +412,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f}*/
-                {19.0f, 15.0f,  3.5f, 0.2f, 0.3f, 3.0f},
-                {19.0f, 15.0f,  3.5f, 0.2f, 0.3f, 3.0f},
-                {19.0f, 15.0f,  3.5f, 0.2f, 0.3f, 3.0f},
-                {19.0f, 15.0f,  3.5f, 0.2f, 0.3f, 3.0f}
+                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f},
+                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f},
+                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f},
+                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f}
 
         },
         {
@@ -417,17 +431,29 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
                 6,//左微
-                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 3.8f},
-                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 3.8f},
-                {19.0f, 0.0f,  5.0f, 0.2f, 0.2f, 3.8f},
-                {19.0f, 0.0f,  5.0f, 0.2f, 0.2f, 3.8f}
+                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f},
+                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f},
+                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f},
+                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f}
         },
         {
                 7,//右微
-                {19.0f, 0.0f,  5.0f, 0.2f, 0.2f, 3.8f},
-                {19.0f, 0.0f,  5.0f, 0.2f, 0.2f, 3.8f},
-                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 3.8f},
-                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 3.8f}
+                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f},
+                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f},
+                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f},
+                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f}
+        },
+        {
+                8,//小步Trot（稳速）
+                /*{20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
+                {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
+                {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
+                {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f}*/
+                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
+                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
+                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
+                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f}
+
         }
 };
 
@@ -438,7 +464,7 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
     float normal_step_left = 0,normal_step_right = 0;
     if(IMU_Control_Flag)
     {
-        ChangeYawOfPID(0.6f,0.06f,3000.0f,10.0f);
+        ChangeYawOfPID(0.5f,0.05f,3000.0f,10.0f);
         /*******IMUのPID相关*******/
         //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);

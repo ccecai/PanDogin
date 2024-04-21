@@ -77,7 +77,7 @@ void Remote_Controller(void)
             }
             else
             {
-                Turn('l','f');
+                Turn('l','s');
             }
 
             break;
@@ -88,32 +88,37 @@ void Remote_Controller(void)
             }
             else
             {
-                Turn('r','f');
+                Turn('r','s');
             }
             break;
         case 10:
             if(dpstate == 52)
                 Trot(Forward,3);
             else
-                Trot(Forward,1);
+                Trot(Forward,2);
             break;
         case 11:
             if(dpstate == 52)
                 Trot(Backward,3);
             else
-                Trot(Backward,1);
+                Trot(Backward,2);
             break;
         case 20:
-            ExecuteJump(Standard_Jump,67);
+//            IMU_Slove(0);//是否开启障碍时腿时刻保持竖直
+            ExecuteJump(Standard_Jump,68);
             break;
         case 21:
-            ExecuteJump(High_Jump,70);
+            if(dpstate == 52)
+                ExecuteJump(High_Jump,66);
+            else
+                ExecuteJump(High_Jump,71);
+
             break;
         case 22:
             ExecuteJump(Far_Jump,70);
             break;
         case 24://飞跳
-            ExecuteJump(Leap_Jump,75);
+            ExecuteJump(Leap_Jump,76);
             break;
         case 30:
             SquatPosture();//蹲下
