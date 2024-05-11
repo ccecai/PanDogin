@@ -33,6 +33,7 @@ UART_HandleTypeDef huart3;
 DMA_HandleTypeDef hdma_uart4_rx;
 DMA_HandleTypeDef hdma_uart4_tx;
 DMA_HandleTypeDef hdma_uart5_rx;
+DMA_HandleTypeDef hdma_uart5_tx;
 DMA_HandleTypeDef hdma_usart1_tx;
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart2_tx;
@@ -96,7 +97,7 @@ void MX_UART5_Init(void)
 
   /* USER CODE END UART5_Init 1 */
   huart5.Instance = UART5;
-  huart5.Init.BaudRate = 9600;
+  huart5.Init.BaudRate = 4000000;
   huart5.Init.WordLength = UART_WORDLENGTH_8B;
   huart5.Init.StopBits = UART_STOPBITS_1;
   huart5.Init.Parity = UART_PARITY_NONE;
@@ -123,8 +124,10 @@ void MX_UART5_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN UART5_Init 2 */
+//    __HAL_UART_ENABLE_IT(&huart5,UART_IT_IDLE);//启用串口5 空闲接受中断
+//    HAL_UART_Receive_DMA(&huart5,(uint8_t *)&visual.data_8,Length_of_visual);//使能串口5 DMA接受
     __HAL_UART_ENABLE_IT(&huart5,UART_IT_IDLE);//启用串口5 空闲接受中断
-    HAL_UART_Receive_DMA(&huart5,(uint8_t *)&visual.data_8,Length_of_visual);//使能串口5 DMA接受
+    HAL_UART_Receive_DMA(&huart5,(uint8_t *)&RightLeg_ReceiverBuffer,MOTOR_RECEIVE_SIZE);//使能串口5 DMA接受
   /* USER CODE END UART5_Init 2 */
 
 }
@@ -396,6 +399,23 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     }
 
     __HAL_LINKDMA(uartHandle,hdmarx,hdma_uart5_rx);
+
+    /* UART5_TX Init */
+    hdma_uart5_tx.Instance = DMA2_Channel1;
+    hdma_uart5_tx.Init.Request = DMA_REQUEST_UART5_TX;
+    hdma_uart5_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_uart5_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_uart5_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_uart5_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_uart5_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_uart5_tx.Init.Mode = DMA_NORMAL;
+    hdma_uart5_tx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    if (HAL_DMA_Init(&hdma_uart5_tx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmatx,hdma_uart5_tx);
 
     /* UART5 interrupt Init */
     HAL_NVIC_SetPriority(UART5_IRQn, 5, 0);
@@ -675,6 +695,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
     /* UART5 DMA DeInit */
     HAL_DMA_DeInit(uartHandle->hdmarx);
+    HAL_DMA_DeInit(uartHandle->hdmatx);
 
     /* UART5 interrupt Deinit */
     HAL_NVIC_DisableIRQ(UART5_IRQn);

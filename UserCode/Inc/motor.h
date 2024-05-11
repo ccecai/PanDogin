@@ -15,12 +15,14 @@
 #define MOTOR_RECEIVE_SIZE 16
 
 extern int32_t began_pos[MOTOR_ID_NUM];                   //电机运动初始位置
+extern int32_t B_pos[MOTOR_ID_NUM];                   //电机运动初始位置
 extern int32_t end_pos[MOTOR_ID_NUM];                     //电机运动结束位置
 extern int16_t real_speed[MOTOR_ID_NUM];
 extern int8_t temperature[MOTOR_ID_NUM];
 extern uint8_t merror[MOTOR_ID_NUM];
 extern uint16_t rec_crc;
 extern uint16_t uart1_rec_crc;
+extern uint16_t uart5_rec_crc;
 extern int8_t MOTOR_Send[MOTOR_ID_NUM][MOTOR_SEND_LENGTH];
 extern float speed_kp;
 extern uint8_t LeftLeg_ReceiverBuffer[MOTOR_RECEIVE_SIZE];

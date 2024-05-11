@@ -67,6 +67,7 @@ extern TIM_HandleTypeDef htim2;
 extern DMA_HandleTypeDef hdma_uart4_rx;
 extern DMA_HandleTypeDef hdma_uart4_tx;
 extern DMA_HandleTypeDef hdma_uart5_rx;
+extern DMA_HandleTypeDef hdma_uart5_tx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern DMA_HandleTypeDef hdma_usart2_tx;
@@ -456,17 +457,61 @@ void UART4_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
   /* USER CODE BEGIN UART5_IRQn 0 */
+    uint8_t id;                          //电机id
+    uint8_t mode;                        //电机模式
+
     if(__HAL_UART_GET_FLAG(&huart5,UART_FLAG_IDLE)==SET)
     {
         __HAL_UART_CLEAR_IDLEFLAG(&huart5);//清除空闲中断接受标志wei
         HAL_UART_DMAStop(&huart5);//关闭DMA接受
+        uart5_rec_crc = CRC16_CCITT(RightLeg_ReceiverBuffer, 14);
+        if(uart5_rec_crc == (RightLeg_ReceiverBuffer[14] | (RightLeg_ReceiverBuffer[15] << 8)))           //接收到正确的反馈报文
+        {
+            id = (RightLeg_ReceiverBuffer[2] & 0x0F);
+            mode = (RightLeg_ReceiverBuffer[2] >> 4) & 0x07;
+            if (mode == 0)
+            {
+                began_pos[id] =
+                        RightLeg_ReceiverBuffer[7] | (RightLeg_ReceiverBuffer[8] << 8) | (RightLeg_ReceiverBuffer[9] << 16) | (RightLeg_ReceiverBuffer[10] << 24);
+                end_pos[id] = began_pos[id];       //把began_pos当成第一次PID计算的反馈zhi
+
+            }
+            else if (mode == 1)
+            {
+                end_pos[id] = RightLeg_ReceiverBuffer[7] | (RightLeg_ReceiverBuffer[8] << 8) | (RightLeg_ReceiverBuffer[9] << 16) | (RightLeg_ReceiverBuffer[10] << 24);
+                real_speed[id] = (int16_t)(RightLeg_ReceiverBuffer[5] | (RightLeg_ReceiverBuffer[6] << 8));
+                temperature[id] = (int8_t)RightLeg_ReceiverBuffer[11];
+                merror[id] = (RightLeg_ReceiverBuffer[12] & 0x07);
+            }
+
+        }
     }
-    HAL_UART_Receive_DMA(&huart5,(uint8_t *)&visual.data_8,Length_of_visual);//使能串口5 DMA接受
+    HAL_UART_Receive_DMA(&huart5, (uint8_t *)&RightLeg_ReceiverBuffer, MOTOR_RECEIVE_SIZE);//重新使能DMA接受，继续下1轮recieve
+//    if(__HAL_UART_GET_FLAG(&huart5,UART_FLAG_IDLE)==SET)
+//    {
+//        __HAL_UART_CLEAR_IDLEFLAG(&huart5);//清除空闲中断接受标志wei
+//        HAL_UART_DMAStop(&huart5);//关闭DMA接受
+//    }
+//    HAL_UART_Receive_DMA(&huart5,(uint8_t *)&visual.data_8,Length_of_visual);//使能串口5 DMA接受
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN UART5_IRQn 1 */
 
   /* USER CODE END UART5_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 channel1 global interrupt.
+  */
+void DMA2_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA2_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_uart5_tx);
+  /* USER CODE BEGIN DMA2_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA2_Channel1_IRQn 1 */
 }
 
 /**

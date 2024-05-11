@@ -13,9 +13,10 @@ float TargetAngle = 0;
 int Race_count = 0;
 uint8_t IMU_Stand_flag = 0;
 uint8_t Solpe_flag = 0;
-
+uint8_t Lie_Down = 1;
 void StandUp_Posture(void)
 {
+    Lie_Down = 0;
     ChangeGainOfPID(5.0f,0.2f,0.03f,0.05f);//≥ı ºªØpid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
     Get_Target(0,PI);
@@ -24,6 +25,7 @@ void StandUp_Posture(void)
 
 void LieDown_Posture(void)
 {
+    Lie_Down = 1;
     AllLegsSpeedLimit(SpeedMode_VERYSLOW);
     for(int i = 1;i < 9;i ++)
     {
@@ -33,8 +35,8 @@ void LieDown_Posture(void)
 void MarkingTime(void)
 {
     NewHeartbeat = 5;
-    AllLegsSpeedLimit(SpeedMode_VERYFAST);
-    ChangeGainOfPID(10.0f,0.8f,0.6f,0);
+    AllLegsSpeedLimit(SpeedMode_EXTREME);
+    ChangeGainOfPID(8.0f,0.8f,0.6f,0);
     gait_detached(state_detached_params[2],0.0f, 0.5f, 0.5f, 0.0f,
                   1.0f,1.0f,1.0f,1.0f);
 }

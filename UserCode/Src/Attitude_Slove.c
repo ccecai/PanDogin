@@ -12,25 +12,10 @@ float step_angle[4] = {0};
 float times = 0.0f;
 float x,y;
 uint8_t reverse_move_flag = 0;
-//float offset_front_0 = 0.741f;
-//float offset_front_1 = 1.098685f;
-//float offset_back_0 = 0.741f;//(-121.9f)
-//float offset_back_1 = 1.098685f;//207.2f
-
-float offset_front_0 = 0.63f;
-float offset_front_1 = 1.012291f;
-float offset_back_0 = 0.63f;//(-121.9f)
-float offset_back_1 = 1.012291f;//207.2f
-
-//float offset_front_0 = 0.44486654f;
-//float offset_front_1 = 0.8589177f;
-//float offset_back_0 = 0.5077524f;//(-121.9f)
-//float offset_back_1 = 0.9690287f;//207.2f
-
-//float offset_front_0 = 0.62f;
-//float offset_front_1 = 0.993f;
-//float offset_back_0 = 0.60f;//(-121.9f)
-//float offset_back_1 = 0.85f;//207.2f
+float offset_front_0 = 0.606141f;
+float offset_front_1 = 0.86f;
+float offset_back_0 = 0.606141f;//(-121.9f)
+float offset_back_1 = 0.86f;//207.2f
 
 uint8_t Barrier_flag = 0;
 //用于复制上方状态数组作为永恒基准。
@@ -98,20 +83,20 @@ void SetCoupledThetaPosition(int LegId)
     {
         switch(LegId) {
             case 0:
-                AngleWant_MotorX[1] = -TargetAngle2 + offset_front_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
-                AngleWant_MotorX[2] = -TargetAngle1 + offset_front_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
                 break;
             case 1:
-                AngleWant_MotorX[3] = -TargetAngle2 + offset_back_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = -TargetAngle1 + offset_back_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
                 break;
             case 2:
-                AngleWant_MotorX[5] = TargetAngle1 - offset_front_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI ;//-4.0f
-                AngleWant_MotorX[6] = TargetAngle2 - offset_front_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI ;//-4.0f
+                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
                 break;
             case 3:
-                AngleWant_MotorX[7] = TargetAngle1 - offset_back_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
-                AngleWant_MotorX[8] = TargetAngle2 - offset_back_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
                 break;
             default:
                 break;
@@ -121,20 +106,20 @@ void SetCoupledThetaPosition(int LegId)
     {
         switch(LegId) {
             case 0:
-                AngleWant_MotorX[1] = -TargetAngle2 + offset_front_1;
-                AngleWant_MotorX[2] = -TargetAngle1 + offset_front_0;
+                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0;
+                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1;
                 break;
             case 1:
-                AngleWant_MotorX[3] = -TargetAngle2 + offset_back_1;//+5.0f
-                AngleWant_MotorX[4] = -TargetAngle1 + offset_back_0;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1;
                 break;
             case 2:
-                AngleWant_MotorX[5] = TargetAngle1 - offset_front_0 ;
-                AngleWant_MotorX[6] = TargetAngle2 - offset_front_1;
+                AngleWant_MotorX[5] = -TargetAngle2 + offset_front_1 ;
+                AngleWant_MotorX[6] = -TargetAngle1 + offset_front_0 ;
                 break;
             case 3:
-                AngleWant_MotorX[7] = TargetAngle1 - offset_back_0 ;
-                AngleWant_MotorX[8] = TargetAngle2 - offset_back_1;
+                AngleWant_MotorX[7] = -TargetAngle2 + offset_back_1 ;
+                AngleWant_MotorX[8] = -TargetAngle1 + offset_back_0 ;
                 break;
             default:
                 break;
@@ -387,17 +372,17 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 //            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f},
 //            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f}
                 1,//大步Trot（快速）,现在最高点y轴坐标应该大于15，最大不超过32
-                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f},
-                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f},
-                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f},
-                {20.0f, 20.0f,  2.2f, 0.37f, 0.36f, 4.2f}
+                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
+                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
+                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
+                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f}
         },
         {
             2,//原地踏步//出现多种步态基高差距过大是会失效
-            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f},
-            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f},
-            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f},
-            {18.0f, 0.0f,  5.0f, 1.0f, 0.3f, 3.0f}
+            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f},
+            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f},
+            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f},
+            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f}
         },
         {
             3,//Walk步态（没有调好）

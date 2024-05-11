@@ -38,7 +38,7 @@ void PID_Set_KP_KI_KD(PIDTypeDef *pid,float kp,float ki,float kd)
 //PID位置环目标确定
 void SetPoint(PIDTypeDef *pid,float want,uint8_t id)
 {
-    pid->Setpoint=want+(began_pos[id]*2*pi)/(6.33f*32768);    //在初始零点的基础上进行位置控制
+    pid->Setpoint=want + (B_pos[id]*2*pi)/(6.33f*32768);    //在初始零点的基础上进行位置控制
 }
 void SetPoint_IMU(PIDTypeDef *pid,float want)
 {

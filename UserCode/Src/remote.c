@@ -105,7 +105,7 @@ void Remote_Controller(void)
             break;
         case 20:
 //            IMU_Slove(0);//是否开启障碍时腿时刻保持竖直
-            ExecuteJump(Standard_Jump,68);
+            ExecuteJump(Standard_Jump,71);
             break;
         case 21:
             if(dpstate == 52)

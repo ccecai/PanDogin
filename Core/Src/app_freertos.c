@@ -53,8 +53,9 @@ osThreadId GO1Init_TaskHandle;
 osThreadId VisualHandle;
 osThreadId NRFTaskHandle;
 osThreadId TripodHeadHandle;
-osThreadId GO_OutputLeftHandle;
-osThreadId GO_OutputrightHandle;
+osThreadId GO_Output_LeftHandle;
+osThreadId PIDHandle;
+osThreadId GO_Output_RightHandle;
 osMessageQId VisialHandle;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,8 +69,9 @@ void GO1Init(void const * argument);
 void VisualTask(void const * argument);
 void NRF(void const * argument);
 void TripodHeadTask(void const * argument);
-void GO_OutputLeftTask(void const * argument);
-void GO_OutputrightTask(void const * argument);
+void GO_Output_LeftTask(void const * argument);
+void PIDTask(void const * argument);
+void GO_Output_RightTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -129,13 +131,17 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(TripodHead, TripodHeadTask, osPriorityNormal, 0, 256);
   TripodHeadHandle = osThreadCreate(osThread(TripodHead), NULL);
 
-  /* definition and creation of GO_OutputLeft */
-  osThreadDef(GO_OutputLeft, GO_OutputLeftTask, osPriorityRealtime, 0, 256);
-  GO_OutputLeftHandle = osThreadCreate(osThread(GO_OutputLeft), NULL);
+  /* definition and creation of GO_Output_Left */
+  osThreadDef(GO_Output_Left, GO_Output_LeftTask, osPriorityHigh, 0, 512);
+  GO_Output_LeftHandle = osThreadCreate(osThread(GO_Output_Left), NULL);
 
-  /* definition and creation of GO_Outputright */
-  osThreadDef(GO_Outputright, GO_OutputrightTask, osPriorityHigh, 0, 256);
-  GO_OutputrightHandle = osThreadCreate(osThread(GO_Outputright), NULL);
+  /* definition and creation of PID */
+  osThreadDef(PID, PIDTask, osPriorityRealtime, 0, 512);
+  PIDHandle = osThreadCreate(osThread(PID), NULL);
+
+  /* definition and creation of GO_Output_Right */
+  osThreadDef(GO_Output_Right, GO_Output_RightTask, osPriorityHigh, 0, 512);
+  GO_Output_RightHandle = osThreadCreate(osThread(GO_Output_Right), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -143,8 +149,9 @@ void MX_FREERTOS_Init(void) {
     vTaskSuspend(TripodHeadHandle);
     vTaskSuspend(GO1Init_TaskHandle);
     vTaskSuspend(BlueteethTaskHandle);
-    vTaskSuspend(GO_OutputLeftHandle);
-    vTaskSuspend(GO_OutputrightHandle);
+    vTaskSuspend(GO_Output_LeftHandle);
+    vTaskSuspend(GO_Output_RightHandle);
+    vTaskSuspend(PIDHandle);
     vTaskSuspend(VisualHandle);
     vTaskSuspend(NRFTaskHandle);
   /* USER CODE END RTOS_THREADS */
@@ -199,7 +206,9 @@ void BlueTeeth_RemoteControl(void const * argument)
   for(;;)
   {
       Remote_Controller();
-//      usart_printf("%d,%d,%d,%d\n",began_pos[3],end_pos[3],began_pos[4],end_pos[4]);
+//      usart_printf("%f,%f,%f,%f\n",(((end_pos[1] - began_pos[1])*2*pi)/(6.33f*32768)),(((end_pos[2] - began_pos[2])*2*pi)/(6.33f*32768)),
+//                   (((end_pos[5] - began_pos[5])*2*pi)/(6.33f*32768)),(((end_pos[6] - began_pos[6])*2*pi)/(6.33f*32768)));
+//      usart_printf("%d,%d,%d,%d\n",real_speed[1],real_speed[2],real_speed[3],real_speed[4]);
 //      usart_printf("%d,%d\n",gpstate,dpstate);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
 //                   state_detached_params[1].detached_params_0.freq,state_detached_params[1].detached_params_2.step_length,state_detached_params[1].detached_params_2.freq);
@@ -230,10 +239,14 @@ void GO1Init(void const * argument)
     Get_motor_began_pos();       //获得各个电机的初始位
     EndPosture();                //锁住电机
 
+    for (int i = 1; i < 9; ++i) {
+        B_pos[i] = end_pos[i];
+    }
+
     visual.offset = 100;
 
     PID_Init(&Yaw_PID_Loop);
-    ChangeYawOfPID(0.03f,0.02f,4000.0f,15.0f);//陀螺仪PID初始化
+    ChangeYawOfPID(0.1f,0.02f,4000.0f,15.0f);//陀螺仪PID初始化
 
     PID_Init(&Roll_PID_Loop);
     Roll_PID_Loop.P = 0.2f;
@@ -250,8 +263,9 @@ void GO1Init(void const * argument)
     printf("GO1 Init Ready\n");
     osDelay(3);
 
-    vTaskResume(GO_OutputLeftHandle);
-//    vTaskResume(GO_OutputrightHandle);
+    vTaskResume(GO_Output_LeftHandle);
+    vTaskResume(GO_Output_RightHandle);
+    vTaskResume(PIDHandle);
     vTaskResume(BlueteethTaskHandle);
 //    vTaskResume(NRFTaskHandle);
     vTaskResume(VisualHandle);
@@ -343,43 +357,68 @@ void TripodHeadTask(void const * argument)
   /* USER CODE END TripodHeadTask */
 }
 
-/* USER CODE BEGIN Header_GO_OutputLeftTask */
+/* USER CODE BEGIN Header_GO_Output_LeftTask */
 /**
-* @brief Function implementing the GO_OutputLeft thread.
+* @brief Function implementing the GO_Output_Left thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_GO_OutputLeftTask */
-void GO_OutputLeftTask(void const * argument)
+/* USER CODE END Header_GO_Output_LeftTask */
+void GO_Output_LeftTask(void const * argument)
 {
-  /* USER CODE BEGIN GO_OutputLeftTask */
+  /* USER CODE BEGIN GO_Output_LeftTask */
+  /* Infinite loop */
+  for(;;)
+  {
+      leg_pos_controll02();
+
+    osDelay(5);
+  }
+  /* USER CODE END GO_Output_LeftTask */
+}
+
+/* USER CODE BEGIN Header_PIDTask */
+/**
+* @brief Function implementing the PID thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_PIDTask */
+void PIDTask(void const * argument)
+{
+  /* USER CODE BEGIN PIDTask */
+  /* Infinite loop */
+  for(;;)
+  {
+      for (int i = 1; i < 9; ++i)
+      {
+          SetPoint(&AngleLoop[i], AngleWant_MotorX[i], i);
+          PID_PosLocCalc(&AngleLoop[i], end_pos[i]);
+      }
+
+    osDelay(1);
+  }
+  /* USER CODE END PIDTask */
+}
+
+/* USER CODE BEGIN Header_GO_Output_RightTask */
+/**
+* @brief Function implementing the GO_Output_Right thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_GO_Output_RightTask */
+void GO_Output_RightTask(void const * argument)
+{
+  /* USER CODE BEGIN GO_Output_RightTask */
   /* Infinite loop */
   for(;;)
   {
       leg_pos_controll();
-      leg_pos_controll02();
-     osDelay(1);
-  }
-  /* USER CODE END GO_OutputLeftTask */
-}
 
-/* USER CODE BEGIN Header_GO_OutputrightTask */
-/**
-* @brief Function implementing the GO_Outputright thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_GO_OutputrightTask */
-void GO_OutputrightTask(void const * argument)
-{
-  /* USER CODE BEGIN GO_OutputrightTask */
-  /* Infinite loop */
-  for(;;)
-  {
-      leg_pos_controll02();
     osDelay(5);
   }
-  /* USER CODE END GO_OutputrightTask */
+  /* USER CODE END GO_Output_RightTask */
 }
 
 /* Private application code --------------------------------------------------*/

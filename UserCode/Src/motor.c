@@ -18,11 +18,13 @@ int32_t began_pos[MOTOR_ID_NUM];                   //电机运动初始位置
 int32_t end_pos[MOTOR_ID_NUM];                     //电机运动结束位置
 int16_t real_speed[MOTOR_ID_NUM];                  //电机实时速度
 int8_t temperature[MOTOR_ID_NUM];                  //电机温度
+int32_t B_pos[MOTOR_ID_NUM];
 uint8_t merror[MOTOR_ID_NUM];
 uint16_t rec_crc;                    //反馈报文的CRC校验码
 uint16_t uart1_rec_crc;
+uint16_t uart5_rec_crc;
 float K_P=0.0f,K_W=0.0f;
-float speed_kp = 0.12f;
+float speed_kp = 0.22f;
 
 uint8_t LeftLeg_ReceiverBuffer[MOTOR_RECEIVE_SIZE] = {0};
 uint8_t RightLeg_ReceiverBuffer[MOTOR_RECEIVE_SIZE] = {0};
@@ -32,16 +34,16 @@ uint8_t RightLeg_ReceiverBuffer[MOTOR_RECEIVE_SIZE] = {0};
  */
 void UART_SendMessage(uint8_t id)
 {
-//    if(id<5)
-//    {
+    if(id<5)
+    {
         //1号腿和2号腿挂在串口1的总线上
         HAL_UART_Transmit_DMA(&huart1,(uint8_t *) MOTOR_Send[id],MOTOR_SEND_LENGTH);
-//    }
-//    else
-//    {
-//        //3号腿和4号腿挂在串口6的总线上
-//        HAL_UART_Transmit_DMA(&huart2,(uint8_t *) MOTOR_Send[id],MOTOR_SEND_LENGTH);
-//    }
+    }
+    else
+    {
+        //3号腿和4号腿挂在串口6的总线上
+        HAL_UART_Transmit_DMA(&huart5,(uint8_t *) MOTOR_Send[id],MOTOR_SEND_LENGTH);
+    }
 }
 
 
@@ -487,65 +489,30 @@ void leg_pos_controll(void )
 {
     //将目标角度放入各个电机的角度环并进行角度环PID计算
 
-    //no3.leg
-    SetPoint(&AngleLoop[5],AngleWant_MotorX[5],5);
-    SetPoint(&AngleLoop[6],AngleWant_MotorX[6],6);
-    PID_PosLocCalc(&AngleLoop[5],end_pos[5]);
-    PID_PosLocCalc(&AngleLoop[6],end_pos[6]);
+    motor_speed_controll_with_kw(5,AngleLoop[5].Out_put,speed_kp);
+    osDelay(1);
+    motor_speed_controll_with_kw(6,AngleLoop[6].Out_put,speed_kp);
+    osDelay(1);
+    motor_speed_controll_with_kw(7,AngleLoop[7].Out_put,speed_kp);
+    osDelay(1);
+    motor_speed_controll_with_kw(8,AngleLoop[8].Out_put,speed_kp);
+    osDelay(1);
 
-    //no4.leg
-    SetPoint(&AngleLoop[7],AngleWant_MotorX[7],7);
-    SetPoint(&AngleLoop[8],AngleWant_MotorX[8],8);
-    PID_PosLocCalc(&AngleLoop[7],end_pos[7]);
-    PID_PosLocCalc(&AngleLoop[8],end_pos[8]);
-
-
-    //如果只使用位置环，则需要直接将位置环的输出送给电机
-    if(OnlyPosLoop)
-    {
-        //输出
-        motor_speed_controll_with_kw(5,AngleLoop[5].Out_put,speed_kp);
-        osDelay(1);
-        motor_speed_controll_with_kw(6,AngleLoop[6].Out_put,speed_kp);
-        osDelay(1);
-        motor_speed_controll_with_kw(7,AngleLoop[7].Out_put,speed_kp);
-        osDelay(1);
-        motor_speed_controll_with_kw(8,AngleLoop[8].Out_put,speed_kp);
-        osDelay(1);
-    }
 }
 
 void leg_pos_controll02(void )
 {
     //位置式PID函数PID_PosLocCalc（）对1和2号腿做了特殊处理，让1号腿和2号腿跳跃的时候kp大一些，因为跳跃的时候重心靠前，前腿不容易起来
     //将目标角度放入各个电机的角度环并进行角度环PID计算
-    //no.1 leg
-    SetPoint(&AngleLoop[1],AngleWant_MotorX[1],1);
-    SetPoint(&AngleLoop[2],AngleWant_MotorX[2],2);
-    PID_PosLocCalc(&AngleLoop[1],end_pos[1]);
-    PID_PosLocCalc(&AngleLoop[2],end_pos[2]);
 
-    //no.2 leg
-    SetPoint(&AngleLoop[3],AngleWant_MotorX[3],3);
-    SetPoint(&AngleLoop[4],AngleWant_MotorX[4],4);
-    PID_PosLocCalc(&AngleLoop[3],end_pos[3]);
-    PID_PosLocCalc(&AngleLoop[4],end_pos[4]);
-
-//    usart_printf("%d\r\n",AngleLoop[1].Out_put);
-
-    //如果只使用位置环，则需要直接将位置环的输出送给电机
-    if(OnlyPosLoop)
-    {
-        //输出
-        motor_speed_controll_with_kw(1,AngleLoop[1].Out_put,speed_kp);
-        osDelay(1);
-        motor_speed_controll_with_kw(2,AngleLoop[2].Out_put,speed_kp);
-        osDelay(1);
-        motor_speed_controll_with_kw(3,AngleLoop[3].Out_put,speed_kp);
-        osDelay(1);
-        motor_speed_controll_with_kw(4,AngleLoop[4].Out_put,speed_kp);
-        osDelay(1);
-    }
+    motor_speed_controll_with_kw(1,AngleLoop[1].Out_put,speed_kp);
+    osDelay(1);
+    motor_speed_controll_with_kw(2,AngleLoop[2].Out_put,speed_kp);
+    osDelay(1);
+    motor_speed_controll_with_kw(3,AngleLoop[3].Out_put,speed_kp);
+    osDelay(1);
+    motor_speed_controll_with_kw(4,AngleLoop[4].Out_put,speed_kp);
+    osDelay(1);
 }
 
 /*！
