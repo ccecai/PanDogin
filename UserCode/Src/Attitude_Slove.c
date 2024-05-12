@@ -13,9 +13,9 @@ float times = 0.0f;
 float x,y;
 uint8_t reverse_move_flag = 0;
 float offset_front_0 = 0.606141f;
-float offset_front_1 = 0.86f;
+float offset_front_1 = 0.984f;
 float offset_back_0 = 0.606141f;//(-121.9f)
-float offset_back_1 = 0.86f;//207.2f
+float offset_back_1 = 0.984f;//207.2f
 
 uint8_t Barrier_flag = 0;
 //用于复制上方状态数组作为永恒基准。
@@ -91,7 +91,7 @@ void SetCoupledThetaPosition(int LegId)
                 AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
                 break;
             case 2:
-                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI ;//-4.0f
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//-4.0f
                 AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
                 break;
             case 3:
@@ -336,7 +336,7 @@ void Output_Angle(void)
 }
 */
 //赋目标速度值
-void Get_Target(int theta1,int theta2)
+void Get_Target(float theta1,float theta2)
 {
     TargetAngle1 = theta1;
     TargetAngle2 = theta2;
@@ -535,6 +535,23 @@ void SetCartesianPositionAll_Delay(float x_want,float y_want,uint16_t delaytime)
     SetCoupledCartesianPosition(0,x_want,y_want);
 
     osDelay(delaytime);
+}
+
+void SetPolarPositionLeg_Delay(float polar_angle,float polar_diameter,uint16_t delaytime,uint8_t Legid)
+{
+    float x_want,y_want;
+
+    if(polar_angle>=0)
+    {
+        x_want = -polar_diameter*cos(polar_angle*PI/180);
+        y_want =  polar_diameter*sin(polar_angle*PI/180);
+    }
+    else
+    {
+        x_want =  polar_diameter*cos(polar_angle*PI/180);
+        y_want = -polar_diameter*sin(polar_angle*PI/180);
+    }
+    SetCoupledCartesianPosition(Legid,x_want,y_want);
 }
 
 //所有腿的极坐标控制

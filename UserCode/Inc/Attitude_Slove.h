@@ -23,13 +23,13 @@
 #define L2 22.0f//?ó??200mm
 //腿长限位
 #define LegLenthExtremeMax 32.5f //
-#define LegLenthMax 31.0f //
+#define LegLenthMax 32.0f //
 #define LegLenthMin 12.0f //
 #define LegStandLenth 16.0f //
 #define LegSquatLenth 12.0f //
 //腿长限位
-#define StepLenthMin 20.0f
-#define StepLenthMax 30.0f //大小大概在45cm
+#define StepLenthMin 1.0f
+#define StepLenthMax 11.0f //大小大概在45cm
 #define StepLenthMax_Half (LegLenthExtremeMax*0.866f*0.9f)
 //状态数上限配置
 #define StatesMaxNum 20
@@ -73,7 +73,7 @@ extern uint8_t Mark_flag;
 extern float Target_offset1,Target_offset2;
 extern float offset_front_0,offset_front_1,offset_back_0,offset_back_1;
 
-void Get_Target(int theta1,int theta2);
+void Get_Target(float theta1,float theta2);
 void SetCoupledThetaPositionAll(void);
 void SetCoupledThetaPosition(int LegId);
 void Output_Angle(void);
@@ -98,5 +98,6 @@ void SetPolarPositionFB_Delay(uint8_t Legs_FB, float polar_angle,float polar_dia
 void IMU_Slove(uint8_t flag);
 void SinTrajectory_Slope (float t,GaitParams params, float gaitOffset,float leg_diretion,float angle,int LegId);
 void SetPolarPosition_Delay(int8_t leg_id,float polar_angle,float polar_diameter,uint16_t delaytime);
+void SetPolarPositionLeg_Delay(float polar_angle,float polar_diameter,uint16_t delaytime,uint8_t Legid);
 
 #endif //MY_SCUDOG_ATTITUDE_SLOVE_H

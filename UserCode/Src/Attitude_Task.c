@@ -17,7 +17,7 @@ uint8_t Lie_Down = 1;
 void StandUp_Posture(void)
 {
     Lie_Down = 0;
-    ChangeGainOfPID(5.0f,0.2f,0.03f,0.05f);//初始化pid
+    ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
     Get_Target(0,PI);
     SetCoupledThetaPositionAll();
@@ -114,7 +114,7 @@ void Turn(int state_flag,int speed_flag)
     }
     else if(speed_flag == 's')
     {
-        length = 6.5f;
+        length = 3.0f;
         state_detached_params[0].detached_params_0.freq = 2.5f;
         state_detached_params[0].detached_params_1.freq = 2.5f;
         state_detached_params[0].detached_params_2.freq = 2.5f;

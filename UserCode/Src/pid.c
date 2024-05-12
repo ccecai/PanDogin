@@ -153,10 +153,34 @@ void ChangeAllGainOfPID(float sp_kp,float sp_kd,float sp_ki,float pos_kp,float p
 //每个腿的PID的单独配置
 void LegPID_Set(uint8_t LegId,float sp_kp,float sp_kd,float sp_ki,float pos_kp,float pos_kd)
 {
-    PID_Set_KP_KI_KD(&DogLegsMotorXPID[2*LegId].SpeedLoop,sp_kp,sp_ki,sp_kd);
-    PID_Set_KP_KI_KD(&DogLegsMotorXPID[2*LegId].AngleLoop,pos_kp,0,pos_kd);
-    PID_Set_KP_KI_KD(&DogLegsMotorXPID[2*LegId+1].SpeedLoop,sp_kp,sp_ki,sp_kd);
-    PID_Set_KP_KI_KD(&DogLegsMotorXPID[2*LegId+1].AngleLoop,pos_kp,0,pos_kd);
+    switch (LegId) {
+        case 0:
+            PID_Set_KP_KI_KD(&SpeedLoop[1],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[1],pos_kp,0,pos_kd);
+            PID_Set_KP_KI_KD(&SpeedLoop[2],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[2],pos_kp,0,pos_kd);
+            break;
+        case 1:
+            PID_Set_KP_KI_KD(&SpeedLoop[3],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[3],pos_kp,0,pos_kd);
+            PID_Set_KP_KI_KD(&SpeedLoop[4],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[4],pos_kp,0,pos_kd);
+            break;
+        case 2:
+            PID_Set_KP_KI_KD(&SpeedLoop[5],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[5],pos_kp,0,pos_kd);
+            PID_Set_KP_KI_KD(&SpeedLoop[6],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[6],pos_kp,0,pos_kd);
+            break;
+        case 3:
+            PID_Set_KP_KI_KD(&SpeedLoop[7],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[7],pos_kp,0,pos_kd);
+            PID_Set_KP_KI_KD(&SpeedLoop[8],sp_kp,sp_ki,sp_kd);
+            PID_Set_KP_KI_KD(&AngleLoop[8],pos_kp,0,pos_kd);
+            break;
+        default:
+            break;
+    }
 }
 //前、后腿的PID配置
 void FBLegsPID_Set(uint8_t Leg_FB,float sp_kp,float sp_kd,float sp_ki,float pos_kp,float pos_kd)

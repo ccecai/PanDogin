@@ -25,4 +25,6 @@ void StairJump(uint8_t stage);
 void SeesawJump(uint8_t stage);
 void FrontFlipJump(uint8_t mode);
 void Bridge_Jump(uint8_t stage);
+void FrontJump(void );
+
 #endif //ROBOMASTER_C_DEMO_JUMP_TASK_H

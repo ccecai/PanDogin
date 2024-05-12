@@ -104,21 +104,21 @@ void Remote_Controller(void)
                 Trot(Backward,2);
             break;
         case 20:
-//            IMU_Slove(0);//是否开启障碍时腿时刻保持竖直
             ExecuteJump(Standard_Jump,71);
             break;
         case 21:
-            if(dpstate == 52)
-                ExecuteJump(High_Jump,66);
-            else
+//            if(dpstate == 52)
+//                ExecuteJump(High_Jump,66);
+//            else
                 ExecuteJump(High_Jump,71);
 
             break;
         case 22:
-            ExecuteJump(Far_Jump,70);
+            ExecuteJump(Far_Jump,65);
             break;
         case 24://飞跳
             ExecuteJump(Leap_Jump,76);
+//            FrontJump();
             break;
         case 30:
             SquatPosture();//蹲下

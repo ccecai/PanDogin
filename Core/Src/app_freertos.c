@@ -112,7 +112,7 @@ void MX_FREERTOS_Init(void) {
   StartTaskHandle = osThreadCreate(osThread(StartTask), NULL);
 
   /* definition and creation of BlueteethTask */
-  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityAboveNormal, 0, 256);
+  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityRealtime, 0, 512);
   BlueteethTaskHandle = osThreadCreate(osThread(BlueteethTask), NULL);
 
   /* definition and creation of GO1Init_Task */
@@ -120,7 +120,7 @@ void MX_FREERTOS_Init(void) {
   GO1Init_TaskHandle = osThreadCreate(osThread(GO1Init_Task), NULL);
 
   /* definition and creation of Visual */
-  osThreadDef(Visual, VisualTask, osPriorityRealtime, 0, 512);
+  osThreadDef(Visual, VisualTask, osPriorityHigh, 0, 512);
   VisualHandle = osThreadCreate(osThread(Visual), NULL);
 
   /* definition and creation of NRFTask */
@@ -136,7 +136,7 @@ void MX_FREERTOS_Init(void) {
   GO_Output_LeftHandle = osThreadCreate(osThread(GO_Output_Left), NULL);
 
   /* definition and creation of PID */
-  osThreadDef(PID, PIDTask, osPriorityRealtime, 0, 512);
+  osThreadDef(PID, PIDTask, osPriorityNormal, 0, 512);
   PIDHandle = osThreadCreate(osThread(PID), NULL);
 
   /* definition and creation of GO_Output_Right */
@@ -171,7 +171,7 @@ void StartDebug(void const * argument)
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
     Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
-    IMU_Slove(1);//是否开启障碍时腿时刻保持竖直
+    IMU_Slove(0);//是否开启障碍时腿时刻保持竖直
 
     printf("Init_Ready\n");
     osDelay(3);
@@ -216,8 +216,8 @@ void BlueTeeth_RemoteControl(void const * argument)
 //      usart_printf("%f,%f,%f.%f\n", AngleLoop[1].Out_put,AngleLoop[2].Out_put,AngleLoop[3].Out_put,AngleLoop[4].Out_put);
 //      usart_printf("%f,%f,%d,%f,%f,%d,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,Race_count,visual.distance,visual.offset,gpstate,x,y);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",Yaw_PID_Loop.Setpoint,IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,state_detached_params[1].detached_params_0.step_length,state_detached_params[1].detached_params_2.step_length,visual.offset);
-      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
-    osDelay(1);
+//      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
+//      osDelay(10);
   }
   /* USER CODE END BlueTeeth_RemoteControl */
 }
@@ -246,7 +246,7 @@ void GO1Init(void const * argument)
     visual.offset = 100;
 
     PID_Init(&Yaw_PID_Loop);
-    ChangeYawOfPID(0.1f,0.02f,4000.0f,15.0f);//陀螺仪PID初始化
+    ChangeYawOfPID(0.2f,0.1f,4000.0f,15.0f);//陀螺仪PID初始化
 
     PID_Init(&Roll_PID_Loop);
     Roll_PID_Loop.P = 0.2f;
@@ -296,6 +296,24 @@ void VisualTask(void const * argument)
 //        visual_process();
 //      usart_printf("%d,%d,%f,%f\n",visual.data_8[1],visual.data_8[5],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Yaw]
 //              );
+
+//      if (Jump_flag == 1)
+//      {
+//          AngleLoop[1].Output_limit = 15;
+//          AngleLoop[2].Output_limit = 15;
+//          AngleLoop[5].Output_limit = 15;
+//          AngleLoop[6].Output_limit = 15;
+//          PID_Set_KP_KI_KD(&AngleLoop[1],5.0f,0,0.1f);
+//          PID_Set_KP_KI_KD(&AngleLoop[2],5.0f,0,0.1f);
+//          PID_Set_KP_KI_KD(&AngleLoop[5],5.0f,0,0.1f);
+//          PID_Set_KP_KI_KD(&AngleLoop[6],5.0f,0,0.1f);
+//
+//          Get_Target(0,PI);
+//          SetCoupledThetaPosition(0);
+//          SetCoupledThetaPosition(2);
+////          SetPolarPositionLeg_Delay(76.0f, LegLenthMin, 0,0);
+////          SetPolarPositionLeg_Delay(76.0f, LegLenthMin, 0,2);
+//      }
 
       osDelay(1);
   }
@@ -371,8 +389,6 @@ void GO_Output_LeftTask(void const * argument)
   for(;;)
   {
       leg_pos_controll02();
-
-    osDelay(5);
   }
   /* USER CODE END GO_Output_LeftTask */
 }
@@ -396,7 +412,7 @@ void PIDTask(void const * argument)
           PID_PosLocCalc(&AngleLoop[i], end_pos[i]);
       }
 
-    osDelay(1);
+    osDelay(8);
   }
   /* USER CODE END PIDTask */
 }
@@ -415,8 +431,6 @@ void GO_Output_RightTask(void const * argument)
   for(;;)
   {
       leg_pos_controll();
-
-    osDelay(5);
   }
   /* USER CODE END GO_Output_RightTask */
 }
