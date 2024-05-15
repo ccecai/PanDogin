@@ -22,10 +22,10 @@
 #define L1 11.0f //????100mm
 #define L2 22.0f//?ó??200mm
 //腿长限位
-#define LegLenthExtremeMax 32.5f //
+#define LegLenthExtremeMax 32.95f //
 #define LegLenthMax 32.0f //
-#define LegLenthMin 12.0f //
-#define LegStandLenth 16.0f //
+#define LegLenthMin 11.5f //
+#define LegStandLenth 17.5f //
 #define LegSquatLenth 12.0f //
 //腿长限位
 #define StepLenthMin 1.0f

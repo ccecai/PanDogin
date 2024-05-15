@@ -114,11 +114,11 @@ void Remote_Controller(void)
 
             break;
         case 22:
-            ExecuteJump(Far_Jump,65);
+            ExecuteJump(Far_Jump,67.4f);
             break;
         case 24://·ÉÌø
-            ExecuteJump(Leap_Jump,76);
-//            FrontJump();
+//            ExecuteJump(Leap_Jump,76);
+            FrontJump();
             break;
         case 30:
             SquatPosture();//¶×ÏÂ

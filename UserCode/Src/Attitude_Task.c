@@ -16,7 +16,6 @@ uint8_t Solpe_flag = 0;
 uint8_t Lie_Down = 1;
 void StandUp_Posture(void)
 {
-    Lie_Down = 0;
     ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//≥ı ºªØpid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
     Get_Target(0,PI);

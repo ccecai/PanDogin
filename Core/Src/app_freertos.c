@@ -50,7 +50,7 @@
 osThreadId StartTaskHandle;
 osThreadId BlueteethTaskHandle;
 osThreadId GO1Init_TaskHandle;
-osThreadId VisualHandle;
+osThreadId FrontJumpHandle;
 osThreadId NRFTaskHandle;
 osThreadId TripodHeadHandle;
 osThreadId GO_Output_LeftHandle;
@@ -66,7 +66,7 @@ osMessageQId VisialHandle;
 void StartDebug(void const * argument);
 void BlueTeeth_RemoteControl(void const * argument);
 void GO1Init(void const * argument);
-void VisualTask(void const * argument);
+void FrontJumpTask(void const * argument);
 void NRF(void const * argument);
 void TripodHeadTask(void const * argument);
 void GO_Output_LeftTask(void const * argument);
@@ -119,9 +119,9 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(GO1Init_Task, GO1Init, osPriorityLow, 0, 128);
   GO1Init_TaskHandle = osThreadCreate(osThread(GO1Init_Task), NULL);
 
-  /* definition and creation of Visual */
-  osThreadDef(Visual, VisualTask, osPriorityHigh, 0, 512);
-  VisualHandle = osThreadCreate(osThread(Visual), NULL);
+  /* definition and creation of FrontJump */
+  osThreadDef(FrontJump, FrontJumpTask, osPriorityHigh, 0, 512);
+  FrontJumpHandle = osThreadCreate(osThread(FrontJump), NULL);
 
   /* definition and creation of NRFTask */
   osThreadDef(NRFTask, NRF, osPriorityLow, 0, 512);
@@ -152,7 +152,7 @@ void MX_FREERTOS_Init(void) {
     vTaskSuspend(GO_Output_LeftHandle);
     vTaskSuspend(GO_Output_RightHandle);
     vTaskSuspend(PIDHandle);
-    vTaskSuspend(VisualHandle);
+    vTaskSuspend(FrontJumpHandle);
     vTaskSuspend(NRFTaskHandle);
   /* USER CODE END RTOS_THREADS */
 
@@ -171,7 +171,7 @@ void StartDebug(void const * argument)
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
     Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
-    IMU_Slove(0);//是否开启障碍时腿时刻保持竖直
+    IMU_Slove(1);//是否开启障碍时腿时刻保持竖直
 
     printf("Init_Ready\n");
     osDelay(3);
@@ -206,8 +206,8 @@ void BlueTeeth_RemoteControl(void const * argument)
   for(;;)
   {
       Remote_Controller();
-//      usart_printf("%f,%f,%f,%f\n",(((end_pos[1] - began_pos[1])*2*pi)/(6.33f*32768)),(((end_pos[2] - began_pos[2])*2*pi)/(6.33f*32768)),
-//                   (((end_pos[5] - began_pos[5])*2*pi)/(6.33f*32768)),(((end_pos[6] - began_pos[6])*2*pi)/(6.33f*32768)));
+//      usart_printf("%f,%f,%f,%f\n",(((end_pos[3] - began_pos[3])*2*pi)/(6.33f*32768)),(((end_pos[4] - began_pos[4])*2*pi)/(6.33f*32768)),
+//                   (((end_pos[7] - began_pos[7])*2*pi)/(6.33f*32768)),(((end_pos[8] - began_pos[8])*2*pi)/(6.33f*32768)));
 //      usart_printf("%d,%d,%d,%d\n",real_speed[1],real_speed[2],real_speed[3],real_speed[4]);
 //      usart_printf("%d,%d\n",gpstate,dpstate);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
@@ -216,8 +216,8 @@ void BlueTeeth_RemoteControl(void const * argument)
 //      usart_printf("%f,%f,%f.%f\n", AngleLoop[1].Out_put,AngleLoop[2].Out_put,AngleLoop[3].Out_put,AngleLoop[4].Out_put);
 //      usart_printf("%f,%f,%d,%f,%f,%d,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,Race_count,visual.distance,visual.offset,gpstate,x,y);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",Yaw_PID_Loop.Setpoint,IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,state_detached_params[1].detached_params_0.step_length,state_detached_params[1].detached_params_2.step_length,visual.offset);
-//      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
-//      osDelay(10);
+      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
+      osDelay(10);
   }
   /* USER CODE END BlueTeeth_RemoteControl */
 }
@@ -268,8 +268,8 @@ void GO1Init(void const * argument)
     vTaskResume(PIDHandle);
     vTaskResume(BlueteethTaskHandle);
 //    vTaskResume(NRFTaskHandle);
-    vTaskResume(VisualHandle);
     vTaskResume(TripodHeadHandle);
+    vTaskResume(FrontJumpHandle);
     vTaskSuspend(NULL); //电机初始化任务完成后自挂捏
   /* Infinite loop */
   for(;;)
@@ -279,45 +279,49 @@ void GO1Init(void const * argument)
   /* USER CODE END GO1Init */
 }
 
-/* USER CODE BEGIN Header_VisualTask */
+/* USER CODE BEGIN Header_FrontJumpTask */
 /**
-* @brief Function implemaenting the Visual thread.
+* @brief Function implementing the FrontJump thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_VisualTask */
-void VisualTask(void const * argument)
+/* USER CODE END Header_FrontJumpTask */
+void FrontJumpTask(void const * argument)
 {
-  /* USER CODE BEGIN VisualTask */
-
+  /* USER CODE BEGIN FrontJumpTask */
   /* Infinite loop */
   for(;;)
   {
-//        visual_process();
-//      usart_printf("%d,%d,%f,%f\n",visual.data_8[1],visual.data_8[5],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Yaw]
-//              );
+      if(wait_flag == 1)
+      {
+          AngleLoop[1].Output_limit = 20;
+          AngleLoop[2].Output_limit = 20;
+          AngleLoop[5].Output_limit = 20;
+          AngleLoop[6].Output_limit = 20;
+          PID_Set_KP_KI_KD(&AngleLoop[1],15.0f,0,0.8f);
+          PID_Set_KP_KI_KD(&AngleLoop[2],15.0f,0,0.8f);
+          PID_Set_KP_KI_KD(&AngleLoop[5],15.0f,0,0.8f);
+          PID_Set_KP_KI_KD(&AngleLoop[6],15.0f,0,0.8f);
 
-//      if (Jump_flag == 1)
-//      {
-//          AngleLoop[1].Output_limit = 15;
-//          AngleLoop[2].Output_limit = 15;
-//          AngleLoop[5].Output_limit = 15;
-//          AngleLoop[6].Output_limit = 15;
-//          PID_Set_KP_KI_KD(&AngleLoop[1],5.0f,0,0.1f);
-//          PID_Set_KP_KI_KD(&AngleLoop[2],5.0f,0,0.1f);
-//          PID_Set_KP_KI_KD(&AngleLoop[5],5.0f,0,0.1f);
-//          PID_Set_KP_KI_KD(&AngleLoop[6],5.0f,0,0.1f);
-//
-//          Get_Target(0,PI);
-//          SetCoupledThetaPosition(0);
-//          SetCoupledThetaPosition(2);
-////          SetPolarPositionLeg_Delay(76.0f, LegLenthMin, 0,0);
-////          SetPolarPositionLeg_Delay(76.0f, LegLenthMin, 0,2);
-//      }
+          SetPolarPositionLeg_Delay(80.0f, 80, 0,0);
+          SetPolarPositionLeg_Delay(80.0f, 80, 0,2);
+      }
 
-      osDelay(1);
+
+      if(IMU_EulerAngle.EulerAngle[Pitch] < 89.5f)
+      {
+          osDelay(50);
+          pitch = -90.0f + IMU_EulerAngle.EulerAngle[Pitch];
+      }
+      else
+      {
+          pitch = IMU_EulerAngle.EulerAngle[Pitch];
+      }
+
+
+    osDelay(1);
   }
-  /* USER CODE END VisualTask */
+  /* USER CODE END FrontJumpTask */
 }
 
 /* USER CODE BEGIN Header_NRF */
@@ -389,6 +393,7 @@ void GO_Output_LeftTask(void const * argument)
   for(;;)
   {
       leg_pos_controll02();
+      osDelay(1);
   }
   /* USER CODE END GO_Output_LeftTask */
 }
@@ -431,6 +436,7 @@ void GO_Output_RightTask(void const * argument)
   for(;;)
   {
       leg_pos_controll();
+      osDelay(1);
   }
   /* USER CODE END GO_Output_RightTask */
 }

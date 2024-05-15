@@ -83,20 +83,20 @@ void SetCoupledThetaPosition(int LegId)
     {
         switch(LegId) {
             case 0:
-                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
-                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - pitch / 180 * PI;
+                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 + pitch / 180 * PI;
                 break;
             case 1:
-                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1;
                 break;
             case 2:
-                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//-4.0f
-                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - pitch / 180 * PI;//-4.0f
+                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 + pitch / 180 * PI;
                 break;
             case 3:
-                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
-                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0;
                 break;
             default:
                 break;
@@ -397,10 +397,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f}*/
-                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f},
-                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f},
-                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f},
-                {18.0f, 6.0f,  3.0f, 0.3f, 0.3f, 2.0f}
+                {18.0f, 6.0f,  4.0f, 0.8f, 0.25f, 2.0f},
+                {18.0f, 6.0f,  4.0f, 0.8f, 0.25f, 2.0f},
+                {18.0f, 6.0f,  4.0f, 0.8f, 0.25f, 2.0f},
+                {18.0f, 6.0f,  4.0f, 0.8f, 0.25f, 2.0f}
 
         },
         {
@@ -530,9 +530,9 @@ void SetCartesianPositionAll_Delay(float x_want,float y_want,uint16_t delaytime)
 {
 
     SetCoupledCartesianPosition(3,x_want,y_want);
+    SetCoupledCartesianPosition(0,x_want,y_want);
     SetCoupledCartesianPosition(1,x_want,y_want);
     SetCoupledCartesianPosition(2,x_want,y_want);
-    SetCoupledCartesianPosition(0,x_want,y_want);
 
     osDelay(delaytime);
 }
