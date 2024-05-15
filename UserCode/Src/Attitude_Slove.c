@@ -4,10 +4,6 @@
 #include "Attitude_Slove.h"
 
 float AngleWant_MotorX[9] = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
-float Leg1_Delay = 0;
-float Leg2_Delay = 0.5;
-float Leg3_Delay = 0.5;
-float Leg4_Delay = 0;
 float step_angle[4] = {0};
 float times = 0.0f;
 float x,y;
@@ -17,7 +13,7 @@ float offset_front_1 = 0.984f;
 float offset_back_0 = 0.606141f;//(-121.9f)
 float offset_back_1 = 0.984f;//207.2f
 
-uint8_t Barrier_flag = 0;
+uint8_t Barrier_flag = 0,FrontJump_flag = 0;
 //用于复制上方状态数组作为永恒基准。
 DetachedParam StateDetachedParams_Copy[StatesMaxNum] = {0};
 //调试时用来改变生成的轨迹参数
@@ -79,7 +75,7 @@ void SetCoupledThetaPositionAll(void)
 
 void SetCoupledThetaPosition(int LegId)
 {
-    if(Barrier_flag == 1)
+    if(FrontJump_flag == 1 && Barrier_flag == 0)
     {
         switch(LegId) {
             case 0:
@@ -102,7 +98,30 @@ void SetCoupledThetaPosition(int LegId)
                 break;
         }
     }
-    else if(Barrier_flag == 0)
+    else if(FrontJump_flag == 0 && Barrier_flag == 1)
+    {
+        switch(LegId) {
+            case 0:
+                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                break;
+            case 1:
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                break;
+            case 2:
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//-4.0f
+                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                break;
+            case 3:
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                break;
+            default:
+                break;
+        }
+    }
+    else if(Barrier_flag == 0 && FrontJump_flag == 0)
     {
         switch(LegId) {
             case 0:
@@ -613,10 +632,14 @@ void ReverseMoveClose(void)
     reverse_move_flag=0;
 }
 
-void IMU_Slove(uint8_t flag)
+void IMU_Slove(uint8_t b_flag,uint8_t f_flag)
 {
-    if(flag == 1)
+    if(b_flag == 1)
         Barrier_flag = 1;
-    else if(flag == 0)
+    else if(b_flag == 0)
         Barrier_flag = 0;
+    if(f_flag == 1)
+        FrontJump_flag = 1;
+    else if(f_flag == 0)
+        FrontJump_flag = 0;
 }

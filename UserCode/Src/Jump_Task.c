@@ -106,7 +106,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         SetPolarPositionAll_Delay(85,jump_landlegheight,strech_time);
         //差不多站好了，执行完毕
         gpstate = HALT;
-        IMU_Slove(1);
+        IMU_Slove(1,0);
     }
     else if(JumpType == Far_Jump)//简单跳个远（要求地面摩擦较大）
     {
@@ -195,7 +195,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         speed_kp = 0.2f;
         //差不多站好了，执行完毕
         gpstate = HALT;
-        IMU_Slove(1);
+        IMU_Slove(1,0);
     }
 }
 
@@ -278,7 +278,7 @@ int FrontJump(void )
 
     osDelay(350);
 
-    IMU_Slove(0);
+    IMU_Slove(0,0);
 /**
  * 将阻尼与pid调小来做缓冲，并且将前腿准备立正
  */

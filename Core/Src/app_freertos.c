@@ -171,7 +171,7 @@ void StartDebug(void const * argument)
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
     Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
-    IMU_Slove(1);//是否开启障碍时腿时刻保持竖直
+    IMU_Slove(0,1);//是否开启障碍时腿时刻保持竖直
 
     printf("Init_Ready\n");
     osDelay(3);
