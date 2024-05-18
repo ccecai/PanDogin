@@ -20,7 +20,7 @@ enum JumpTypes
 
 extern uint8_t Jump_flag;
 extern float pitch ;
-extern uint8_t wait_flag;
+extern uint8_t wait_flag,JumpOver_flag;
 
 int ExecuteJump(uint8_t JumpType,float JumpAngle);
 void StairJump(uint8_t stage);

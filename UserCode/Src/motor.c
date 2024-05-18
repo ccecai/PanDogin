@@ -23,7 +23,7 @@ uint8_t merror[MOTOR_ID_NUM];
 uint16_t rec_crc;                    //反馈报文的CRC校验码
 uint16_t uart1_rec_crc;
 uint16_t uart5_rec_crc;
-float K_P=0.0f,K_W=0.0f;
+float K_P=19.1f,K_W=0.3f;
 float speed_kp = 0.22f;
 
 uint8_t LeftLeg_ReceiverBuffer[MOTOR_RECEIVE_SIZE] = {0};
@@ -170,35 +170,15 @@ void MOTOR_Send_Init(void)
 void motor_pos_controll(uint8_t id,float rad,uint8_t motor_mode)
 {
     Set_Motor_Mode(id,1);      //FOC闭环模式
+
     Motor_s[id].mode.id = id;
-
-    switch (motor_mode)
-    {
-        //位置模式
-        case position:
-        Motor_s[id].comd.tor_des = 0.0f;     //T
-        Motor_s[id].comd.spd_des = 0.0f;     //W
-        Motor_s[id].comd.pos_des = rad * 6.33f + (began_pos[id] * 2 * pi) / 32768;
-        Motor_s[id].comd.k_p = K_P;       //0.25
-        Motor_s[id].comd.k_w = K_W;       //0.015
-        break;
-
-        //零力矩模式
-        case Zero_torque:
-        Motor_s[id].comd.tor_des = 0.0f;     //T
-        Motor_s[id].comd.spd_des = 0.0f;     //W
-        Motor_s[id].comd.pos_des = 0.0f;
-        Motor_s[id].comd.k_p = 0.0f;
-        Motor_s[id].comd.k_w = 0.0f;
-        break;
-
-        default:
-            break;
-    }
-
+    Motor_s[id].comd.tor_des = 0.0f;     //T
+    Motor_s[id].comd.spd_des = 0.0f;     //W
+    Motor_s[id].comd.pos_des = rad * 6.33f + (began_pos[id] * 2 * pi) / 32768;
+    Motor_s[id].comd.k_p = K_P;       //0.25
+    Motor_s[id].comd.k_w = K_W;       //0.015
 
     modify_id_data(id);
-//    HAL_UART_Transmit_DMA(&huart6,(uint8_t *) MOTOR_Send[id],MOTOR_SEND_LENGTH);
     UART_SendMessage(id);
 }
 
@@ -489,14 +469,28 @@ void leg_pos_controll(void )
 {
     //将目标角度放入各个电机的角度环并进行角度环PID计算
 
-    motor_speed_controll_with_kw(5,AngleLoop[5].Out_put,speed_kp);
-    osDelay(1);
-    motor_speed_controll_with_kw(6,AngleLoop[6].Out_put,speed_kp);
-    osDelay(1);
-    motor_speed_controll_with_kw(7,AngleLoop[7].Out_put,speed_kp);
-    osDelay(1);
-    motor_speed_controll_with_kw(8,AngleLoop[8].Out_put,speed_kp);
-    osDelay(1);
+//    if(Jump_flag == 0)
+//    {
+        motor_speed_controll_with_kw(5,AngleLoop[5].Out_put,speed_kp);
+        osDelay(1);
+        motor_speed_controll_with_kw(6,AngleLoop[6].Out_put,speed_kp);
+        osDelay(1);
+        motor_speed_controll_with_kw(7,AngleLoop[7].Out_put,speed_kp);
+        osDelay(1);
+        motor_speed_controll_with_kw(8,AngleLoop[8].Out_put,speed_kp);
+        osDelay(1);
+//    }
+//    else if(Jump_flag == 1)
+//    {
+//        motor_pos_controll(5,AngleWant_MotorX[5],0);
+//        osDelay(1);
+//        motor_pos_controll(6,AngleWant_MotorX[6],0);
+//        osDelay(1);
+//        motor_pos_controll(7,AngleWant_MotorX[7],0);
+//        osDelay(1);
+//        motor_pos_controll(8,AngleWant_MotorX[8],0);
+//        osDelay(1);
+//    }
 
 }
 
@@ -504,15 +498,30 @@ void leg_pos_controll02(void )
 {
     //位置式PID函数PID_PosLocCalc（）对1和2号腿做了特殊处理，让1号腿和2号腿跳跃的时候kp大一些，因为跳跃的时候重心靠前，前腿不容易起来
     //将目标角度放入各个电机的角度环并进行角度环PID计算
+//    if(Jump_flag == 0)
+//    {
+        motor_speed_controll_with_kw(1,AngleLoop[1].Out_put,speed_kp);
+        osDelay(1);
+        motor_speed_controll_with_kw(2,AngleLoop[2].Out_put,speed_kp);
+        osDelay(1);
+        motor_speed_controll_with_kw(3,AngleLoop[3].Out_put,speed_kp);
+        osDelay(1);
+        motor_speed_controll_with_kw(4,AngleLoop[4].Out_put,speed_kp);
+        osDelay(1);
+//    }
+//    else if(Jump_flag == 1)
+//    {
+//        motor_pos_controll(1,AngleWant_MotorX[1],0);
+//        osDelay(1);
+//        motor_pos_controll(2,AngleWant_MotorX[2],0);
+//        osDelay(1);
+//        motor_pos_controll(3,AngleWant_MotorX[3],0);
+//        osDelay(1);
+//        motor_pos_controll(4,AngleWant_MotorX[4],0);
+//        osDelay(1);
+//    }
 
-    motor_speed_controll_with_kw(1,AngleLoop[1].Out_put,speed_kp);
-    osDelay(1);
-    motor_speed_controll_with_kw(2,AngleLoop[2].Out_put,speed_kp);
-    osDelay(1);
-    motor_speed_controll_with_kw(3,AngleLoop[3].Out_put,speed_kp);
-    osDelay(1);
-    motor_speed_controll_with_kw(4,AngleLoop[4].Out_put,speed_kp);
-    osDelay(1);
+
 }
 
 /*！

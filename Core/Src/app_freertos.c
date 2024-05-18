@@ -206,7 +206,9 @@ void BlueTeeth_RemoteControl(void const * argument)
   for(;;)
   {
       Remote_Controller();
-//      usart_printf("%f,%f,%f,%f\n",(((end_pos[3] - began_pos[3])*2*pi)/(6.33f*32768)),(((end_pos[4] - began_pos[4])*2*pi)/(6.33f*32768)),
+//      usart_printf("%f,%f,%f,%f,%f,%d,%d\n",offset_front_0,offset_front_1,offset_back_0,offset_back_1,
+//                   IMU_EulerAngle.EulerAngle[Pitch],Barrier_flag,FrontJump_flag);
+//      usart_printf("%f,%f,%f,%f\n",(((end_pos[1] - began_pos[1])*2*pi)/(6.33f*32768)),(((end_pos[2] - began_pos[2])*2*pi)/(6.33f*32768)),
 //                   (((end_pos[7] - began_pos[7])*2*pi)/(6.33f*32768)),(((end_pos[8] - began_pos[8])*2*pi)/(6.33f*32768)));
 //      usart_printf("%d,%d,%d,%d\n",real_speed[1],real_speed[2],real_speed[3],real_speed[4]);
 //      usart_printf("%d,%d\n",gpstate,dpstate);
@@ -216,8 +218,8 @@ void BlueTeeth_RemoteControl(void const * argument)
 //      usart_printf("%f,%f,%f.%f\n", AngleLoop[1].Out_put,AngleLoop[2].Out_put,AngleLoop[3].Out_put,AngleLoop[4].Out_put);
 //      usart_printf("%f,%f,%d,%f,%f,%d,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,Race_count,visual.distance,visual.offset,gpstate,x,y);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",Yaw_PID_Loop.Setpoint,IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,state_detached_params[1].detached_params_0.step_length,state_detached_params[1].detached_params_2.step_length,visual.offset);
-      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
-      osDelay(10);
+//      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
+      osDelay(5);
   }
   /* USER CODE END BlueTeeth_RemoteControl */
 }
@@ -289,26 +291,26 @@ void GO1Init(void const * argument)
 void FrontJumpTask(void const * argument)
 {
   /* USER CODE BEGIN FrontJumpTask */
+  static int count = 0;
   /* Infinite loop */
   for(;;)
   {
       if(wait_flag == 1)
       {
-          AngleLoop[1].Output_limit = 20;
-          AngleLoop[2].Output_limit = 20;
-          AngleLoop[5].Output_limit = 20;
-          AngleLoop[6].Output_limit = 20;
-          PID_Set_KP_KI_KD(&AngleLoop[1],15.0f,0,0.8f);
-          PID_Set_KP_KI_KD(&AngleLoop[2],15.0f,0,0.8f);
-          PID_Set_KP_KI_KD(&AngleLoop[5],15.0f,0,0.8f);
-          PID_Set_KP_KI_KD(&AngleLoop[6],15.0f,0,0.8f);
+          AngleLoop[1].Output_limit = 30;
+          AngleLoop[2].Output_limit = 30;
+          AngleLoop[5].Output_limit = 30;
+          AngleLoop[6].Output_limit = 30;
+          PID_Set_KP_KI_KD(&AngleLoop[1],40.0f,0,2.0f);
+          PID_Set_KP_KI_KD(&AngleLoop[2],40.0f,0,2.0f);
+          PID_Set_KP_KI_KD(&AngleLoop[5],40.0f,0,2.0f);
+          PID_Set_KP_KI_KD(&AngleLoop[6],40.0f,0,2.0f);
 
-          SetPolarPositionLeg_Delay(80.0f, 80, 0,0);
-          SetPolarPositionLeg_Delay(80.0f, 80, 0,2);
+          SetPolarPositionLeg_Delay(77.0f, LegLenthMin, 0,0);
+          SetPolarPositionLeg_Delay(77.0f, LegLenthMin, 0,2);
       }
 
-
-      if(IMU_EulerAngle.EulerAngle[Pitch] < 89.5f)
+      if(IMU_EulerAngle.EulerAngle[Pitch] < -89.5f)
       {
           osDelay(50);
           pitch = -90.0f + IMU_EulerAngle.EulerAngle[Pitch];

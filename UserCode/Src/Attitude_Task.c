@@ -8,23 +8,22 @@ enum GPStates gpstate = STOP;
 enum DPStates dpstate = NONE;
 float NewHeartbeat = 0;//心跳值
 //全局姿态控制
-int Global_IMU_Control = 0;
 float TargetAngle = 0;
 int Race_count = 0;
 uint8_t IMU_Stand_flag = 0;
 uint8_t Solpe_flag = 0;
-uint8_t Lie_Down = 1;
+
 void StandUp_Posture(void)
 {
     ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
+
     Get_Target(0,PI);
     SetCoupledThetaPositionAll();
 }
 
 void LieDown_Posture(void)
 {
-    Lie_Down = 1;
     AllLegsSpeedLimit(SpeedMode_VERYSLOW);
     for(int i = 1;i < 9;i ++)
     {

@@ -114,7 +114,7 @@ void Remote_Controller(void)
 
             break;
         case 22:
-            ExecuteJump(Far_Jump,67.4f);
+            ExecuteJump(Far_Jump,66.0f);
             break;
         case 24://·ÉÌø
 //            ExecuteJump(Leap_Jump,76);

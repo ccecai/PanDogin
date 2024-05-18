@@ -11,18 +11,12 @@
 #include "stdlib.h"
 #include "math.h"
 
-//#define offset_front_0 0.1320f
-//#define offset_front_1 0.5346f
-//#define offset_back_0  0.1320f//(-121.9f)
-//#define offset_back_1  0.5346f//207.2f
-
-
 #define PI 3.1415926535f
 //大小腿长
 #define L1 11.0f //????100mm
 #define L2 22.0f//?ó??200mm
 //腿长限位
-#define LegLenthExtremeMax 32.95f //
+#define LegLenthExtremeMax 33.0f //
 #define LegLenthMax 32.0f //
 #define LegLenthMin 11.5f //
 #define LegStandLenth 17.5f //
@@ -72,6 +66,7 @@ extern float steplen;
 extern uint8_t Mark_flag;
 extern float Target_offset1,Target_offset2;
 extern float offset_front_0,offset_front_1,offset_back_0,offset_back_1;
+extern uint8_t Barrier_flag,FrontJump_flag;
 
 void Get_Target(float theta1,float theta2);
 void SetCoupledThetaPositionAll(void);
