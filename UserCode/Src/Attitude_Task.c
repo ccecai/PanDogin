@@ -17,7 +17,6 @@ void StandUp_Posture(void)
 {
     ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//≥ı ºªØpid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
-
     Get_Target(0,PI);
     SetCoupledThetaPositionAll();
 }
@@ -56,7 +55,7 @@ void Trot(float direction,int8_t kind)
             Solpe_flag = 0;
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(20.0f,0.8f,0.6f,0);
+            ChangeGainOfPID(20.0f,2.0f,0.6f,0);
             ChangeYawOfPID(0.1f,0.01f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[1], direction);
             gait_detached(state_detached_params[1],0.0f, 0.5f, 0.5f, 0.0f,

@@ -278,7 +278,6 @@ int FrontJump(void )
 /**
  * 将阻尼与pid调小来做缓冲，并且将前腿准备立正
  */
-    speed_kp = 0.1f;
 
     ChangeGainOfPID(20.0f,0.8f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(20.0f);
@@ -288,8 +287,8 @@ int FrontJump(void )
     offset_back_0 += PI;
     offset_back_1 -= PI;
 
-    SetPolarPositionLeg_Delay(-85.0f, 15.5f, 0,1);
-    SetPolarPositionLeg_Delay(-85.0f, 15.5f, 0,3);
+    SetPolarPositionLeg_Delay(-35.0f, 15.5f, 0,1);
+    SetPolarPositionLeg_Delay(-35.0f, 15.5f, 0,3);
 
     Get_Target(0,PI);
     SetCoupledThetaPosition(0);

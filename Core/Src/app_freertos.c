@@ -171,7 +171,7 @@ void StartDebug(void const * argument)
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
     Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
-    IMU_Slove(0,1);//是否开启障碍时腿时刻保持竖直
+    IMU_Slove(1,0);//是否开启障碍时腿时刻保持竖直
 
     printf("Init_Ready\n");
     osDelay(3);
@@ -208,8 +208,8 @@ void BlueTeeth_RemoteControl(void const * argument)
       Remote_Controller();
 //      usart_printf("%f,%f,%f,%f,%f,%d,%d\n",offset_front_0,offset_front_1,offset_back_0,offset_back_1,
 //                   IMU_EulerAngle.EulerAngle[Pitch],Barrier_flag,FrontJump_flag);
-//      usart_printf("%f,%f,%f,%f\n",(((end_pos[1] - began_pos[1])*2*pi)/(6.33f*32768)),(((end_pos[2] - began_pos[2])*2*pi)/(6.33f*32768)),
-//                   (((end_pos[7] - began_pos[7])*2*pi)/(6.33f*32768)),(((end_pos[8] - began_pos[8])*2*pi)/(6.33f*32768)));
+      usart_printf("%f,%f,%f,%f\n",(((end_pos[5] - began_pos[5])*2*pi)/(6.33f*32768)),(((end_pos[6] - began_pos[6])*2*pi)/(6.33f*32768)),
+                   (((end_pos[7] - began_pos[7])*2*pi)/(6.33f*32768)),(((end_pos[8] - began_pos[8])*2*pi)/(6.33f*32768)));
 //      usart_printf("%d,%d,%d,%d\n",real_speed[1],real_speed[2],real_speed[3],real_speed[4]);
 //      usart_printf("%d,%d\n",gpstate,dpstate);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
@@ -219,7 +219,7 @@ void BlueTeeth_RemoteControl(void const * argument)
 //      usart_printf("%f,%f,%d,%f,%f,%d,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,Race_count,visual.distance,visual.offset,gpstate,x,y);
 //      usart_printf("%f,%f,%f,%f,%f,%f\n",Yaw_PID_Loop.Setpoint,IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,state_detached_params[1].detached_params_0.step_length,state_detached_params[1].detached_params_2.step_length,visual.offset);
 //      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
-      osDelay(5);
+      osDelay(1);
   }
   /* USER CODE END BlueTeeth_RemoteControl */
 }

@@ -8,10 +8,13 @@ float step_angle[4] = {0};
 float times = 0.0f;
 float x,y;
 uint8_t reverse_move_flag = 0;
-float offset_front_0 = 0.606141f;
-float offset_front_1 = 0.984f;
-float offset_back_0 = 0.606141f;//(-121.9f)
-float offset_back_1 = 0.984f;//207.2f
+
+//float offset_front_0 = 0.539105f;
+//float offset_front_1 = 0.914364f;
+float offset_front_0 = 0.647f;
+float offset_front_1 = 0.98f;
+float offset_back_0 = 0.647f;//(-121.9f)
+float offset_back_1 = 0.98f;//207.2f
 
 uint8_t Barrier_flag = 0,FrontJump_flag = 0;
 //用于复制上方状态数组作为永恒基准。
@@ -237,16 +240,9 @@ void SinTrajectory (float t,GaitParams params, float gaitOffset,float leg_direti
     //足尖摆动相
     if (gp <= flightPercent) // //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
     {
-//        if(leg_diretion == Forward)
-//        {
-//            x0 = (gp/flightPercent)*stepLength - stepLength/2.0ff;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
-//            y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
-//        }
-//        else
-//        {
+
             x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
             y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
-//        }
 
     }
         //足尖支撑相
@@ -319,10 +315,7 @@ void SinTrajectory_Slope (float t,GaitParams params, float gaitOffset,float leg_
 */
 void CoupledMoveLeg(float t, GaitParams params,float gait_offset, float leg_direction, int LegId, float angle)
 {
-    if(Solpe_flag == 0)
-        SinTrajectory(t,params,gait_offset,leg_direction,angle,LegId);//足端正弦轨迹生成器
-    else if(Solpe_flag == 1)
-        SinTrajectory_Slope(t,params,gait_offset,leg_direction,angle,LegId);//足端正弦轨迹生成器
+    SinTrajectory(t,params,gait_offset,leg_direction,angle,LegId);//足端正弦轨迹生成器
     CartesianToTheta();//笛卡尔坐标转换到角度坐标
     SetCoupledThetaPosition(LegId);//发送数据给电机驱动函数
 }
@@ -373,10 +366,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 
         {
                 0,//转弯（在转弯函数中会调整该步态以实现转弯）
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f},
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f},
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f}
+                {20.0f, 6.25f, 5.0f, 0.3f, 0.35f, 4.0f},
+                {20.0f, 6.25f, 5.0f, 0.3f, 0.35f, 4.0f},
+                {20.0f, 6.25f, 5.0f, 0.3f, 0.35f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
+                {20.0f, 6.25f, 5.0f, 0.3f, 0.35f, 4.0f}
 //                0,//转弯（在转弯函数中会调整该步态以实现转弯）
 //                {18.0f, 6.25f, 1.0f, 1.0f, 0.25f, 4.0f},
 //                {18.0f, 6.25f, 1.0f, 1.0f, 0.25f, 4.0f},
@@ -391,10 +384,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 //            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f},
 //            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f}
                 1,//大步Trot（快速）,现在最高点y轴坐标应该大于15，最大不超过32
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f}
+                {18.0f, 25.0f,  5.0f, 0.2f, 0.3f, 5.5f},
+                {18.0f, 25.0f,  5.0f, 0.2f, 0.3f, 5.5f},
+                {18.0f, 25.0f,  5.0f, 0.2f, 0.3f, 5.5f},
+                {18.0f, 25.0f,  5.0f, 0.2f, 0.3f, 5.5f}
         },
         {
             2,//原地踏步//出现多种步态基高差距过大是会失效
@@ -416,10 +409,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
             {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f}*/
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f},
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f},
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f},
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f}
+                {18.0f, 6.0f,  5.0f, 0.8f, 0.3f, 3.0f},
+                {18.0f, 6.0f,  5.0f, 0.8f, 0.3f, 3.0f},
+                {18.0f, 6.0f,  5.0f, 0.8f, 0.3f, 3.0f},
+                {18.0f, 6.0f,  5.0f, 0.8f, 0.3f, 3.0f}
 
         },
         {
@@ -453,10 +446,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
                 {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
                 {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
                 {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f}*/
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f}
+                {16.8f, 7.0f,  0.0f, 6.0f, 0.3f, 2.5f},
+                {16.8f, 7.0f,  0.0f, 6.0f, 0.3f, 2.5f},
+                {16.8f, 7.0f,  0.0f, 6.0f, 0.3f, 2.5f},
+                {16.8f, 7.0f,  0.0f, 6.0f, 0.3f, 2.5f}
 
         }
 };
