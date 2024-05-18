@@ -26,6 +26,7 @@
 #include "crc16.h"
 #include "visual.h"
 #include <string.h>
+#include "Subordinate_Desk.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -424,26 +425,32 @@ void USART3_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
-    uint32_t tmp_flag = 0;
-    uint32_t temp;
-    uint16_t rx_len;
-    tmp_flag =__HAL_UART_GET_FLAG(&huart4,UART_FLAG_IDLE); //获取IDLE标志位
-    __HAL_UART_CLEAR_IDLEFLAG(&huart4);//清除标志位
-    HAL_UART_DMAStop(&huart4); //
-
-    if((tmp_flag != RESET))//idle标志被置位
+//    uint32_t tmp_flag = 0;
+//    uint32_t temp;
+//    uint16_t rx_len;
+//    tmp_flag =__HAL_UART_GET_FLAG(&huart4,UART_FLAG_IDLE); //获取IDLE标志位
+//    __HAL_UART_CLEAR_IDLEFLAG(&huart4);//清除标志位
+//    HAL_UART_DMAStop(&huart4); //
+//
+//    if((tmp_flag != RESET))//idle标志被置位
+//    {
+//        temp = huart4.Instance->ISR;  //清除状态寄存器SR,读取SR寄存器可以实现清除SR寄存器的功能
+//        temp = huart4.Instance->RDR; //读取数据寄存器中的数据
+//        temp = hdma_uart4_rx.Instance->CNDTR;// 获取DMA中未传输的数据个数，NDTR寄存器分析见下面
+//        rx_len =  IMU_REC_LEN - temp; //总计数减去未传输的数据个数，得到已经接收的数据个数
+//        //进行数据处理
+////        RemoteCtrl(rx_len);	//中断中的数据处理去改变相应控制变量的值
+//        IMU_Data_Process(1);	//中断中的数据处理去改变相应控制变量的值
+//    }//https://www.cnblogs.com/zjx123/p/11949052.html->该知识网址
+//    HAL_UART_Receive_DMA(&huart4,(uint8_t *)&IMU_RX_BUF,IMU_REC_LEN);//使能串口5 DMA接受
+    if(__HAL_UART_GET_FLAG(&huart4,UART_FLAG_IDLE)==SET)
     {
+        __HAL_UART_CLEAR_IDLEFLAG(&huart4);//清除空闲中断接受标志wei
+        HAL_UART_DMAStop(&huart4);//关闭DMA接受
 
-        temp = huart4.Instance->ISR;  //清除状态寄存器SR,读取SR寄存器可以实现清除SR寄存器的功能
-        temp = huart4.Instance->RDR; //读取数据寄存器中的数据
-
-        temp = hdma_uart4_rx.Instance->CNDTR;// 获取DMA中未传输的数据个数，NDTR寄存器分析见下面
-        rx_len =  IMU_REC_LEN - temp; //总计数减去未传输的数据个数，得到已经接收的数据个数
-        //进行数据处理
-//        RemoteCtrl(rx_len);	//中断中的数据处理去改变相应控制变量的值
-        IMU_Data_Process(1);	//中断中的数据处理去改变相应控制变量的值
-    }//https://www.cnblogs.com/zjx123/p/11949052.html->该知识网址
-    HAL_UART_Receive_DMA(&huart4,(uint8_t *)&IMU_RX_BUF,IMU_REC_LEN);//使能串口5 DMA接受
+        Process();
+    }
+    HAL_UART_Receive_DMA(&huart4,(uint8_t *)&Desk_Data,Length_of_Desk);//使能串口5 DMA接受
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */

@@ -104,20 +104,17 @@ void Remote_Controller(void)
                 Trot(Backward,2);
             break;
         case 20:
-            ExecuteJump(Standard_Jump,71);
+            ExecuteJump(Bridge_Jump,72.0f);
             break;
         case 21:
-//            if(dpstate == 52)
-//                ExecuteJump(High_Jump,66);
-//            else
-                ExecuteJump(High_Jump,71);
-
+//            ExecuteJump(StepUp_Jump,76.2f);
+            Turn_Jump(45);
             break;
         case 22:
-            ExecuteJump(Far_Jump,66.0f);
+//            ExecuteJump(StepDown_Jump,78.0f);
+            Turn_Jump(-45);
             break;
         case 24://·ÉÌø
-//            ExecuteJump(Leap_Jump,76);
             FrontJump();
             break;
         case 30:

@@ -23,6 +23,7 @@
 /* USER CODE BEGIN 0 */
 #include "imu.h"
 #include "visual.h"
+#include "Subordinate_Desk.h"
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart4;
@@ -80,8 +81,10 @@ void MX_UART4_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN UART4_Init 2 */
+//    __HAL_UART_ENABLE_IT(&huart4,UART_IT_IDLE);//启用串口5 空闲接受中断
+//    HAL_UART_Receive_DMA(&huart4,(uint8_t *)&IMU_RX_BUF,IMU_REC_LEN);//使能串口5 DMA接受
     __HAL_UART_ENABLE_IT(&huart4,UART_IT_IDLE);//启用串口5 空闲接受中断
-    HAL_UART_Receive_DMA(&huart4,(uint8_t *)&IMU_RX_BUF,IMU_REC_LEN);//使能串口5 DMA接受
+    HAL_UART_Receive_DMA(&huart4,(uint8_t *)&Desk_Data,Length_of_Desk);//使能串口5 DMA接受
   /* USER CODE END UART4_Init 2 */
 
 }

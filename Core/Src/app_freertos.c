@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "fdcan.h"
+#include "Subordinate_Desk.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -128,7 +129,7 @@ void MX_FREERTOS_Init(void) {
   NRFTaskHandle = osThreadCreate(osThread(NRFTask), NULL);
 
   /* definition and creation of TripodHead */
-  osThreadDef(TripodHead, TripodHeadTask, osPriorityNormal, 0, 256);
+  osThreadDef(TripodHead, TripodHeadTask, osPriorityHigh, 0, 512);
   TripodHeadHandle = osThreadCreate(osThread(TripodHead), NULL);
 
   /* definition and creation of GO_Output_Left */
@@ -171,7 +172,7 @@ void StartDebug(void const * argument)
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
     Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
-    IMU_Slove(0,1);//是否开启障碍时腿时刻保持竖直
+    IMU_Slove(0,0);//是否开启障碍时腿时刻保持竖直
 
     printf("Init_Ready\n");
     osDelay(3);
@@ -206,20 +207,11 @@ void BlueTeeth_RemoteControl(void const * argument)
   for(;;)
   {
       Remote_Controller();
-//      usart_printf("%f,%f,%f,%f,%f,%d,%d\n",offset_front_0,offset_front_1,offset_back_0,offset_back_1,
-//                   IMU_EulerAngle.EulerAngle[Pitch],Barrier_flag,FrontJump_flag);
-//      usart_printf("%f,%f,%f,%f\n",(((end_pos[1] - began_pos[1])*2*pi)/(6.33f*32768)),(((end_pos[2] - began_pos[2])*2*pi)/(6.33f*32768)),
+      usart_printf("%d,%d\n",Desk_Data[0],Desk_Data[1]);
+//      usart_printf("%f,%f,%f,%f\n",(((end_pos[5] - began_pos[5])*2*pi)/(6.33f*32768)),(((end_pos[6] - began_pos[6])*2*pi)/(6.33f*32768)),
 //                   (((end_pos[7] - began_pos[7])*2*pi)/(6.33f*32768)),(((end_pos[8] - began_pos[8])*2*pi)/(6.33f*32768)));
-//      usart_printf("%d,%d,%d,%d\n",real_speed[1],real_speed[2],real_speed[3],real_speed[4]);
-//      usart_printf("%d,%d\n",gpstate,dpstate);
-//      usart_printf("%f,%f,%f,%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],visual.offset,state_detached_params[1].detached_params_0.step_length,
-//                   state_detached_params[1].detached_params_0.freq,state_detached_params[1].detached_params_2.step_length,state_detached_params[1].detached_params_2.freq);
-      //usart_printf("%f,%f\n",visual.distance,visual.offset);
-//      usart_printf("%f,%f,%f.%f\n", AngleLoop[1].Out_put,AngleLoop[2].Out_put,AngleLoop[3].Out_put,AngleLoop[4].Out_put);
-//      usart_printf("%f,%f,%d,%f,%f,%d,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,Race_count,visual.distance,visual.offset,gpstate,x,y);
-//      usart_printf("%f,%f,%f,%f,%f,%f\n",Yaw_PID_Loop.Setpoint,IMU_EulerAngle.EulerAngle[Yaw],Yaw_PID_Loop.Out_put,state_detached_params[1].detached_params_0.step_length,state_detached_params[1].detached_params_2.step_length,visual.offset);
-//      usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Pitch],IMU_EulerAngle.EulerAngle[Roll]);
-      osDelay(5);
+//      usart_printf("%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Roll],IMU_EulerAngle.EulerAngle[Pitch]);
+      osDelay(1);
   }
   /* USER CODE END BlueTeeth_RemoteControl */
 }
@@ -270,7 +262,7 @@ void GO1Init(void const * argument)
     vTaskResume(PIDHandle);
     vTaskResume(BlueteethTaskHandle);
 //    vTaskResume(NRFTaskHandle);
-    vTaskResume(TripodHeadHandle);
+//    vTaskResume(TripodHeadHandle);
     vTaskResume(FrontJumpHandle);
     vTaskSuspend(NULL); //电机初始化任务完成后自挂捏
   /* Infinite loop */
@@ -365,8 +357,8 @@ void TripodHeadTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      SetPoint_IMU(&Roll_PID_Loop,0);
-      PID_PosLocM2006(&Roll_PID_Loop,IMU_EulerAngle.EulerAngle[Roll]);
+//      SetPoint_IMU(&Roll_PID_Loop,0);
+//      PID_PosLocM2006(&Roll_PID_Loop,IMU_EulerAngle.EulerAngle[Roll]);
 
       SetPoint_IMU(&M2006_Position, AngleChange(TargetAngle));
       PID_PosLocM2006(&M2006_Position,struct_debug1[0].total_angle);
@@ -374,7 +366,9 @@ void TripodHeadTask(void const * argument)
       SetPoint_IMU(&M2006_Speed, M2006_Position.Out_put);
       PID_PosLocM2006(&M2006_Speed,struct_debug1[0].speed);
 
-      set_current(&hfdcan1,0x200,M2006_Speed.Out_put,0,0,0);
+      set_current(&hfdcan1,0x200,0,0,0,0);
+//      osDelay(1);
+//      set_current(&hfdcan1,0x200,M2006_Speed.Out_put,0,0,0);
 
     osDelay(5);
   }
@@ -419,7 +413,7 @@ void PIDTask(void const * argument)
           PID_PosLocCalc(&AngleLoop[i], end_pos[i]);
       }
 
-    osDelay(8);
+    osDelay(2);
   }
   /* USER CODE END PIDTask */
 }

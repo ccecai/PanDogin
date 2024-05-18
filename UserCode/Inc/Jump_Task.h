@@ -10,12 +10,10 @@
 #define SpeedMode_JUMPPEDAL 8900 //go1的极限速度
 enum JumpTypes
 {
-    Standard_Jump = 0,
-    High_Jump =     1,
-    Far_Jump =      2,
-    Step_Jump =     3,
-    Leap_Jump =     4,
-    Test_Jump =     5,
+    Bridge_Jump = 0,
+    StepUp_Jump = 1,
+    StepDown_Jump = 2,
+
 };
 
 extern uint8_t Jump_flag;
@@ -23,10 +21,7 @@ extern float pitch ;
 extern uint8_t wait_flag,JumpOver_flag;
 
 int ExecuteJump(uint8_t JumpType,float JumpAngle);
-void StairJump(uint8_t stage);
-void SeesawJump(uint8_t stage);
-void FrontFlipJump(uint8_t mode);
-void Bridge_Jump(uint8_t stage);
 int FrontJump(void );
+void Turn_Jump(int16_t Jump_angle);
 
 #endif //ROBOMASTER_C_DEMO_JUMP_TASK_H

@@ -7,6 +7,7 @@
 
 #include "Attitude_Slove.h"
 #include "pid.h"
+#include "Subordinate_Desk.h"
 
 //前进后退定义
 #define Forward 1

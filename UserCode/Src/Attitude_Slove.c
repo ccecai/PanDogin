@@ -8,10 +8,14 @@ float step_angle[4] = {0};
 float times = 0.0f;
 float x,y;
 uint8_t reverse_move_flag = 0;
-float offset_front_0 = 0.606141f;
-float offset_front_1 = 0.984f;
-float offset_back_0 = 0.606141f;//(-121.9f)
-float offset_back_1 = 0.984f;//207.2f
+float StepLenthMin = 0.0f;
+float StepLenthMax = 0.0f; //大小大概在45cm
+//float offset_front_0 = 0.539105f;
+//float offset_front_1 = 0.914364f;
+float offset_front_0 = 0.647f;
+float offset_front_1 = 0.98f;
+float offset_back_0 = 0.647f;//(-121.9f)
+float offset_back_1 = 0.98f;//207.2f
 
 uint8_t Barrier_flag = 0,FrontJump_flag = 0;
 //用于复制上方状态数组作为永恒基准。
@@ -212,51 +216,40 @@ void CartesianToTheta(void)
 */
 void SinTrajectory (float t,GaitParams params, float gaitOffset,float leg_diretion,float angle,int LegId)
 {
-//t=times*5/1000，即每1s变化1
+///t=times*5/1000，即每1s变化1
     //获取正弦函数的所要配置的参数
-    float stanceHeight = params.stance_height;////狗底盘离地高度
-    float downAMP = params.down_amp;////负峰值
-    float upAMP = params.up_amp;////正峰值
-    float flightPercent = params.flight_percent;////摆动相占比
-    float stepLength = params.step_length ;////步长
-    float FREQ = params.freq;////频率
-    if(leg_diretion<0) stepLength = -stepLength;////方向控制
+    float stanceHeight = params.stance_height;//狗底盘离地高度
+    float downAMP = params.down_amp;//负峰值
+    float upAMP = params.up_amp;//正峰值
+    float flightPercent = params.flight_percent;//摆动相占比
+    float stepLength = params.step_length ;//步长
+    float FREQ = params.freq;//频率
+    if(leg_diretion<0) stepLength = -stepLength;//方向控制
     //原始坐标初始化
     float x0=0,y0=0;
     /******相位（时间、周期循环）控制******/
-    //相位时间累计(要想实现不同腿不同频率，就不能共用一个这个，而应该将其变为腿部参数特征)。
+    static float p = 0,prev_t = 0;//相位时间累计(要想实现不同腿不同频率，就不能共用一个这个，而应该将其变为腿部参数特征)。
     //由于t每次进入函数变化至少0.005，因此FREQ理论上要小于200。否则，p的变化量将大于等于1，从而导致运动出错。
     //例如当FREQ=1时，每经过1s，t变化1，而p刚好变化1，故此时频率为1Hz，当FREQ=n时，频率显然就为nHz。故频率最大为200Hz。
     //建议频率不要过大，因为频率越大意味着采样点数越少。而实际上我们不需要那么高频率，应将频率限制在0-5开区间范围内。
-    static float p = 0,prev_t = 0;//频率*时间变化量即为相位变化量。p每次变化所经历的时间是固定的5ms，
-    // 但我们可以通过改变每次变化的大小来间接代替变化频率。FREQ越大，单次变化的就越大。
-    p += FREQ * (t - prev_t);//
-    float gp = fmod((p+gaitOffset),1.0);////该函数返回 x/y 的余数，除1.0表明取小数部分，即将gp限制在0-1范围内。
-    prev_t = t;////将当前t值保存下来。
+    p += FREQ * (t - prev_t);//频率*时间变化量即为相位变化量。p每次变化所经历的时间是固定的5ms，但我们可以通过改变每次变化的大小来间接代替变化频率。FREQ越大，单次变化的就越大。
+    float gp = fmod((p+gaitOffset),1.0);//该函数返回 x/y 的余数，除1.0表明取小数部分，即将gp限制在0-1范围内。
+    prev_t = t;//将当前t值保存下来。
     /******正弦轨迹生成******/
     //足尖摆动相
-    if (gp <= flightPercent) // //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
+    if (gp <= flightPercent) //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
     {
-//        if(leg_diretion == Forward)
-//        {
-//            x0 = (gp/flightPercent)*stepLength - stepLength/2.0ff;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
-//            y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
-//        }
-//        else
-//        {
-            x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
-            y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
-//        }
-
+        x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;//从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
+        y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;//围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
     }
         //足尖支撑相
-    else ////摆动总是从正弦轨迹的起始位置处执行。
+    else //摆动总是从正弦轨迹的起始位置处执行。
     {
         float percentBack = (gp-flightPercent)/(1.0f-flightPercent);//percentBack与(gp/flightPercent)是一个道理
-        x0 = -percentBack*stepLength + stepLength/2.0f;////一般来说，首次进入时总是从stepLength/2开始，然后之后就向后运动。
+        x0 = -percentBack*stepLength + stepLength/2.0f;//一般来说，首次进入时总是从stepLength/2开始，然后之后就向后运动。
         y0 = downAMP*sin(PI*percentBack) + stanceHeight;//
     }
-    ////经过坐标系转换后得到最终结果(angle目前都是0，从而x=x0，y=y0)
+    //经过坐标系转换后得到最终结果(angle目前都是0，从而x=x0，y=y0)
     x =  cos(angle*PI/180)*x0 + sin(angle*PI/180)*y0;
     y = -sin(angle*PI/180)*x0 + cos(angle*PI/180)*y0;
 
@@ -264,45 +257,40 @@ void SinTrajectory (float t,GaitParams params, float gaitOffset,float leg_direti
 
 void SinTrajectory_Slope (float t,GaitParams params, float gaitOffset,float leg_diretion,float angle,int LegId)
 {
-//t=times*5/1000，即每1s变化1
+///t=times*5/1000，即每1s变化1
     //获取正弦函数的所要配置的参数
-    float stanceHeight = params.stance_height;////狗底盘离地高度
-    float downAMP = params.down_amp;////负峰值
-    float upAMP = params.up_amp;////正峰值
-    float flightPercent = params.flight_percent;////摆动相占比
-    float stepLength = params.step_length ;////步长
-    float FREQ = params.freq;////频率
-    if(leg_diretion<0) stepLength = -stepLength;////方向控制
-    float time_slope = 0;
+    float stanceHeight = params.stance_height;//狗底盘离地高度
+    float downAMP = params.down_amp;//负峰值
+    float upAMP = params.up_amp;//正峰值
+    float flightPercent = params.flight_percent;//摆动相占比
+    float stepLength = params.step_length ;//步长
+    float FREQ = params.freq;//频率
+    if(leg_diretion<0) stepLength = -stepLength;//方向控制
     //原始坐标初始化
     float x0=0,y0=0;
-    time_slope = 3 * stepLength * tanf(- IMU_EulerAngle.EulerAngle[Pitch] * PI / 180.0f);
-    //time_slope = 5;
     /******相位（时间、周期循环）控制******/
-    //相位时间累计(要想实现不同腿不同频率，就不能共用一个这个，而应该将其变为腿部参数特征)。
+    static float p = 0,prev_t = 0;//相位时间累计(要想实现不同腿不同频率，就不能共用一个这个，而应该将其变为腿部参数特征)。
     //由于t每次进入函数变化至少0.005，因此FREQ理论上要小于200。否则，p的变化量将大于等于1，从而导致运动出错。
     //例如当FREQ=1时，每经过1s，t变化1，而p刚好变化1，故此时频率为1Hz，当FREQ=n时，频率显然就为nHz。故频率最大为200Hz。
     //建议频率不要过大，因为频率越大意味着采样点数越少。而实际上我们不需要那么高频率，应将频率限制在0-5开区间范围内。
-    static float p = 0,prev_t = 0;//频率*时间变化量即为相位变化量。p每次变化所经历的时间是固定的5ms，
-    // 但我们可以通过改变每次变化的大小来间接代替变化频率。FREQ越大，单次变化的就越大。
-    p += FREQ * (t - prev_t);//
-    float gp = fmod((p+gaitOffset),1.0);////该函数返回 x/y 的余数，除1.0表明取小数部分，即将gp限制在0-1范围内。
-    prev_t = t;////将当前t值保存下来。
+    p += FREQ * (t - prev_t);//频率*时间变化量即为相位变化量。p每次变化所经历的时间是固定的5ms，但我们可以通过改变每次变化的大小来间接代替变化频率。FREQ越大，单次变化的就越大。
+    float gp = fmod((p+gaitOffset),1.0);//该函数返回 x/y 的余数，除1.0表明取小数部分，即将gp限制在0-1范围内。
+    prev_t = t;//将当前t值保存下来。
     /******正弦轨迹生成******/
     //足尖摆动相
-    if (gp <= flightPercent) // //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
+    if (gp <= flightPercent) //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
     {
-        x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;////从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
-        y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;////围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
+        x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;//从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
+        y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;//围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
     }
         //足尖支撑相
-    else ////摆动总是从正弦轨迹的起始位置处执行。
+    else //摆动总是从正弦轨迹的起始位置处执行。
     {
         float percentBack = (gp-flightPercent)/(1.0f-flightPercent);//percentBack与(gp/flightPercent)是一个道理
-        x0 = -percentBack*stepLength + stepLength/2.0f;////一般来说，首次进入时总是从stepLength/2开始，然后之后就向后运动。
+        x0 = -percentBack*stepLength + stepLength/2.0f;//一般来说，首次进入时总是从stepLength/2开始，然后之后就向后运动。
         y0 = downAMP*sin(PI*percentBack) + stanceHeight;//
     }
-    ////经过坐标系转换后得到最终结果(angle目前都是0，从而x=x0，y=y0)
+    //经过坐标系转换后得到最终结果(angle目前都是0，从而x=x0，y=y0)
     x =  cos(angle*PI/180)*x0 + sin(angle*PI/180)*y0;
     y = -sin(angle*PI/180)*x0 + cos(angle*PI/180)*y0;
 }
@@ -319,10 +307,7 @@ void SinTrajectory_Slope (float t,GaitParams params, float gaitOffset,float leg_
 */
 void CoupledMoveLeg(float t, GaitParams params,float gait_offset, float leg_direction, int LegId, float angle)
 {
-    if(Solpe_flag == 0)
-        SinTrajectory(t,params,gait_offset,leg_direction,angle,LegId);//足端正弦轨迹生成器
-    else if(Solpe_flag == 1)
-        SinTrajectory_Slope(t,params,gait_offset,leg_direction,angle,LegId);//足端正弦轨迹生成器
+    SinTrajectory(t,params,gait_offset,leg_direction,angle,LegId);//足端正弦轨迹生成器
     CartesianToTheta();//笛卡尔坐标转换到角度坐标
     SetCoupledThetaPosition(LegId);//发送数据给电机驱动函数
 }
@@ -373,28 +358,18 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 
         {
                 0,//转弯（在转弯函数中会调整该步态以实现转弯）
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f},
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f},
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
-                {20.0f, 6.25f, 3.0f, 0.3f, 0.35f, 4.0f}
-//                0,//转弯（在转弯函数中会调整该步态以实现转弯）
-//                {18.0f, 6.25f, 1.0f, 1.0f, 0.25f, 4.0f},
-//                {18.0f, 6.25f, 1.0f, 1.0f, 0.25f, 4.0f},
-//                {18.0f, 6.25f, 1.0f, 1.0f, 0.25f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
-//                {18.0f, 6.25f, 1.0f, 1.0f, 0.25f, 4.0f}
+                {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f},
+                {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f},
+                {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
+                {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f}
         },
         {
 
-//            1,//大步Trot（快速）,现在最高点y轴坐标应该大于15，最大不超过32
-//            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f},
-//            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f},
-//            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f},
-//            {21.0f, 25.0f,  6.8f, 0.15f, 0.3f, 4.5f}
                 1,//大步Trot（快速）,现在最高点y轴坐标应该大于15，最大不超过32
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f},
-                {20.0f, 25.0f,  2.2f, 0.37f, 0.36f, 5.2f}
+                {18.0f, 28.0f,  2.0f, 0.4f, 0.2f, 5.5f},
+                {18.0f, 28.0f,  2.0f, 0.4f, 0.2f, 5.5f},
+                {18.0f, 28.0f,  2.0f, 0.4f, 0.2f, 5.5f},
+                {18.0f, 28.0f,  2.0f, 0.4f, 0.2f, 5.5f}
         },
         {
             2,//原地踏步//出现多种步态基高差距过大是会失效
@@ -412,14 +387,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
             4,//小步Trot（稳速）
-            /*{20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
-            {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
-            {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
-            {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f}*/
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f},
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f},
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f},
-                {18.0f, 6.0f,  4.0f, 0.8f, 0.3f, 3.0f}
+                {18.0f, 10.0f,  3.0f, 0.8f, 0.125f, 1.5f},
+                {18.0f, 10.0f,  3.0f, 0.8f, 0.125f, 1.5f},
+                {18.0f, 10.0f,  3.0f, 0.8f, 0.125f, 1.5f},
+                {18.0f, 10.0f,  3.0f, 0.8f, 0.125f, 1.5f}
 
         },
         {
@@ -429,34 +400,27 @@ DetachedParam state_detached_params[StatesMaxNum] = {
             {20.0f, 22.5f,  2.5f, 1.2f, 0.3f, 5.5f},
             {20.0f, 22.5f,  2.5f, 1.2f, 0.3f, 5.5f},
             {20.0f, 22.5f,  2.5f, 1.2f, 0.3f, 5.5f}
-
-
-
         },
         {
                 6,//左微
-                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f},
-                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f},
-                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f},
-                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f}
+                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f},
+                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f},
+                {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f},
+                {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f}
         },
         {
                 7,//右微
-                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f},
-                {20.0f, 0.0f,  5.0f, 1.0f, 0.2f, 4.0f},
-                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f},
-                {14.0f, 0.0f,  1.0f, 1.0f, 0.2f, 4.0f}
+                {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f},
+                {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f},
+                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f},
+                {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f}
         },
         {
                 8,//小步Trot（稳速）
-                /*{20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
-                {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
-                {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f},
-                {20.0f, 15.0f,  1.5f, 1.0f, 0.18f, 2.0f}*/
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f},
-                {16.8f, 8.0f,  0.0f, 4.6f, 0.3f, 1.6f}
+                {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f},
+                {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f},
+                {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f},
+                {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f}
 
         }
 };
@@ -466,6 +430,8 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction)
 {
     float normal_step_left = 0,normal_step_right = 0;
+    StepLenthMin = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - 5.0f;
+    StepLenthMax = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + 5.0f;
     if(IMU_Control_Flag)
     {
         ChangeYawOfPID(0.5f,0.05f,3000.0f,10.0f);
@@ -496,6 +462,9 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
         State_Detached_Params->detached_params_2.step_length = normal_step_right;
         State_Detached_Params->detached_params_3.step_length = normal_step_right;
+
+        usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],State_Detached_Params->detached_params_0.step_length,
+                     State_Detached_Params->detached_params_2.step_length);
     }
     else if(visual_control_flag)
     {

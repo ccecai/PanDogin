@@ -17,7 +17,6 @@ void StandUp_Posture(void)
 {
     ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
-
     Get_Target(0,PI);
     SetCoupledThetaPositionAll();
 }
@@ -56,28 +55,30 @@ void Trot(float direction,int8_t kind)
             Solpe_flag = 0;
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(20.0f,0.8f,0.6f,0);
+            ChangeGainOfPID(20.0f,2.0f,0.6f,0);
             ChangeYawOfPID(0.1f,0.01f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[1], direction);
             gait_detached(state_detached_params[1],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
             break;
         case 2://双木桥
+//            Control_Flag(1,0);//选择是否开启陀螺仪与视觉纠偏开关
+
             Solpe_flag = 0;
             AllLegsSpeedLimit(SpeedMode_EARLYEX);
             NewHeartbeat = 5;
-            ChangeGainOfPID(17.0f,0.8f,0.6f,0);
+            ChangeGainOfPID(17.0f,1.0f,0.6f,0);
             ChangeYawOfPID(0.35f,0.035f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[4], direction);
             gait_detached(state_detached_params[4],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
             break;
         case 3://斜坡
-//            Solpe_flag = 1;
-            AllLegsSpeedLimit(18.0f);
-            NewHeartbeat = 4;
-            ChangeGainOfPID(18.0f,0.2f,0.6f,0);
-            ChangeYawOfPID(0.1f,0.01f,3000.0f,10.0f);
+            Control_Flag(1,0);//选择是否开启陀螺仪与视觉纠偏开关
+            AllLegsSpeedLimit(30.0f);
+            NewHeartbeat = 5;
+            ChangeGainOfPID(20.0f,2.0f,0.6f,0);
+            ChangeYawOfPID(0.3f,0.03f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[8], direction);
             gait_detached(state_detached_params[8],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
@@ -129,20 +130,12 @@ void Turn(int state_flag,int speed_flag)
             state_detached_params[0].detached_params_1.step_length = -length;
             state_detached_params[0].detached_params_2.step_length = length;
             state_detached_params[0].detached_params_3.step_length = length;
-//            state_detached_params[0].detached_params_0.step_length = -23.0f;
-//            state_detached_params[0].detached_params_1.step_length = -23.0f;
-//            state_detached_params[0].detached_params_2.step_length = -0.8f;
-//            state_detached_params[0].detached_params_3.step_length = -0.8f;
             break;
         case 'r':
             state_detached_params[0].detached_params_0.step_length = length;
             state_detached_params[0].detached_params_1.step_length = length;
             state_detached_params[0].detached_params_2.step_length = -length;
             state_detached_params[0].detached_params_3.step_length = -length;
-//            state_detached_params[0].detached_params_0.step_length = -0.8f;
-//            state_detached_params[0].detached_params_1.step_length = -0.8f;
-//            state_detached_params[0].detached_params_2.step_length = -23.0f;
-//            state_detached_params[0].detached_params_3.step_length = -23.0f;
             break;
         default:
             break;
@@ -255,16 +248,16 @@ void Translate(int direction)
 {
     switch (direction) {
         case 'r':
-            AllLegsSpeedLimit(30.0f);
+            AllLegsSpeedLimit(15.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(23.0f,2.3f,0.6f,0);
+            ChangeGainOfPID(15.0f,2.0f,0.6f,0);
             gait_detached(state_detached_params[6],0.5f, 0.5f, 0.0f, 0.0f,
                           direction,direction,direction,direction);
             break;
         case 'l':
-            AllLegsSpeedLimit(30.0f);
+            AllLegsSpeedLimit(15.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(23.0f,2.3f,0.6f,0);
+            ChangeGainOfPID(15.0f,2.0f,0.6f,0);
             gait_detached(state_detached_params[7],0.5f, 0.5f, 0.0f, 0.0f,
                           direction,direction,direction,direction);
             break;
@@ -284,10 +277,10 @@ void WarnPosture(void)//警戒
 
 void KneelPosture(void)//跪下
 {
-    ChangeGainOfPID(8,0.1f,80,0.22);//恢复正常PD
+    ChangeGainOfPID(10.0f,0.1f,80,0.22);//恢复正常PD
     AllLegsSpeedLimit(SpeedMode_SLOW);
-    TargetAngle1=-(199.89f+offset_front_0-180.0f);//-(199.89+offset_front_1-180)
-    TargetAngle2=180.0f-(88.8f-offset_front_1);//180-(88.8-offset_front_1)
+    TargetAngle1=-(3.48874f+offset_front_0-PI);//-(199.89+offset_front_1-180)
+    TargetAngle2=PI-(1.549853f-offset_front_1);//180-(88.8-offset_front_1)
     SetCoupledThetaPositionAll();
     gpstate = STOP;
     osDelay(700);
@@ -295,81 +288,54 @@ void KneelPosture(void)//跪下
 
 void Race_Competition(void)
 {
-    if(Race_count == 0 && Distance >= 160.0f)
-    {
+    /**
+     * 从起点出发，前往第一个必达区的代码
+     */
+    if (Radar_FinalData.x_pos <= 560.0f && Race_count == 0) //略小于8000mm场地边长的距离大小
+        Trot(Forward,1);
+
+    /**
+     * 进行斜着跳跃45度，再进行后退到达第二个必达区
+     */
+    else if (Radar_FinalData.x_pos > 560.0f && Race_count++ == 0)
+        Turn_Jump(45);
+
+    /**
+     * 后退到达第二个必达区
+     */
+    else if (Radar_FinalData.x_pos >= 5.0f && Race_count == 1)
         Trot(Backward,1);
-    }
 
-    if(Distance < 160.0f && Race_count == 0)
-    {
-        while (IMU_EulerAngle.EulerAngle[Yaw] < 135.0f)
-        {
-            Turn('l','s');
-        }
-        for (int i = 0; i < 5; ++i) {
-            distance[i] = 300;
-        }
-        Distance = 300.0f;
-        visual.offset = 100;
-        yawwant = 135.0f;
-        Race_count++;
-        StandUp_Posture();
-        osDelay(200);
-    }
-    if(Race_count == 1 && Distance >= 95.0f)
-    {
+    /**
+     * 到达第二个必达区后，跳跃准备进入第三个必达区
+     */
+    else if (Radar_FinalData.x_pos < 5.0f && Race_count++ == 1)
+        Turn_Jump(45);
+
+    /**
+     * 前往第三个必达区
+     */
+    else if (Radar_FinalData.y_pos <= 560.0f && Race_count == 2)
+        Trot(Forward,1);
+
+    /**
+     * 跳跃准备进入第四个必达区
+     */
+    else if (Radar_FinalData.y_pos > 560.0f && Race_count++ == 2)
+        Turn_Jump(-45);
+
+    /**
+     * 后退前往第四个必达区
+     */
+    else if (Radar_FinalData.y_pos >= 5.0f && Race_count == 3)
         Trot(Backward,1);
-    }
-    if(Distance < 95.0f && Race_count == 1)
-    {
-        while (IMU_EulerAngle.EulerAngle[Yaw] < -91.0f || IMU_EulerAngle.EulerAngle[Yaw] > -89.0f)
-        {
-            Turn('l','s');
-        }
-        for (int i = 0; i < 5; ++i) {
-            distance[i] = 300;
-        }
-        Distance = 300.0f;
-        visual.offset = 100;
-        yawwant = -90.0f;
-        Race_count++;
+
+    /**
+     * 达到第四个必达区后停下来
+     */
+    else if(Radar_FinalData.y_pos < 5.0f && Race_count++ == 3)
         StandUp_Posture();
-        osDelay(200);
 
-    }
-    if(Race_count == 2 && Distance >= 160.0f)
-    {
-        Trot(Backward,1);
-    }
-    if(Race_count == 2 && Distance < 160.0f)
-    {
-
-        while (IMU_EulerAngle.EulerAngle[Yaw] > 136.0f || IMU_EulerAngle.EulerAngle[Yaw] < 134.0f)
-        {
-            Turn('r','s');
-        }
-
-        for (int i = 0; i < 5; ++i) {
-            distance[i] = 300;
-        }
-        Distance = 300.0f;
-        visual.offset = 100;
-        yawwant = -45.0f;
-        Race_count++;
-        StandUp_Posture();
-        osDelay(200);
-
-
-
-    }
-    if(Race_count == 3 && Distance >= 70.0f)
-    {
-        Trot(Backward,1);
-    }
-    if(Race_count == 3 && Distance < 70.0f)
-    {
-        StandUp_Posture();
-    }
 }
 
 int ll(void)
@@ -389,7 +355,7 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,68);
+    ExecuteJump(StepUp_Jump,68);
     osDelay(600);
     while(visual.data_8[5] < 12 || visual.data_8[5] > 17)
     {
@@ -418,7 +384,7 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,68);
+    ExecuteJump(StepUp_Jump,68);
     osDelay(700);
 
     while(visual.data_8[5] < 12 || visual.data_8[5] > 17)
@@ -449,7 +415,7 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,68);
+    ExecuteJump(StepUp_Jump,68);
     osDelay(700);
 
     while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
@@ -470,7 +436,7 @@ int ll(void)
     StandUp_Posture();
     osDelay(200);
 
-    ExecuteJump(High_Jump,68);
+    ExecuteJump(StepUp_Jump,68);
     osDelay(700);
 
     while(visual.data_8[9] > 13)
@@ -483,7 +449,7 @@ int ll(void)
         MarkingTime();
     }
 
-    ExecuteJump(Leap_Jump,76);
+    ExecuteJump(StepDown_Jump,76);
     osDelay(700);
 
     while(visual.data_8[10] < 20 || visual.data_8[10] > 28)
@@ -505,7 +471,7 @@ int ll(void)
         MarkingTime();
     }
 
-    ExecuteJump(Leap_Jump,76);
+    ExecuteJump(StepDown_Jump,76);
     osDelay(700);
 
     while(visual.data_8[10] < 20 || visual.data_8[10] > 28)
@@ -526,7 +492,7 @@ int ll(void)
         MarkingTime();
     }
 
-    ExecuteJump(High_Jump,62);
+    ExecuteJump(Bridge_Jump,62);
 
 
     return 0;
