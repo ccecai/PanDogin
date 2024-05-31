@@ -292,7 +292,6 @@ void Motor_stop(uint8_t id)
     MOTOR_Send[id][15] = Motor_s[id].CRC16;
     MOTOR_Send[id][16] = Motor_s[id].CRC16>>8;
 
-//    HAL_UART_Transmit_DMA(&huart6,(uint8_t *) MOTOR_Send[id],MOTOR_SEND_LENGTH);
     UART_SendMessage(id);
 
 }
@@ -303,29 +302,33 @@ void Motor_stop(uint8_t id)
 void Get_motor_began_pos(void)
 {
     Motor_stop(0);           //获得0号电机的初始位置
-    HAL_Delay(10);       //1s延时用于初始化，不发起任务调度
+    osDelay(10);       //1s延时用于初始化，不发起任务调度
     Motor_stop(1);           //获得1号电机的初始位置
-    HAL_Delay(10);       //1s延时用于初始化，不发起任务调度
+    osDelay(10);       //1s延时用于初始化，不发起任务调度
     Motor_stop(2);           //获得2号电机的初始位置
-    HAL_Delay(10);       //1s延时用于初始化，不发起任务调度
+    osDelay(10);       //1s延时用于初始化，不发起任务调度
     Motor_stop(3);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(4);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(5);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(6);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(7);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(8);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(9);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(10);
-    HAL_Delay(10);
+    osDelay(10);
     Motor_stop(11);
-    HAL_Delay(10);
+    osDelay(10);
+
+    for (int i = 1; i < 9; ++i) {
+        B_pos[i] = end_pos[i];
+    }
 }
 
 void Get_motor_began_pos1(void)

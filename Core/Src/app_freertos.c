@@ -171,7 +171,7 @@ void StartDebug(void const * argument)
   /* USER CODE BEGIN StartDebug */
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
-    Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
+    Control_Flag(0,0,1);//选择是否开启陀螺仪与视觉纠偏开关
     IMU_Slove(0,0);//是否开启障碍时腿时刻保持竖直
 
     printf("Init_Ready\n");
@@ -233,26 +233,14 @@ void GO1Init(void const * argument)
     Get_motor_began_pos();       //获得各个电机的初始位
     EndPosture();                //锁住电机
 
-    for (int i = 1; i < 9; ++i) {
-        B_pos[i] = end_pos[i];
-    }
-
-    visual.offset = 100;
-
     PID_Init(&Yaw_PID_Loop);
     ChangeYawOfPID(0.2f,0.1f,4000.0f,15.0f);//陀螺仪PID初始化
 
-    PID_Init(&Roll_PID_Loop);
-    Roll_PID_Loop.P = 0.2f;
-    Roll_PID_Loop.D = 0.02f;
-    Roll_PID_Loop.SumError = 4000.0f;
-    Roll_PID_Loop.Output_limit = 15.0f;
-
     PID_Init(&VisualLoop);
-    VisualLoop.P = 0.12f;
-    VisualLoop.D = 0.04f;
-    VisualLoop.SumError = 4000.0f;
-    VisualLoop.Output_limit = 15.0f;
+    ChangePID(&VisualLoop,0.12f,0.04f,4000.0f,15.0f);
+
+    PID_Init(&RadarController);
+    ChangePID(&RadarController,0.2f,0.1f,4000.0f,15.0f);
 
     printf("GO1 Init Ready\n");
     osDelay(3);

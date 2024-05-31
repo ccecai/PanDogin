@@ -5,19 +5,24 @@
 
 float AngleWant_MotorX[9] = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
 float step_angle[4] = {0};
+
 float times = 0.0f;
 float x,y;
+
 uint8_t reverse_move_flag = 0;
+
 float StepLenthMin = 0.0f;
 float StepLenthMax = 0.0f; //大小大概在45cm
-//float offset_front_0 = 0.539105f;
-//float offset_front_1 = 0.914364f;
+float Target_Slope = 0.0f;
+float Target_Xpos = 0.0f;
+float Target_Ypos = 0.0f;
+
 float offset_front_0 = 0.647f;
 float offset_front_1 = 0.98f;
 float offset_back_0 = 0.647f;//(-121.9f)
 float offset_back_1 = 0.98f;//207.2f
 
-uint8_t Barrier_flag = 0,FrontJump_flag = 0;
+uint8_t Barrier_flag = 0,Radar_control_flag = 0,FrontJump_flag = 0;
 //用于复制上方状态数组作为永恒基准。
 DetachedParam StateDetachedParams_Copy[StatesMaxNum] = {0};
 //调试时用来改变生成的轨迹参数
@@ -255,46 +260,6 @@ void SinTrajectory (float t,GaitParams params, float gaitOffset,float leg_direti
 
 }
 
-void SinTrajectory_Slope (float t,GaitParams params, float gaitOffset,float leg_diretion,float angle,int LegId)
-{
-///t=times*5/1000，即每1s变化1
-    //获取正弦函数的所要配置的参数
-    float stanceHeight = params.stance_height;//狗底盘离地高度
-    float downAMP = params.down_amp;//负峰值
-    float upAMP = params.up_amp;//正峰值
-    float flightPercent = params.flight_percent;//摆动相占比
-    float stepLength = params.step_length ;//步长
-    float FREQ = params.freq;//频率
-    if(leg_diretion<0) stepLength = -stepLength;//方向控制
-    //原始坐标初始化
-    float x0=0,y0=0;
-    /******相位（时间、周期循环）控制******/
-    static float p = 0,prev_t = 0;//相位时间累计(要想实现不同腿不同频率，就不能共用一个这个，而应该将其变为腿部参数特征)。
-    //由于t每次进入函数变化至少0.005，因此FREQ理论上要小于200。否则，p的变化量将大于等于1，从而导致运动出错。
-    //例如当FREQ=1时，每经过1s，t变化1，而p刚好变化1，故此时频率为1Hz，当FREQ=n时，频率显然就为nHz。故频率最大为200Hz。
-    //建议频率不要过大，因为频率越大意味着采样点数越少。而实际上我们不需要那么高频率，应将频率限制在0-5开区间范围内。
-    p += FREQ * (t - prev_t);//频率*时间变化量即为相位变化量。p每次变化所经历的时间是固定的5ms，但我们可以通过改变每次变化的大小来间接代替变化频率。FREQ越大，单次变化的就越大。
-    float gp = fmod((p+gaitOffset),1.0);//该函数返回 x/y 的余数，除1.0表明取小数部分，即将gp限制在0-1范围内。
-    prev_t = t;//将当前t值保存下来。
-    /******正弦轨迹生成******/
-    //足尖摆动相
-    if (gp <= flightPercent) //gp将从gaitOffset开始，因此当gaitOffset大于flightPercent时，将直接转到支撑相。
-    {
-        x0 = (gp/flightPercent)*stepLength - stepLength/2.0f;//从-stepLength/2到+stepLength/2，移动时间不随stepLength改变，故stepLength越大实际移动速度越快。
-        y0 = -upAMP*sin(PI*gp/flightPercent) + stanceHeight;//围绕stanceHeight为基础进行正弦波动。同样是upAMP越大移动速度越快。
-    }
-        //足尖支撑相
-    else //摆动总是从正弦轨迹的起始位置处执行。
-    {
-        float percentBack = (gp-flightPercent)/(1.0f-flightPercent);//percentBack与(gp/flightPercent)是一个道理
-        x0 = -percentBack*stepLength + stepLength/2.0f;//一般来说，首次进入时总是从stepLength/2开始，然后之后就向后运动。
-        y0 = downAMP*sin(PI*percentBack) + stanceHeight;//
-    }
-    //经过坐标系转换后得到最终结果(angle目前都是0，从而x=x0，y=y0)
-    x =  cos(angle*PI/180)*x0 + sin(angle*PI/180)*y0;
-    y = -sin(angle*PI/180)*x0 + cos(angle*PI/180)*y0;
-}
-
 /*
 * NAME: CoupledMoveLeg
 * FUNCTION :狗腿运动的耦合控制，用在gait_detached函数中
@@ -373,10 +338,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
             2,//原地踏步//出现多种步态基高差距过大是会失效
-            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f},
-            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f},
-            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f},
-            {18.0f, 0.0f,  4.5f, 0.5f, 0.25f, 3.0f}
+            {18.0f, 0.0f,  3.5f, 1.5f, 0.2f, 2.5f},
+            {18.0f, 0.0f,  3.5f, 1.5f, 0.2f, 2.5f},
+            {18.0f, 0.0f,  3.5f, 1.5f, 0.2f, 2.5f},
+            {18.0f, 0.0f,  3.5f, 1.5f, 0.2f, 2.5f}
         },
         {
             3,//Walk步态（没有调好）
@@ -430,15 +395,17 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction)
 {
     float normal_step_left = 0,normal_step_right = 0;
+
     StepLenthMin = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - 5.0f;
     StepLenthMax = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + 5.0f;
+
     if(IMU_Control_Flag)
     {
         ChangeYawOfPID(0.5f,0.05f,3000.0f,10.0f);
         /*******IMUのPID相关*******/
         //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
-        PID_PosLocM2006(&Yaw_PID_Loop,IMU_EulerAngle.EulerAngle[Yaw]);
+        PID_Pos(&Yaw_PID_Loop,IMU_EulerAngle.EulerAngle[Yaw]);
 
         if(direction != 1) Yaw_PID_Loop.Out_put = -Yaw_PID_Loop.Out_put;
         /**********步态控制*********/
@@ -463,16 +430,15 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
         State_Detached_Params->detached_params_2.step_length = normal_step_right;
         State_Detached_Params->detached_params_3.step_length = normal_step_right;
 
-        usart_printf("%f,%f,%f\n", IMU_EulerAngle.EulerAngle[Yaw],State_Detached_Params->detached_params_0.step_length,
-                     State_Detached_Params->detached_params_2.step_length);
     }
+
     else if(visual_control_flag)
     {
         /*******IMUのPID相关*******/
         //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
         SetPoint_Visual(&VisualLoop,MidPoint);
 
-        PID_PosLocM2006(&VisualLoop,visual.offset);
+        PID_Pos(&VisualLoop,visual.offset);
 
         if(direction != 1)
         {
@@ -500,6 +466,105 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
         State_Detached_Params->detached_params_2.step_length = normal_step_right;
         State_Detached_Params->detached_params_3.step_length = normal_step_right;
+    }
+
+    else if(Radar_control_flag == 1 && x_Rectification == 1)
+    {
+        /*******IMUのPID相关*******/
+        //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
+        ChangePID(&RadarController,0.2f,0.1f,4000.0f,15.0f);
+        SetPoint_IMU(&RadarController,Target_Xpos);
+        PID_Pos(&RadarController,Radar_FinalData.x_pos);
+
+        if(direction != 1) RadarController.Out_put = -RadarController.Out_put;
+        /**********步态控制*********/
+        //Yaw输出给步长参数
+        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - RadarController.Out_put;//左腿步长增加
+        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + RadarController.Out_put;//右腿步长减小
+        //步长限幅
+        if(normal_step_right > StepLenthMax)
+            normal_step_right = StepLenthMax;
+        else if(normal_step_right < StepLenthMin)
+            normal_step_right = StepLenthMin;
+
+        if(normal_step_left > StepLenthMax)
+            normal_step_left = StepLenthMax;
+        else if(normal_step_left < StepLenthMin)
+            normal_step_left = StepLenthMin;
+
+        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
+        State_Detached_Params->detached_params_0.step_length = normal_step_left;
+        State_Detached_Params->detached_params_1.step_length = normal_step_left;
+
+        State_Detached_Params->detached_params_2.step_length = normal_step_right;
+        State_Detached_Params->detached_params_3.step_length = normal_step_right;
+
+    }
+
+    else if(Radar_control_flag == 1 && y_Rectification == 1)
+    {
+        /*******IMUのPID相关*******/
+        //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
+        ChangePID(&RadarController,0.2f,0.1f,4000.0f,15.0f);
+        SetPoint_IMU(&RadarController,Target_Ypos);
+        PID_Pos(&RadarController,Radar_FinalData.y_pos);
+
+        if(direction != 1) RadarController.Out_put = -RadarController.Out_put;
+        /**********步态控制*********/
+        //Yaw输出给步长参数
+        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + RadarController.Out_put;//左腿步长增加
+        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - RadarController.Out_put;//右腿步长减小
+        //步长限幅
+        if(normal_step_right > StepLenthMax)
+            normal_step_right = StepLenthMax;
+        else if(normal_step_right < StepLenthMin)
+            normal_step_right = StepLenthMin;
+
+        if(normal_step_left > StepLenthMax)
+            normal_step_left = StepLenthMax;
+        else if(normal_step_left < StepLenthMin)
+            normal_step_left = StepLenthMin;
+
+        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
+        State_Detached_Params->detached_params_0.step_length = normal_step_left;
+        State_Detached_Params->detached_params_1.step_length = normal_step_left;
+
+        State_Detached_Params->detached_params_2.step_length = normal_step_right;
+        State_Detached_Params->detached_params_3.step_length = normal_step_right;
+
+    }
+
+    else if(Radar_control_flag == 1 && slope_Rectification == 1)
+    {
+        /*******IMUのPID相关*******/
+        //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
+        ChangePID(&RadarController,0.2f,0.1f,4000.0f,15.0f);
+        SetPoint_IMU(&RadarController,Radar_FinalData.x_pos / (Radar_FinalData.x_pos - Half_of_hypotenuse));
+        PID_Pos(&RadarController,Radar_FinalData.x_pos / Radar_FinalData.y_pos);
+
+        if(direction != 1) RadarController.Out_put = -RadarController.Out_put;
+        /**********步态控制*********/
+        //Yaw输出给步长参数
+        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - RadarController.Out_put;//左腿步长增加
+        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + RadarController.Out_put;//右腿步长减小
+        //步长限幅
+        if(normal_step_right > StepLenthMax)
+            normal_step_right = StepLenthMax;
+        else if(normal_step_right < StepLenthMin)
+            normal_step_right = StepLenthMin;
+
+        if(normal_step_left > StepLenthMax)
+            normal_step_left = StepLenthMax;
+        else if(normal_step_left < StepLenthMin)
+            normal_step_left = StepLenthMin;
+
+        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
+        State_Detached_Params->detached_params_0.step_length = normal_step_left;
+        State_Detached_Params->detached_params_1.step_length = normal_step_left;
+
+        State_Detached_Params->detached_params_2.step_length = normal_step_right;
+        State_Detached_Params->detached_params_3.step_length = normal_step_right;
+
     }
 }
 
@@ -575,22 +640,6 @@ void SetCartesianPositionFB_Delay(int Leg_FB,float x_want,float y_want,uint16_t 
     osDelay(delaytime);
 }
 
-//前/后腿的极坐标控制
-void SetPolarPositionFB_Delay(uint8_t Legs_FB, float polar_angle,float polar_diameter,uint16_t delaytime)
-{
-    float x_want,y_want;
-    if(polar_angle>=0)
-    {
-        x_want = -polar_diameter*cos(polar_angle*PI/180);
-        y_want =  polar_diameter*sin(polar_angle*PI/180);
-    }
-    else
-    {
-        x_want =  polar_diameter*cos(polar_angle*PI/180);
-        y_want = -polar_diameter*sin(polar_angle*PI/180);
-    }
-    SetCartesianPositionFB_Delay(Legs_FB,x_want,y_want,delaytime);
-}
 void ReverseMoveOpen(void)
 {
     reverse_move_flag=1;

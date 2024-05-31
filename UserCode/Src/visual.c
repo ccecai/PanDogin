@@ -12,6 +12,7 @@ float Distance = 0;
 void visual_process(void)
 {
     static uint8_t count = 0;
+
     if(visual_control_flag == 1)
     {
         visual.distance = (visual.data_8[0]-48) * 1000.0f + (visual.data_8[1]-48) * 100.0f + (visual.data_8[2]-48) * 10.0f + (visual.data_8[3]-48) * 1.0f ;

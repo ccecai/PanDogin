@@ -13,6 +13,7 @@ dog_leg_parameter DogLegsMotorXPID[8]={0};//核心存储数组之一
 PIDTypeDef AngleLoop[9];
 PIDTypeDef SpeedLoop[9];
 PIDTypeDef VisualLoop;
+PIDTypeDef RadarController;
 uint8_t OnlyPosLoop = 1;
 PIDTypeDef Yaw_PID_Loop={0},Roll_PID_Loop = {0},Pitch_PID_Loop={0};
 PIDTypeDef M2006_Speed,M2006_Position;
@@ -91,7 +92,29 @@ void PID_PosLocM2006(PIDTypeDef *pid, int32_t feedbackpos)//位置式
                    pid->I * pid->SumError +
                    pid->D * d_Error;
 
-//    usart_printf("%f,%f,%f,%f,%f\n",Yaw_PID_Loop.P,Yaw_PID_Loop.D,Now_Error,d_Error,IMU_EulerAngle.EulerAngle[Yaw]);
+    //限幅输出
+    if(pid->Out_put     > pid->Output_limit) pid->Out_put= pid->Output_limit;
+    else if(pid->Out_put<-pid->Output_limit) pid->Out_put=-pid->Output_limit;
+
+    pid->Last_Out_put = pid->Out_put;
+}
+
+void PID_Pos(PIDTypeDef *pid, float feedbackpos)//位置式
+{
+    float Now_Point,Now_Error,d_Error;
+    Now_Point = feedbackpos;
+    Now_Error=pid->Setpoint-Now_Point;
+    pid->SumError+=Now_Error;//这部分进行了累加，从而导致积分饱和现象。
+    //积分限幅（而增量式PID不需要积分限幅）积分限幅有两种思路，一种是限制sum（相对限制），另一种是限制I*sum（绝对限制），后者我认为更加合理，但考虑到新老代码的兼容性，仍然采用前者。
+    if(pid->SumError     >  pid->SumError_limit) pid->SumError= pid->SumError_limit;
+    else if(pid->SumError< -pid->SumError_limit) pid->SumError=-pid->SumError_limit;
+
+    d_Error = Now_Error - pid->Last_error;//误差之差，表示微分。
+    pid->Last_error=Now_Error;
+
+    pid->Out_put = pid->P * Now_Error +
+                   pid->I * pid->SumError +
+                   pid->D * d_Error;
 
     //限幅输出
     if(pid->Out_put     > pid->Output_limit) pid->Out_put= pid->Output_limit;
@@ -99,6 +122,7 @@ void PID_PosLocM2006(PIDTypeDef *pid, int32_t feedbackpos)//位置式
 
     pid->Last_Out_put = pid->Out_put;
 }
+
 
 //增量式PID计算（用于速度环，其输出作为电调的控制电流值）
 void PID_IncCalc(PIDTypeDef *pid,int16_t feedbackspeed)//增量式
@@ -119,11 +143,11 @@ void PID_IncCalc(PIDTypeDef *pid,int16_t feedbackspeed)//增量式
     else if (pid->Out_put<-pid->Output_limit) pid->Out_put=-pid->Output_limit;
 /*
 	为什么速度环采用增量式PID？
-		1.因为速度环往往是要求保持一定的速度，当我们需要维持一定的速度时，就需要维持一定的电流，
+		因为速度环往往是要求保持一定的速度，当我们需要维持一定的速度时，就需要维持一定的电流，
 		一旦当前速度与目标速度产生偏差，增量式PID就会对应产生一个增量输出，从而对电流值进行调节。
 		因而，可以说，如果说位置式pid的输出对应着当前值与目标值的偏差量，那么增量式pid则对应着随时
 		发生的变化量。即，位置式只要有误差就有输出，而增量式只有误差发生变化才有输出。
-		2.
+
 */
 }
 
@@ -134,7 +158,6 @@ void PID_IncCalc(PIDTypeDef *pid,int16_t feedbackspeed)//增量式
  */
 void ChangeGainOfPID(float pos_kp,float pos_kd,float sp_kp,float sp_ki)
 {
-//    speed_kp = sp_kp;
     for (uint8_t i=1;i<9;i++)
     {
         PID_Set_KP_KI_KD(&AngleLoop[i],pos_kp,0,pos_kd);
@@ -207,6 +230,14 @@ void ChangeYawOfPID(float Yaw_Kp,float Yaw_Kd,float sum_error,float output_limit
     Yaw_PID_Loop.D = Yaw_Kd;
     Yaw_PID_Loop.SumError_limit = sum_error;
     Yaw_PID_Loop.Output_limit = output_limit;
+}
+
+void ChangePID(PIDTypeDef *PID,float Kp,float Kd,float sum_error,float output_limit)
+{
+    PID->P = Kp;
+    PID->D = Kd;
+    PID->SumError = sum_error;
+    PID->Output_limit = output_limit;
 }
 
 /*!

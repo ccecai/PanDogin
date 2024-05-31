@@ -13,6 +13,8 @@ void Myinit(void)
     RetargetInit(&huart3);
     HAL_TIM_Base_Start_IT(&htim2);
 
+    visual.offset = 100;//视觉纠偏的值进行初始化
+
     memcpy(StateDetachedParams_Copy,state_detached_params,100*StatesMaxNum);//state_detached_params每个元素（DetachedParam型,即每种步态，外加一个u8的ID号）。
     //实际占据的字节数为4*6*4+4=96+4=100（＋4而不是加1是因为要4字节对齐）。
     //设定StatesMaxNum，则拷贝的上限为100*StateMaxNum，不要少拷贝，可以多拷贝，但多拷贝的不要用。

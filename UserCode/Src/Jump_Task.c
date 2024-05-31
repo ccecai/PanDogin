@@ -17,7 +17,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         /***
          * 双木桥用的跳
          */
-        Control_Flag(1,0);//选择是否开启陀螺仪与视觉纠偏开关
+//        Control_Flag(1,0);//选择是否开启陀螺仪与视觉纠偏开关
         speed_kp = 0.28f;
         /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
         const uint16_t prep_time = 800;       //准备时间，即收缩退准备起跳的时间  [s]  0.4
@@ -60,7 +60,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
          * 上台阶用的跳
          */
         speed_kp = 0.25f;
-        Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
+//        Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
 
         IMU_Slove(1,0);//是否开启障碍时腿时刻保持竖直
         /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
@@ -106,7 +106,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
          * 下台阶用的跳
          */
         speed_kp = 0.25f;
-        Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
+//        Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
 
         IMU_Slove(1,0);//是否开启障碍时腿时刻保持竖直
         /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
@@ -152,7 +152,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
 int FrontJump(void )
 {
 
-    Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
+//    Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
     speed_kp = 0.28f;
     IMU_Slove(0,1);//是否开启障碍时腿时刻保持竖直
     /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
