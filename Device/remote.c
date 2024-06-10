@@ -133,11 +133,11 @@ void Remote_Controller(void)
         default:
             break;
     }
-//    if (Desk_Data[27] == 2 && flag == 0)
+//    if (Desk_Data[8] == 2 && flag == 0)
 //        gpstate = 37;
-//    else if (Desk_Data[27] == 3 && flag == 0)
+//    else if (Desk_Data[8] == 3 && flag == 0)
 //        gpstate = 36;
-//    else if(Desk_Data[27] == 1 && flag == 0)
+//    else if(Desk_Data[8] == 1 && flag == 0)
 //        StandUp_Posture();
 
 }

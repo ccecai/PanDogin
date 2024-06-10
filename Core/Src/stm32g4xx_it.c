@@ -447,7 +447,7 @@ void UART4_IRQHandler(void)
         __HAL_UART_CLEAR_IDLEFLAG(&huart4);//清除空闲中断接受标志wei
         HAL_UART_DMAStop(&huart4);//关闭DMA接受
 
-        Process();
+        visual_process();
     }
     HAL_UART_Receive_DMA(&huart4,(uint8_t *)&Desk_Data,Length_of_Desk);//使能串口5 DMA接受
   /* USER CODE END UART4_IRQn 0 */

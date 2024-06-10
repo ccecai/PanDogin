@@ -114,20 +114,20 @@ void SetCoupledThetaPosition(int LegId)
     {
         switch(LegId) {
             case 0:
-                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
-                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 +Pitch_Data / 180 * PI;
                 break;
             case 1:
-                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - Pitch_Data/ 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + Pitch_Data/ 180 * PI;
                 break;
             case 2:
-                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;//-4.0f
-                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 -Pitch_Data / 180 * PI;//-4.0f
+                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 +Pitch_Data / 180 * PI;
                 break;
             case 3:
-                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
-                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + IMU_EulerAngle.EulerAngle[Pitch] / 180 * PI;
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - Pitch_Data/ 180 * PI;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + Pitch_Data/ 180 * PI;
                 break;
             default:
                 break;
@@ -405,7 +405,7 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
         /*******IMUのPID相关*******/
         //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
-        PID_Pos(&Yaw_PID_Loop,Radar_FinalData.yaw);
+        PID_Pos(&Yaw_PID_Loop,Yaw_Data);
 
         if(direction != 1) Yaw_PID_Loop.Out_put = -Yaw_PID_Loop.Out_put;
         /**********步态控制*********/
@@ -437,8 +437,8 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
         /*******IMUのPID相关*******/
         //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
         SetPoint_Visual(&VisualLoop,MidPoint);
-
-        PID_Pos(&VisualLoop,visual.offset);
+        ChangePID(&VisualLoop,0.12f,0.04f,4000.0f,15.0f);
+        PID_Pos(&VisualLoop,Distance);
 
         if(direction != 1)
         {
@@ -468,166 +468,6 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
         State_Detached_Params->detached_params_3.step_length = normal_step_right;
     }
 
-    else if(Radar_control_flag == 1 && x_Rectification == 1)
-    {
-        /*******IMUのPID相关*******/
-        //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
-        ChangeYawOfPID(0.5f,0.05f,3000.0f,10.0f);
-        SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
-        PID_Pos(&Yaw_PID_Loop,Radar_FinalData.yaw);
-
-        ChangePID(&RadarController,17.0f,3.0f,4000.0f,15.0f);
-        SetPoint_IMU(&RadarController,Target_Xpos);
-        PID_Pos(&RadarController,Radar_FinalData.x_pos);
-
-        if(direction != 1) RadarController.Out_put = -RadarController.Out_put;
-        /**********步态控制*********/
-        //Yaw输出给步长参数
-        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + RadarController.Out_put - Yaw_PID_Loop.Out_put;//左腿步长增加
-        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - RadarController.Out_put + Yaw_PID_Loop.Out_put;//右腿步长减小
-        //步长限幅
-        if(normal_step_right > StepLenthMax)
-            normal_step_right = StepLenthMax;
-        else if(normal_step_right < StepLenthMin)
-            normal_step_right = StepLenthMin;
-
-        if(normal_step_left > StepLenthMax)
-            normal_step_left = StepLenthMax;
-        else if(normal_step_left < StepLenthMin)
-            normal_step_left = StepLenthMin;
-
-        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
-        State_Detached_Params->detached_params_0.step_length = normal_step_left;
-        State_Detached_Params->detached_params_1.step_length = normal_step_left;
-
-        State_Detached_Params->detached_params_2.step_length = normal_step_right;
-        State_Detached_Params->detached_params_3.step_length = normal_step_right;
-
-    }
-
-    else if(Radar_control_flag == 1 && y_Rectification == 1)
-    {
-        /*******IMUのPID相关*******/
-        //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
-        ChangeYawOfPID(0.5f,0.05f,3000.0f,10.0f);
-        SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
-        PID_Pos(&Yaw_PID_Loop,Radar_FinalData.yaw);
-
-        ChangePID(&RadarController,17.0f,3.0f,4000.0f,15.0f);
-        SetPoint_IMU(&RadarController,Target_Ypos);
-        PID_Pos(&RadarController,Radar_FinalData.y_pos);
-
-        if(direction != 1)
-        {RadarController.Out_put = -RadarController.Out_put; Yaw_PID_Loop.Out_put = -Yaw_PID_Loop.Out_put;}
-        /**********步态控制*********/
-        //Yaw输出给步长参数
-        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - RadarController.Out_put - Yaw_PID_Loop.Out_put;//左腿步长增加
-        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + RadarController.Out_put + Yaw_PID_Loop.Out_put;//右腿步长减小
-
-        //步长限幅
-        if(normal_step_right > StepLenthMax)
-            normal_step_right = StepLenthMax;
-        else if(normal_step_right < StepLenthMin)
-            normal_step_right = StepLenthMin;
-
-        if(normal_step_left > StepLenthMax)
-            normal_step_left = StepLenthMax;
-        else if(normal_step_left < StepLenthMin)
-            normal_step_left = StepLenthMin;
-
-        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
-        State_Detached_Params->detached_params_0.step_length = normal_step_left;
-        State_Detached_Params->detached_params_1.step_length = normal_step_left;
-
-        State_Detached_Params->detached_params_2.step_length = normal_step_right;
-        State_Detached_Params->detached_params_3.step_length = normal_step_right;
-
-    }
-
-    else if(Radar_control_flag == 1 && slope1_Rectification == 1)
-    {
-        /*******IMUのPID相关*******/
-
-        ChangeYawOfPID(0.5f,0.05f,3000.0f,10.0f);
-        SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
-        PID_Pos(&Yaw_PID_Loop,Radar_FinalData.yaw);
-
-        //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
-        ChangePID(&RadarController,17.0f,3.0f,4000.0f,15.0f);
-        SetPoint_IMU(&RadarController, 0.0f);
-        PID_Pos(&RadarController,pow(pow(Radar_FinalData.x_pos - 0.5*Radar_FinalData.x_pos - 0.5*Radar_FinalData.y_pos - 0.5*Half_of_hypotenuse,2) + pow(Radar_FinalData.y_pos - 0.5*Radar_FinalData.x_pos - 0.5*Radar_FinalData.y_pos + 0.5*Half_of_hypotenuse,2), 0.5f));
-
-        if(pow(Radar_FinalData.x_pos,2) + pow(Radar_FinalData.y_pos,2) < pow(0.5*Radar_FinalData.x_pos + 0.5*Radar_FinalData.y_pos + 0.5*Half_of_hypotenuse,2) + pow(0.5*Radar_FinalData.x_pos + 0.5*Radar_FinalData.y_pos - 0.5*Half_of_hypotenuse,2))
-            RadarController.Out_put = -RadarController.Out_put;
-
-        if(direction != 1)
-        {RadarController.Out_put = -RadarController.Out_put; Yaw_PID_Loop.Out_put = -Yaw_PID_Loop.Out_put;}
-        /**********步态控制*********/
-        //Yaw输出给步长参数
-        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - RadarController.Out_put - Yaw_PID_Loop.Out_put;//左腿步长增加
-        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + RadarController.Out_put + Yaw_PID_Loop.Out_put;//右腿步长减小
-        //步长限幅
-        if(normal_step_right > StepLenthMax)
-            normal_step_right = StepLenthMax;
-        else if(normal_step_right < StepLenthMin)
-            normal_step_right = StepLenthMin;
-
-        if(normal_step_left > StepLenthMax)
-            normal_step_left = StepLenthMax;
-        else if(normal_step_left < StepLenthMin)
-            normal_step_left = StepLenthMin;
-
-        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
-        State_Detached_Params->detached_params_0.step_length = normal_step_left;
-        State_Detached_Params->detached_params_1.step_length = normal_step_left;
-
-        State_Detached_Params->detached_params_2.step_length = normal_step_right;
-        State_Detached_Params->detached_params_3.step_length = normal_step_right;
-
-    }
-
-    else if(Radar_control_flag == 1 && slope2_Rectification == 1)
-    {
-        /*******IMUのPID相关*******/
-
-        ChangeYawOfPID(0.5f,0.05f,3000.0f,10.0f);
-        SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
-        PID_Pos(&Yaw_PID_Loop,Radar_FinalData.yaw);
-
-        //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
-        ChangePID(&RadarController,17.0f,3.0f,4000.0f,15.0f);
-        SetPoint_IMU(&RadarController, 0.0f);
-        PID_Pos(&RadarController,pow(pow(Radar_FinalData.x_pos - 0.5*Radar_FinalData.x_pos - 0.5*Radar_FinalData.y_pos + 0.5*(Half_of_hypotenuse + 0.22f),2) + pow(Radar_FinalData.y_pos - 0.5*Radar_FinalData.x_pos - 0.5*Radar_FinalData.y_pos - 0.5*(Half_of_hypotenuse + 0.22f),2), 0.5f));
-
-        if(pow(Radar_FinalData.x_pos,2) + pow(Radar_FinalData.y_pos,2) > pow(0.5*Radar_FinalData.x_pos + 0.5*Radar_FinalData.y_pos - 0.5*(Half_of_hypotenuse + 0.25f),2) + pow(0.5*Radar_FinalData.x_pos + 0.5*Radar_FinalData.y_pos + 0.5*(Half_of_hypotenuse + 0.25f),2))
-            RadarController.Out_put = -RadarController.Out_put;
-
-        if(direction != 1)
-        {RadarController.Out_put = -RadarController.Out_put; Yaw_PID_Loop.Out_put = -Yaw_PID_Loop.Out_put;}
-        /**********步态控制*********/
-        //Yaw输出给步长参数
-        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - RadarController.Out_put - Yaw_PID_Loop.Out_put;//左腿步长增加
-        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + RadarController.Out_put + Yaw_PID_Loop.Out_put
-                ;//右腿步长减小
-        //步长限幅
-        if(normal_step_right > StepLenthMax)
-            normal_step_right = StepLenthMax;
-        else if(normal_step_right < StepLenthMin)
-            normal_step_right = StepLenthMin;
-
-        if(normal_step_left > StepLenthMax)
-            normal_step_left = StepLenthMax;
-        else if(normal_step_left < StepLenthMin)
-            normal_step_left = StepLenthMin;
-
-        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
-        State_Detached_Params->detached_params_0.step_length = normal_step_left;
-        State_Detached_Params->detached_params_1.step_length = normal_step_left;
-
-        State_Detached_Params->detached_params_2.step_length = normal_step_right;
-        State_Detached_Params->detached_params_3.step_length = normal_step_right;
-
-    }
 }
 
 //直接设置所需x，y位置进行电机控制

@@ -17,8 +17,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         /***
          * 双木桥用的跳
          */
-//        Control_Flag(1,0);//选择是否开启陀螺仪与视觉纠偏开关
-        speed_kp = 0.28f;
+        speed_kp = 0.24f;
         /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
         const uint16_t prep_time = 800;       //准备时间，即收缩退准备起跳的时间  [s]  0.4
         const uint16_t launch_time = 260;    //伸展腿的持续时间                  [s]  0.2
@@ -35,8 +34,8 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         SetPolarPositionAll_Delay(JumpAngle, stance_height, prep_time);
         //芜湖起飞（核心），持续时间为launch_time
         AllLegsSpeedLimit(30.0f);//速度拉满
-        AngleLoop[5].Output_limit = 28.0f;
-        AngleLoop[6].Output_limit = 28.0f;
+//        AngleLoop[5].Output_limit = 28.0f;
+//        AngleLoop[6].Output_limit = 28.0f;
         ChangeGainOfPID(50.0f,0.8f,0, 0);//使用刚度小，阻尼大的增益0
         SetPolarPositionAll_Delay(JumpAngle, jump_extension, launch_time);
 
@@ -59,7 +58,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         /**
          * 上台阶用的跳
          */
-        speed_kp = 0.25f;
+        speed_kp = 0.24f;
 //        Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
 
         IMU_Slove(1,0);//是否开启障碍时腿时刻保持竖直
@@ -105,7 +104,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         /**
          * 下台阶用的跳
          */
-        speed_kp = 0.25f;
+        speed_kp = 0.24f;
 //        Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
 
         IMU_Slove(1,0);//是否开启障碍时腿时刻保持竖直
@@ -153,7 +152,7 @@ int FrontJump(void )
 {
 
 //    Control_Flag(0,0);//选择是否开启陀螺仪与视觉纠偏开关
-    speed_kp = 0.28f;
+    speed_kp = 0.24f;
     IMU_Slove(0,1);//是否开启障碍时腿时刻保持竖直
     /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
     const uint16_t prep_time = 1000;       //准备时间，即收缩退准备起跳的时间  [s]  0.4
@@ -172,7 +171,7 @@ int FrontJump(void )
     osDelay(prep_time);
 
     //后腿起跳的函数
-    speed_kp = 0.28f;//增加顺时阻尼
+    speed_kp = 0.24f;//增加顺时阻尼
     AllLegsSpeedLimit(27.0f);//腾空不要太快留有余量利用惯性来前进
     ChangeGainOfPID(40.0f,2.0f,0, 0);//使用刚度小，阻尼大的增益0
     SetPolarPositionLeg_Delay(85.0f, LegLenthExtremeMax, launch_time,1);
@@ -197,7 +196,7 @@ int FrontJump(void )
 /**
  * 如果没有翻过去还可以返回站立态
  */
-    while (IMU_EulerAngle.EulerAngle[Pitch] > -87.0f)
+    while (Pitch_Data > -87.0f)
     {
         if(gpstate == 1)
         {
@@ -223,7 +222,7 @@ int FrontJump(void )
     SetCoupledThetaPosition(3);
 
     wait_flag = 0;
-    speed_kp = 0.3f;
+    speed_kp = 0.25f;
 /**
  * 前面的腿准备起跳
  */
@@ -287,7 +286,7 @@ void Turn_Jump(int16_t Jump_angle)
     const float jump_landlegheight = LegStandLenth; //落地时腿长度  [cm]，理论上应等于LegStandLenth
     switch (Jump_angle) {
         case 45:
-            speed_kp = 0.28f;
+            speed_kp = 0.24f;
 
             //下蹲，准备起跳，持续时间为prep_time
             AllLegsSpeedLimit(SpeedMode_EARLYEX);

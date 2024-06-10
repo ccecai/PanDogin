@@ -12,7 +12,7 @@ float TargetAngle = 0;
 int Race_count = 0;
 uint8_t IMU_Stand_flag = 0;
 uint8_t Solpe_flag = 0;
-
+uint8_t Front_Camare_flag = 1,Back_Camare_flag = 0;
 uint8_t x_Rectification = 0,y_Rectification = 1, slope1_Rectification = 0, slope2_Rectification = 0;
 
 void StandUp_Posture(void)
@@ -284,241 +284,77 @@ void KneelPosture(void)//跪下
 
 void Race_Competition(void)
 {
-    /**
-     * 从起点出发，前往第一个必达区的代码
-     */
-    if(Radar_FinalData.x_pos <= Half_of_hypotenuse && Race_count == 0) //略小于8000mm场地边长的距离大小
-        Trot(Forward,1);
-
-    /**
-     * 进行斜着跳跃45度，再进行后退到达第二个必达区
-     */
-    if(Radar_FinalData.x_pos > Half_of_hypotenuse && Race_count == 0)
+    if(Distance >= FrontLength_of_Jump && Race_count == 0)
     {
-        x_Rectification = 0;
-        y_Rectification = 0;
-        slope1_Rectification = 1;
-        slope2_Rectification = 0;
-
-        yawwant = 45.0f;
-        Race_count++;
-        Turn_Jump(-45);
+        Trot(Forward,1);
     }
 
-
-    /**
-     * 后退到达第二个必达区
-     */
-    if (Radar_FinalData.x_pos >= End_of_hypotenuse && Race_count == 1)
-        Trot(Backward,1);
-
-
-    /**
-     * 到达第二个必达区后，跳跃准备进入第三个必达区
-     */
-    if (Radar_FinalData.x_pos < End_of_hypotenuse && Race_count == 1)
+    if(Distance < FrontLength_of_Jump && Race_count == 0)
     {
-        x_Rectification = 1;
-        y_Rectification = 0;
-        slope1_Rectification = 0;
-        slope2_Rectification = 0;
-
-        yawwant = 90.0f;
-        Race_count++;
-        Turn_Jump(-45);
-    }
-    /**
-     * 前往第三个必达区
-     */
-    if (Radar_FinalData.y_pos <= Half_of_hypotenuse && Race_count == 2)
-        Trot(Forward,1);
-
-    /**
-     * 跳跃准备进入第四个必达区
-     */
-    if (Radar_FinalData.y_pos > Half_of_hypotenuse && Race_count == 2)
-    {
-        x_Rectification = 0;
-        y_Rectification = 0;
-        slope1_Rectification = 0;
-        slope2_Rectification = 1;
-
+        for (int i = 0; i < 5; ++i)
+        {
+            distance[i] = 300;
+        }
+        Distance = 300.0f;
+        visual.offset = 100;
         yawwant = 45.0f;
+
+        Front_Camare_flag = 0;
+        Back_Camare_flag = 1;
+
         Race_count++;
+
         Turn_Jump(45);
     }
-
-    /**
-     * 后退前往第四个必达区
-     */
-    if (Radar_FinalData.y_pos >= End_of_hypotenuse && Race_count == 3)
+    if(Distance >= BackLength_of_Jump && Race_count == 1)
+    {
         Trot(Backward,1);
+    }
+    if(Distance < BackLength_of_Jump && Race_count == 1)
+    {
+        for (int i = 0; i < 5; ++i) {
+            distance[i] = 300;
+        }
 
-    /**
-     * 达到第四个必达区后停下来
-     */
-    if(Radar_FinalData.y_pos < End_of_hypotenuse && Race_count == 3)
-        gpstate = 1;
+        Distance = 300.0f;
+        visual.offset = 100;
+        yawwant = -90.0f;
 
+        Front_Camare_flag = 1;
+        Back_Camare_flag = 0;
+
+        Race_count++;
+
+        Turn_Jump(45);
+
+    }
+    if(Race_count == 2 && Distance >= FrontLength_of_Jump)
+    {
+        Trot(Forward,1);
+    }
+    if(Race_count == 2 && Distance < FrontLength_of_Jump)
+    {
+        for (int i = 0; i < 5; ++i) {
+            distance[i] = 300;
+        }
+        Distance = 300.0f;
+        visual.offset = 100;
+        yawwant = 45.0f;
+
+        Front_Camare_flag = 0;
+        Back_Camare_flag = 1;
+
+        Race_count++;
+
+        Turn_Jump(-45);
+    }
+    if(Race_count == 3 && Distance >= BackLength_of_Jump)
+    {
+        Trot(Backward,1);
+    }
+    if(Race_count == 3 && Distance < BackLength_of_Jump)
+    {
+        StandUp_Posture();
+    }
 }
 
-int ll(void)
-{
-    while(visual.data_8[1] > 82)
-    {
-        Trot(Backward,2);
-    }
-
-    StandUp_Posture();
-    osDelay(200);
-
-    for (int i = 0; i < 500; ++i) {
-        MarkingTime();
-    }
-
-    StandUp_Posture();
-    osDelay(200);
-
-    ExecuteJump(StepUp_Jump,68);
-    osDelay(600);
-    while(visual.data_8[5] < 12 || visual.data_8[5] > 17)
-    {
-        if(visual.data_8[5] < 12)
-            Trot(Forward,2);
-        if(visual.data_8[5] > 17)
-            Trot(Backward,2);
-    }
-    while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-    {
-        if(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f)
-            Turn('r','s');
-        if(IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-            Turn('l','s');
-    }
-
-
-
-    StandUp_Posture();
-    osDelay(200);
-
-    for (int i = 0; i < 500; ++i) {
-        MarkingTime();
-    }
-
-    StandUp_Posture();
-    osDelay(200);
-
-    ExecuteJump(StepUp_Jump,68);
-    osDelay(700);
-
-    while(visual.data_8[5] < 12 || visual.data_8[5] > 17)
-    {
-        if(visual.data_8[5] < 12)
-            Trot(Forward,2);
-        if(visual.data_8[5] > 17)
-            Trot(Backward,2);
-    }
-
-    while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-    {
-        if(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f)
-            Turn('r','s');
-        if(IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-            Turn('l','s');
-    }
-
-
-
-    StandUp_Posture();
-    osDelay(200);
-
-    for (int i = 0; i < 500; ++i) {
-        MarkingTime();
-    }
-
-    StandUp_Posture();
-    osDelay(200);
-
-    ExecuteJump(StepUp_Jump,68);
-    osDelay(700);
-
-    while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-    {
-        if(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f)
-            Turn('r','s');
-        if(IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-            Turn('l','s');
-    }
-
-    StandUp_Posture();
-    osDelay(200);
-
-    for (int i = 0; i < 500; ++i) {
-        MarkingTime();
-    }
-
-    StandUp_Posture();
-    osDelay(200);
-
-    ExecuteJump(StepUp_Jump,68);
-    osDelay(700);
-
-    while(visual.data_8[9] > 13)
-        Trot(Backward,2);
-
-    StandUp_Posture();
-    osDelay(200);
-
-    for (int i = 0; i < 500; ++i) {
-        MarkingTime();
-    }
-
-    ExecuteJump(StepDown_Jump,76);
-    osDelay(700);
-
-    while(visual.data_8[10] < 20 || visual.data_8[10] > 28)
-    {
-        if(visual.data_8[10] < 20)
-            Trot(Backward,2);
-        if(visual.data_8[10] > 28)
-            Trot(Forward,2);
-    }
-    while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-    {
-        if(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f)
-            Turn('r','s');
-        if(IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-            Turn('l','s');
-    }
-
-    for (int i = 0; i < 500; ++i) {
-        MarkingTime();
-    }
-
-    ExecuteJump(StepDown_Jump,76);
-    osDelay(700);
-
-    while(visual.data_8[10] < 20 || visual.data_8[10] > 28)
-    {
-        if(visual.data_8[10] < 20)
-            Trot(Backward,2);
-        if(visual.data_8[10] > 28)
-            Trot(Forward,2);
-    }
-    while(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f || IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-    {
-        if(IMU_EulerAngle.EulerAngle[Yaw] > 0.5f)
-            Turn('r','s');
-        if(IMU_EulerAngle.EulerAngle[Yaw] < -0.5f)
-            Turn('l','s');
-    }
-    for (int i = 0; i < 500; ++i) {
-        MarkingTime();
-    }
-
-    ExecuteJump(Bridge_Jump,62);
-
-
-    return 0;
-
-}

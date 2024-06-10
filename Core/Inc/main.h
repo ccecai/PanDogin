@@ -44,6 +44,7 @@ extern "C" {
 #include "Jump_Task.h"
 #include "visual.h"
 #include "24l01.h"
+#include "imuTask.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

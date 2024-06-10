@@ -9,6 +9,8 @@
 #include "retarget.h"
 
 moto_info_t struct_debug1[8];
+FDCAN_RxHeaderTypeDef RxHeader2;
+uint8_t g_Can2RxData[64];
 
 float AngleChange(float angle)
 {
@@ -160,9 +162,77 @@ void set_current(FDCAN_HandleTypeDef *_hcan, int16_t id_range, int16_t current1,
     }
 }
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+uint8_t canx_send_data(FDCAN_HandleTypeDef *hcan, uint16_t id, uint8_t *data, uint32_t len)
+{
+    FDCAN_TxHeaderTypeDef TxHeader;
+
+    TxHeader.Identifier = id;                 // CAN ID
+    TxHeader.IdType =  FDCAN_STANDARD_ID ;
+    TxHeader.TxFrameType = FDCAN_DATA_FRAME;
+    if(len<=8)
+    {
+        TxHeader.DataLength = len<<16;     // 发送长度：8byte
+    }
+    else  if(len==12)
+    {
+        TxHeader.DataLength =FDCAN_DLC_BYTES_12;
+    }
+    else  if(len==16)
+    {
+        TxHeader.DataLength =FDCAN_DLC_BYTES_16;
+
+    }
+    else  if(len==20)
+    {
+        TxHeader.DataLength =FDCAN_DLC_BYTES_20;
+    }
+    else  if(len==24)
+    {
+        TxHeader.DataLength =FDCAN_DLC_BYTES_24;
+    }else  if(len==48)
+    {
+        TxHeader.DataLength =FDCAN_DLC_BYTES_48;
+    }else  if(len==64)
+    {
+        TxHeader.DataLength =FDCAN_DLC_BYTES_64;
+    }
+
+    TxHeader.ErrorStateIndicator =  FDCAN_ESI_ACTIVE;
+    TxHeader.BitRateSwitch = FDCAN_BRS_OFF;//比特率切换关闭，
+    TxHeader.FDFormat =  FDCAN_CLASSIC_CAN;            // CAN2.0
+    TxHeader.TxEventFifoControl =  FDCAN_NO_TX_EVENTS;
+    TxHeader.MessageMarker = 0;//消息标记
+
+    // 发送CAN指令
+    if(HAL_FDCAN_AddMessageToTxFifoQ(hcan, &TxHeader, data) != HAL_OK)
+    {
+        // 发送失败处理
+        Error_Handler();
+    }
+    return 0;
+}
+
+void fdcan2_rx_callback(void)
 {
 
+    /* Retrieve Rx messages from RX FIFO0 */
+    memset(g_Can2RxData, 0, sizeof(g_Can2RxData));
+    HAL_FDCAN_GetRxMessage(&hfdcan2, FDCAN_RX_FIFO0, &RxHeader2, g_Can2RxData);
+    switch(RxHeader2.Identifier)
+    { //电机反馈ID为0
+        case 0:dm4310_fbdata(&motor, g_Can2RxData, RxHeader2.DataLength);break;
+        default:break;
+
+    }
+}
+
+void fdcan1_rx_callback(void)
+{
+
+}
+
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
     HAL_StatusTypeDef HAL_RetVal;
     FDCAN_RxHeaderTypeDef RxHeader;
     uint8_t rxdata[8];
@@ -185,7 +255,6 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         }
         else if(hfdcan->Instance == FDCAN2)
         {
-
             HAL_RetVal = HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, rxdata);      //从CAN1接收数据，通过过滤器后放入FIFO0,存入RxMessage数据帧
             if(HAL_RetVal == HAL_OK)
             {
@@ -195,11 +264,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
                     motor_info_record(&struct_debug1[index], rxdata);   //解包
                 }
             }
-            __HAL_FDCAN_ENABLE_IT(&hfdcan2,FDCAN_IT_RX_FIFO0_NEW_MESSAGE);
+            __HAL_FDCAN_ENABLE_IT(&hfdcan1,FDCAN_IT_RX_FIFO0_NEW_MESSAGE);
         }
         else if(hfdcan->Instance == FDCAN3)
         {
-
             HAL_RetVal = HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, rxdata);      //从CAN1接收数据，通过过滤器后放入FIFO0,存入RxMessage数据帧
             if(HAL_RetVal == HAL_OK)
             {

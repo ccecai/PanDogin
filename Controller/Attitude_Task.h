@@ -15,8 +15,8 @@
 //×´Ì¬ÊýÉÏÏÞÅäÖÃ
 #define StatesMaxNum 20
 
-#define Half_of_hypotenuse 4.78f
-#define End_of_hypotenuse 0.0f
+#define FrontLength_of_Jump 160.0f
+#define BackLength_of_Jump 160.0f
 
 #define position 1
 #define Zero 0
@@ -103,6 +103,7 @@ extern int Race_count;
 extern uint8_t IMU_Stand_flag;
 extern uint8_t Solpe_flag;
 extern uint8_t x_Rectification ,y_Rectification, slope1_Rectification,slope2_Rectification;
+extern uint8_t Front_Camare_flag,Back_Camare_flag;
 
 void MarkingTime(void);
 void StandUp_Posture(void);
@@ -119,6 +120,5 @@ void Race_Competition(void);
 void Translate(int direction);
 void WarnPosture(void);//¾¯½ä
 void KneelPosture(void);
-int ll(void);
 
 #endif //MY_SCUDOG_ATTITUDE_TASK_H

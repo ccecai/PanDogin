@@ -50,11 +50,11 @@ else ()
     add_compile_options(-Og -g)
 endif ()
 
-include_directories(${includes} UserCode/Inc)
+include_directories(${includes} User/Inc Bsp Application Device Controller)
 
 add_definitions(${defines})
 
-file(GLOB_RECURSE SOURCES ${sources} "UserCode/*.*")
+file(GLOB_RECURSE SOURCES ${sources} "User/*.*" "Bsp/*.*" "Application/*.*" "Device/*.*" "Controller/*.*")
 
 set(LINKER_SCRIPT $${CMAKE_SOURCE_DIR}/${linkerScript})
 
