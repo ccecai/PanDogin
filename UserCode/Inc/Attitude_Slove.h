@@ -57,6 +57,7 @@ extern float AngleWant_MotorX[9];
 extern float x,y,Target_Slope,Target_Xpos,Target_Ypos;
 extern float offset_front_0,offset_front_1,offset_back_0,offset_back_1;
 extern uint8_t Barrier_flag,Radar_control_flag,FrontJump_flag;
+extern float normal_step_left ,normal_step_right ;
 
 void Get_Target(float theta1,float theta2);
 void SetCoupledThetaPositionAll(void);

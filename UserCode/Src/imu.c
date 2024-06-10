@@ -71,15 +71,16 @@ void Control_Flag(uint8_t IMU_Flag,uint8_t Visual_flag,uint8_t Radar_flag)
 {
     if(IMU_Flag == 1)
         IMU_Control_Flag = 1;
-    else if(Visual_flag == 1)
-        visual_control_flag = 1;
-    else if(Radar_flag == 1)
-        Radar_control_flag = 1;
-
-    if(IMU_Flag == 0)
+    else if(IMU_Flag == 0)
         IMU_Control_Flag = 0;
+
+    if(Visual_flag == 1)
+        visual_control_flag = 1;
     else if(Visual_flag == 0)
         visual_control_flag = 0;
+
+    if(Radar_flag == 1)
+        Radar_control_flag = 1;
     else if(Radar_flag == 0)
         Radar_control_flag = 0;
 }

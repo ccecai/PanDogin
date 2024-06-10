@@ -57,7 +57,7 @@ osThreadId TripodHeadHandle;
 osThreadId GO_Output_LeftHandle;
 osThreadId PIDHandle;
 osThreadId GO_Output_RightHandle;
-osMessageQId VisialHandle;
+osThreadId DebugHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -73,6 +73,7 @@ void TripodHeadTask(void const * argument);
 void GO_Output_LeftTask(void const * argument);
 void PIDTask(void const * argument);
 void GO_Output_RightTask(void const * argument);
+void DebugTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -98,30 +99,25 @@ void MX_FREERTOS_Init(void) {
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
-  /* Create the queue(s) */
-  /* definition and creation of Visial */
-  osMessageQDef(Visial, 1, uint8_t);
-  VisialHandle = osMessageCreate(osMessageQ(Visial), NULL);
-
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
   /* definition and creation of StartTask */
-  osThreadDef(StartTask, StartDebug, osPriorityLow, 0, 128);
+  osThreadDef(StartTask, StartDebug, osPriorityLow, 0, 256);
   StartTaskHandle = osThreadCreate(osThread(StartTask), NULL);
 
   /* definition and creation of BlueteethTask */
-  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityRealtime, 0, 512);
+  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityRealtime, 0, 3072);
   BlueteethTaskHandle = osThreadCreate(osThread(BlueteethTask), NULL);
 
   /* definition and creation of GO1Init_Task */
-  osThreadDef(GO1Init_Task, GO1Init, osPriorityLow, 0, 128);
+  osThreadDef(GO1Init_Task, GO1Init, osPriorityLow, 0, 256);
   GO1Init_TaskHandle = osThreadCreate(osThread(GO1Init_Task), NULL);
 
   /* definition and creation of FrontJump */
-  osThreadDef(FrontJump, FrontJumpTask, osPriorityHigh, 0, 512);
+  osThreadDef(FrontJump, FrontJumpTask, osPriorityAboveNormal, 0, 512);
   FrontJumpHandle = osThreadCreate(osThread(FrontJump), NULL);
 
   /* definition and creation of NRFTask */
@@ -129,7 +125,7 @@ void MX_FREERTOS_Init(void) {
   NRFTaskHandle = osThreadCreate(osThread(NRFTask), NULL);
 
   /* definition and creation of TripodHead */
-  osThreadDef(TripodHead, TripodHeadTask, osPriorityHigh, 0, 512);
+  osThreadDef(TripodHead, TripodHeadTask, osPriorityNormal, 0, 256);
   TripodHeadHandle = osThreadCreate(osThread(TripodHead), NULL);
 
   /* definition and creation of GO_Output_Left */
@@ -144,6 +140,10 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(GO_Output_Right, GO_Output_RightTask, osPriorityHigh, 0, 512);
   GO_Output_RightHandle = osThreadCreate(osThread(GO_Output_Right), NULL);
 
+  /* definition and creation of Debug */
+  osThreadDef(Debug, DebugTask, osPriorityAboveNormal, 0, 256);
+  DebugHandle = osThreadCreate(osThread(Debug), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
     vTaskResume(StartTaskHandle);
@@ -155,6 +155,7 @@ void MX_FREERTOS_Init(void) {
     vTaskSuspend(PIDHandle);
     vTaskSuspend(FrontJumpHandle);
     vTaskSuspend(NRFTaskHandle);
+    vTaskSuspend(DebugHandle);
   /* USER CODE END RTOS_THREADS */
 
 }
@@ -171,13 +172,13 @@ void StartDebug(void const * argument)
   /* USER CODE BEGIN StartDebug */
     Myinit();
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
-    Control_Flag(0,0,1);//选择是否开启陀螺仪与视觉纠偏开关
-    IMU_Slove(0,0);//是否开启障碍时腿时刻保持竖直
+    Control_Flag(0,0,1);//选择是否开启陀螺仪与视觉纠偏开关(竞速赛用的）
+    IMU_Slove(0,0);//是否开启障碍时腿时刻保持竖直（障碍赛用的）
 
     printf("Init_Ready\n");
     osDelay(3);
 
-    osDelay(1000); //在调试的时候延迟3秒用来打开急停开关
+    osDelay(1500); //在调试的时候延迟3秒用来打开急停开关
 
     vTaskResume(GO1Init_TaskHandle);
 
@@ -186,6 +187,7 @@ void StartDebug(void const * argument)
   {
       LED1_Flash;
       LED2_Flash;
+
 
       osDelay(500);
   }
@@ -203,14 +205,12 @@ void StartDebug(void const * argument)
 void BlueTeeth_RemoteControl(void const * argument)
 {
   /* USER CODE BEGIN BlueTeeth_RemoteControl */
+
   /* Infinite loop */
   for(;;)
   {
       Remote_Controller();
-      usart_printf("%d,%d\n",Desk_Data[0],Desk_Data[1]);
-//      usart_printf("%f,%f,%f,%f\n",(((end_pos[5] - began_pos[5])*2*pi)/(6.33f*32768)),(((end_pos[6] - began_pos[6])*2*pi)/(6.33f*32768)),
-//                   (((end_pos[7] - began_pos[7])*2*pi)/(6.33f*32768)),(((end_pos[8] - began_pos[8])*2*pi)/(6.33f*32768)));
-//      usart_printf("%f,%f,%f\n",IMU_EulerAngle.EulerAngle[Yaw],IMU_EulerAngle.EulerAngle[Roll],IMU_EulerAngle.EulerAngle[Pitch]);
+
       osDelay(1);
   }
   /* USER CODE END BlueTeeth_RemoteControl */
@@ -252,6 +252,7 @@ void GO1Init(void const * argument)
 //    vTaskResume(NRFTaskHandle);
 //    vTaskResume(TripodHeadHandle);
     vTaskResume(FrontJumpHandle);
+    vTaskResume(DebugHandle);
     vTaskSuspend(NULL); //电机初始化任务完成后自挂捏
   /* Infinite loop */
   for(;;)
@@ -271,7 +272,6 @@ void GO1Init(void const * argument)
 void FrontJumpTask(void const * argument)
 {
   /* USER CODE BEGIN FrontJumpTask */
-  static int count = 0;
   /* Infinite loop */
   for(;;)
   {
@@ -377,7 +377,7 @@ void GO_Output_LeftTask(void const * argument)
   for(;;)
   {
       leg_pos_controll02();
-      osDelay(1);
+      osDelay(2);
   }
   /* USER CODE END GO_Output_LeftTask */
 }
@@ -401,7 +401,7 @@ void PIDTask(void const * argument)
           PID_PosLocCalc(&AngleLoop[i], end_pos[i]);
       }
 
-    osDelay(2);
+    osDelay(5);
   }
   /* USER CODE END PIDTask */
 }
@@ -420,9 +420,29 @@ void GO_Output_RightTask(void const * argument)
   for(;;)
   {
       leg_pos_controll();
-      osDelay(1);
+      osDelay(2);
   }
   /* USER CODE END GO_Output_RightTask */
+}
+
+/* USER CODE BEGIN Header_DebugTask */
+/**
+* @brief Function implementing the Debug thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_DebugTask */
+void DebugTask(void const * argument)
+{
+  /* USER CODE BEGIN DebugTask */
+  /* Infinite loop */
+  for(;;)
+  {
+      usart_printf("%f,%f,%f\n",Radar_FinalData.x_pos,Radar_FinalData.y_pos,Radar_FinalData.yaw);
+
+      osDelay(10);
+  }
+  /* USER CODE END DebugTask */
 }
 
 /* Private application code --------------------------------------------------*/

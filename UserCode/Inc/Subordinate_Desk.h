@@ -8,7 +8,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#define Length_of_Desk 26
+#define Length_of_Desk 30
 
 typedef struct {
     float x_pos;
@@ -17,6 +17,10 @@ typedef struct {
     float yaw;
     float roll;
     float pitch;
+
+    float Last_x_pos;
+    float Last_y_pos;
+    float Last_z_pos;
 }Radar_Final;
 
 typedef struct {

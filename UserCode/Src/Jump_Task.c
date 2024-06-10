@@ -34,9 +34,9 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         ChangeGainOfPID(7.3f, 1.0f, 0, 0);//使用刚度小，阻尼大的增益
         SetPolarPositionAll_Delay(JumpAngle, stance_height, prep_time);
         //芜湖起飞（核心），持续时间为launch_time
-        AllLegsSpeedLimit(25.0f);//速度拉满
-        AngleLoop[5].Output_limit = 24.0f;
-        AngleLoop[6].Output_limit = 24.0f;
+        AllLegsSpeedLimit(30.0f);//速度拉满
+        AngleLoop[5].Output_limit = 28.0f;
+        AngleLoop[6].Output_limit = 28.0f;
         ChangeGainOfPID(50.0f,0.8f,0, 0);//使用刚度小，阻尼大的增益0
         SetPolarPositionAll_Delay(JumpAngle, jump_extension, launch_time);
 
@@ -279,7 +279,7 @@ void Turn_Jump(int16_t Jump_angle)
     const uint16_t prep_time = 300;       //准备时间，即收缩退准备起跳的时间  [s]  0.4
     const uint16_t launch_time = 200;    //伸展腿的持续时间                  [s]  0.2
     const uint16_t fall_time = 100;      //在空中飞翔的时间                 [s]  0.25（这个时间最好设置的小点）
-    const uint16_t strech_time = 200;  //落地并用力支撑的时间              [s]  0.3（这个时间结束后就会立刻进入站立态了）
+    const uint16_t strech_time = 500;  //落地并用力支撑的时间              [s]  0.3（这个时间结束后就会立刻进入站立态了）
     /*跳跃的姿态把控（调节时，可按0.1的整数倍进行加减调整，如（LegSquatLenth-0.4））*/
     const float stance_height = LegLenthMin;  //跳跃之前腿的高度  [cm]，理论上应等于LegSquatLenth 11.2f，这里测试跳跃时可以使用LegLenthMin 10.7f
     const float jump_extension = LegLenthMax; //伸展跳跃的最大伸腿长度      [cm]，理论上应等于LegLenthMax 28
@@ -299,8 +299,8 @@ void Turn_Jump(int16_t Jump_angle)
 
             osDelay(prep_time);
             //芜湖起飞（核心），持续时间为launch_time
-            AllLegsSpeedLimit(15.7f);//速度拉满
-            ChangeGainOfPID(30.0f,1.5f,0, 0);//使用刚度小，阻尼大的增益0
+            AllLegsSpeedLimit(15.4f);//速度拉满
+            ChangeGainOfPID(35.0f,1.5f,0, 0);//使用刚度小，阻尼大的增益0
             SetPolarPositionLeg_Delay(70.0f, jump_extension, 0,0);
             SetPolarPositionLeg_Delay(70.0f, jump_extension, 0,1);
             SetPolarPositionLeg_Delay(-70.0f, jump_extension, 0,2);
@@ -321,11 +321,12 @@ void Turn_Jump(int16_t Jump_angle)
 
             //脚用力准备站起来
             ChangeGainOfPID(15.0f,2.0f, 0, 0);//使用刚度小，阻尼大的增益
-            SetPolarPositionAll_Delay(80, jump_landlegheight, strech_time);
-            //差不多站好了，执行
+            StandUp_Posture();
+            osDelay(strech_time);
+//差不多站好了，执行
 
-            gpstate = 1;
-            speed_kp = 0.14f;
+//            gpstate = 1;
+            speed_kp = 0.15f;
             break;
         case -45:
             speed_kp = 0.28f;
@@ -339,8 +340,8 @@ void Turn_Jump(int16_t Jump_angle)
 
             osDelay(prep_time);
             //芜湖起飞（核心），持续时间为launch_time
-            AllLegsSpeedLimit(15.7f);//速度拉满
-            ChangeGainOfPID(30.0f,1.5f,0, 0);//使用刚度小，阻尼大的增益0
+            AllLegsSpeedLimit(15.4f);//速度拉满
+            ChangeGainOfPID(35.0f,1.5f,0, 0);//使用刚度小，阻尼大的增益0
             SetPolarPositionLeg_Delay(-70.0f, jump_extension, 0,0);
             SetPolarPositionLeg_Delay(-70.0f, jump_extension, 0,1);
             SetPolarPositionLeg_Delay(70.0f, jump_extension, 0,2);
@@ -361,11 +362,12 @@ void Turn_Jump(int16_t Jump_angle)
 
             //脚用力准备站起来
             ChangeGainOfPID(15.0f,2.0f, 0, 0);//使用刚度小，阻尼大的增益
-            SetPolarPositionAll_Delay(-80, jump_landlegheight, strech_time);
+            StandUp_Posture();
+            osDelay(strech_time);
             //差不多站好了，执行
 
-            gpstate = 1;
-            speed_kp = 0.14f;
+//            gpstate = 1;
+            speed_kp = 0.15f;
             break;
         default:
             break;

@@ -14,7 +14,10 @@
 #define Backward -1
 //状态数上限配置
 #define StatesMaxNum 20
-#define Half_of_hypotenuse 560.0f
+
+#define Half_of_hypotenuse 4.78f
+#define End_of_hypotenuse 0.0f
+
 #define position 1
 #define Zero 0
 /*******通用（GP）姿态命令表*******/
@@ -99,7 +102,7 @@ extern float TargetAngle;
 extern int Race_count;
 extern uint8_t IMU_Stand_flag;
 extern uint8_t Solpe_flag;
-extern uint8_t x_Rectification ,y_Rectification, slope_Rectification;
+extern uint8_t x_Rectification ,y_Rectification, slope1_Rectification,slope2_Rectification;
 
 void MarkingTime(void);
 void StandUp_Posture(void);

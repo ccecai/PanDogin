@@ -52,7 +52,7 @@ void SetPoint_Visual(PIDTypeDef *pid,float want)
 }
 
 //位置式PID计算(用于位置（角度）环，其输出作为速度环的目标值)
-void PID_PosLocCalc(PIDTypeDef *pid, int32_t feedbackpos)//位置式
+void PID_PosLocCalc(PIDTypeDef *pid, float feedbackpos)//位置式
 {
     float Now_Point,Now_Error,d_Error;
     Now_Point = ((float )feedbackpos*2*pi)/(6.33f*32768);

@@ -44,6 +44,7 @@ float MoveIntensity_SpdKi = 0.26;
 uint8_t Jump_Angle_Remote = 60;
 //遥控器心跳控制
 int16_t RemoteHeartBeat = 0;
+uint8_t flag = 0;
 
 //关闭遥控串口接收中断
 void CloseRemote(void)
@@ -59,10 +60,10 @@ void OpenRemote(void)
 
 void Remote_Controller(void)
 {
-
     switch (gpstate) {
         case 1:
-             StandUp_Posture();
+            StandUp_Posture();
+            flag = 1;
             break;
         case 2://跪下
             KneelPosture();
@@ -71,40 +72,34 @@ void Remote_Controller(void)
             LieDown_Posture();
             break;
         case 6:
-            if(dpstate == 53)
-            {
+            if (dpstate == 53) {
                 Translate('l');
-            }
-            else
-            {
-                Turn('l','s');
+            } else {
+                Turn('l', 's');
             }
 
             break;
         case 7:
-            if(dpstate == 53)
-            {
+            if (dpstate == 53) {
                 Translate('r');
-            }
-            else
-            {
-                Turn('r','s');
+            } else {
+                Turn('r', 's');
             }
             break;
         case 10:
-            if(dpstate == 52)
-                Trot(Forward,3);
+            if (dpstate == 52)
+                Trot(Forward, 3);
             else
-                Trot(Forward,2);
+                Trot(Forward, 1);
             break;
         case 11:
-            if(dpstate == 52)
-                Trot(Backward,3);
+            if (dpstate == 52)
+                Trot(Backward, 3);
             else
-                Trot(Backward,2);
+                Trot(Backward, 1);
             break;
         case 20:
-            ExecuteJump(Bridge_Jump,72.0f);
+            ExecuteJump(Bridge_Jump, 72.0f);
             break;
         case 21:
 //            ExecuteJump(StepUp_Jump,76.2f);
@@ -129,9 +124,6 @@ void Remote_Controller(void)
         case 33:
             MarkingTime();//踏步
             break;
-        case 36:
-            ll();
-            break;
         case 37:
             Race_Competition();
             break;
@@ -141,6 +133,13 @@ void Remote_Controller(void)
         default:
             break;
     }
+//    if (Desk_Data[27] == 2 && flag == 0)
+//        gpstate = 37;
+//    else if (Desk_Data[27] == 3 && flag == 0)
+//        gpstate = 36;
+//    else if(Desk_Data[27] == 1 && flag == 0)
+//        StandUp_Posture();
+
 }
 
 //控制函数

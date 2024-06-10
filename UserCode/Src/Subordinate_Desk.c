@@ -10,6 +10,9 @@ Radar_int Radar_intdata;
 
 void Process(void )
 {
+    Radar_FinalData.Last_x_pos = Radar_FinalData.x_pos;
+    Radar_FinalData.Last_y_pos = Radar_FinalData.y_pos;
+
     Radar_intdata.x_data = Desk_Data[1] | Desk_Data[2] << 8 | Desk_Data[3] << 16 | Desk_Data[4] << 24;
     Radar_intdata.y_data = Desk_Data[5] | Desk_Data[6] << 8 | Desk_Data[7] << 16 | Desk_Data[8] << 24;
     Radar_intdata.z_data = Desk_Data[9] | Desk_Data[10] << 8 | Desk_Data[11] << 16 | Desk_Data[12] << 24;
@@ -20,7 +23,17 @@ void Process(void )
     Radar_FinalData.x_pos =(float ) Radar_intdata.x_data / 10000;
     Radar_FinalData.y_pos = (float ) Radar_intdata.y_data / 10000;
     Radar_FinalData.z_pos =(float )  Radar_intdata.z_data / 10000;
-    Radar_FinalData.roll = (float ) Radar_intdata.yaw_data / 100;
-    Radar_FinalData.pitch = (float ) Radar_intdata.roll_data / 100;
-    Radar_FinalData.yaw = (float ) Radar_intdata.pitch_data / 100;
+    Radar_FinalData.roll = (float ) Radar_intdata.roll_data / 100;
+    Radar_FinalData.pitch = (float ) Radar_intdata.pitch_data / 100;
+    Radar_FinalData.yaw = (float ) Radar_intdata.yaw_data / 100;
+
+    Radar_FinalData.yaw = Radar_FinalData.yaw / PI * 180;
+    Radar_FinalData.roll = Radar_FinalData.roll / PI * 180;
+    Radar_FinalData.pitch = Radar_FinalData.pitch / PI * 180;
+
+    if(abs((int )(Radar_FinalData.x_pos - Radar_FinalData.Last_x_pos)) > 0.9f || abs((int )(Radar_FinalData.y_pos - Radar_FinalData.Last_y_pos)) > 0.9f)
+    {
+        Radar_FinalData.x_pos = Radar_FinalData.Last_x_pos;
+        Radar_FinalData.y_pos = Radar_FinalData.Last_y_pos;
+    }
 }
