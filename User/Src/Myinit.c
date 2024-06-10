@@ -19,6 +19,26 @@ void Myinit(void)
     //实际占据的字节数为4*6*4+4=96+4=100（＋4而不是加1是因为要4字节对齐）。
     //设定StatesMaxNum，则拷贝的上限为100*StateMaxNum，不要少拷贝，可以多拷贝，但多拷贝的不要用。
     //该复制操作不要在任务中进行，而要在操作系统初始化之前进行，否则将给操作系统的运行造成奇怪的问题。
+
+    RemoteControl_Init(1,0); //选择要使用的远程控制模式
+    Control_Flag(0,0,1);//选择是否开启陀螺仪与视觉纠偏开关(竞速赛用的）
+    IMU_Slove(0,0);//是否开启障碍时腿时刻保持竖直（障碍赛用的）
+
+    printf("Init_Ready\n");
+    osDelay(3);
+
+    joint_motor_init(&motor,1,MIT_MODE);
+
+    osDelay(1000); //等待云深处电机驱动开机
+
+    for(int i=0;i<6;i++)
+    {
+        enable_motor_mode(&hfdcan2, motor.para.id, MIT_MODE);//使能电机
+        osDelay(20);
+    }
+
+    osDelay(1000); //在调试的时候延迟3秒用来打开急停开关
+
 }
 
 void RemoteControl_Init(int8_t Blue_flag,int8_t NRF_flag)

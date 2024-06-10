@@ -27,6 +27,12 @@
 /* USER CODE BEGIN Includes */
 #include "fdcan.h"
 #include "Subordinate_Desk.h"
+#include "StartTask.h"
+#include "RemoteController.h"
+#include "GO1_Motor.h"
+#include "FrontJumpTask.h"
+#include "DebugTask.h"
+#include "TripodHeadTask.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,7 +58,6 @@ osThreadId StartTaskHandle;
 osThreadId BlueteethTaskHandle;
 osThreadId GO1Init_TaskHandle;
 osThreadId FrontJumpHandle;
-osThreadId NRFTaskHandle;
 osThreadId TripodHeadHandle;
 osThreadId GO_Output_LeftHandle;
 osThreadId PIDHandle;
@@ -68,7 +73,6 @@ void StartDebug(void const * argument);
 void BlueTeeth_RemoteControl(void const * argument);
 void GO1Init(void const * argument);
 void FrontJumpTask(void const * argument);
-void NRF(void const * argument);
 void TripodHeadTask(void const * argument);
 void GO_Output_LeftTask(void const * argument);
 void PIDTask(void const * argument);
@@ -120,10 +124,6 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(FrontJump, FrontJumpTask, osPriorityAboveNormal, 0, 512);
   FrontJumpHandle = osThreadCreate(osThread(FrontJump), NULL);
 
-  /* definition and creation of NRFTask */
-  osThreadDef(NRFTask, NRF, osPriorityLow, 0, 512);
-  NRFTaskHandle = osThreadCreate(osThread(NRFTask), NULL);
-
   /* definition and creation of TripodHead */
   osThreadDef(TripodHead, TripodHeadTask, osPriorityNormal, 0, 256);
   TripodHeadHandle = osThreadCreate(osThread(TripodHead), NULL);
@@ -141,7 +141,7 @@ void MX_FREERTOS_Init(void) {
   GO_Output_RightHandle = osThreadCreate(osThread(GO_Output_Right), NULL);
 
   /* definition and creation of Debug */
-  osThreadDef(Debug, DebugTask, osPriorityAboveNormal, 0, 256);
+  osThreadDef(Debug, DebugTask, osPriorityLow, 0, 256);
   DebugHandle = osThreadCreate(osThread(Debug), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -154,7 +154,6 @@ void MX_FREERTOS_Init(void) {
     vTaskSuspend(GO_Output_RightHandle);
     vTaskSuspend(PIDHandle);
     vTaskSuspend(FrontJumpHandle);
-    vTaskSuspend(NRFTaskHandle);
     vTaskSuspend(DebugHandle);
   /* USER CODE END RTOS_THREADS */
 
@@ -171,25 +170,13 @@ void StartDebug(void const * argument)
 {
   /* USER CODE BEGIN StartDebug */
     Myinit();
-    RemoteControl_Init(1,0); //选择要使用的远程控制模式
-    Control_Flag(0,0,1);//选择是否开启陀螺仪与视觉纠偏开关(竞速赛用的）
-    IMU_Slove(0,0);//是否开启障碍时腿时刻保持竖直（障碍赛用的）
-
-    printf("Init_Ready\n");
-    osDelay(3);
-
-    osDelay(1500); //在调试的时候延迟3秒用来打开急停开关
 
     vTaskResume(GO1Init_TaskHandle);
 
   /* Infinite loop */
   for(;;)
   {
-      LED1_Flash;
-      LED2_Flash;
-
-
-      osDelay(500);
+      Start_Task();
   }
 
   /* USER CODE END StartDebug */
@@ -209,9 +196,7 @@ void BlueTeeth_RemoteControl(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      Remote_Controller();
-
-      osDelay(1);
+      RemoteControl_Task();
   }
   /* USER CODE END BlueTeeth_RemoteControl */
 }
@@ -226,31 +211,13 @@ void BlueTeeth_RemoteControl(void const * argument)
 void GO1Init(void const * argument)
 {
   /* USER CODE BEGIN GO1Init */
-    MOTOR_Send_Init(); //初始化电机发送帧头
-    Eight_PID_Init();//八个电机PID结构体初始化
-    ChangeGainOfPID(6.0f,1.0f,0.03f,0.05f);//初始化pid
-
-    Get_motor_began_pos();       //获得各个电机的初始位
-    EndPosture();                //锁住电机
-
-    PID_Init(&Yaw_PID_Loop);
-    ChangeYawOfPID(0.2f,0.1f,4000.0f,15.0f);//陀螺仪PID初始化
-
-    PID_Init(&VisualLoop);
-    ChangePID(&VisualLoop,0.12f,0.04f,4000.0f,15.0f);
-
-    PID_Init(&RadarController);
-    ChangePID(&RadarController,0.2f,0.1f,4000.0f,15.0f);
-
-    printf("GO1 Init Ready\n");
-    osDelay(3);
+    GO1_Init();
 
     vTaskResume(GO_Output_LeftHandle);
     vTaskResume(GO_Output_RightHandle);
     vTaskResume(PIDHandle);
     vTaskResume(BlueteethTaskHandle);
-//    vTaskResume(NRFTaskHandle);
-//    vTaskResume(TripodHeadHandle);
+    vTaskResume(TripodHeadHandle);
     vTaskResume(FrontJumpHandle);
     vTaskResume(DebugHandle);
     vTaskSuspend(NULL); //电机初始化任务完成后自挂捏
@@ -275,53 +242,9 @@ void FrontJumpTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      if(wait_flag == 1)
-      {
-          AngleLoop[1].Output_limit = 30;
-          AngleLoop[2].Output_limit = 30;
-          AngleLoop[5].Output_limit = 30;
-          AngleLoop[6].Output_limit = 30;
-          PID_Set_KP_KI_KD(&AngleLoop[1],40.0f,0,2.0f);
-          PID_Set_KP_KI_KD(&AngleLoop[2],40.0f,0,2.0f);
-          PID_Set_KP_KI_KD(&AngleLoop[5],40.0f,0,2.0f);
-          PID_Set_KP_KI_KD(&AngleLoop[6],40.0f,0,2.0f);
-
-          SetPolarPositionLeg_Delay(77.0f, LegLenthMin, 0,0);
-          SetPolarPositionLeg_Delay(77.0f, LegLenthMin, 0,2);
-      }
-
-      if(IMU_EulerAngle.EulerAngle[Pitch] < -89.5f)
-      {
-          osDelay(50);
-          pitch = -90.0f + IMU_EulerAngle.EulerAngle[Pitch];
-      }
-      else
-      {
-          pitch = IMU_EulerAngle.EulerAngle[Pitch];
-      }
-
-
-    osDelay(1);
+      FrontJump_Task();
   }
   /* USER CODE END FrontJumpTask */
-}
-
-/* USER CODE BEGIN Header_NRF */
-/**
-* @brief Function implementing the NRFTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_NRF */
-void NRF(void const * argument)
-{
-  /* USER CODE BEGIN NRF */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END NRF */
 }
 
 /* USER CODE BEGIN Header_TripodHeadTask */
@@ -334,31 +257,11 @@ void NRF(void const * argument)
 void TripodHeadTask(void const * argument)
 {
   /* USER CODE BEGIN TripodHeadTask */
-    PID_Init(&M2006_Speed);
-    PID_Init(&M2006_Position);
 
-    PID_Set_KP_KI_KD(&M2006_Speed,5.0f,0.05f,0.0f);//2006电机速度环初始化
-    PID_Set_KP_KI_KD(&M2006_Position,0.4f,0.0f,0.9f);//2006电机位置环初始化
-
-    M2006_Speed.Output_limit = 4000;
-    M2006_Position.Output_limit = 10000;
   /* Infinite loop */
   for(;;)
   {
-//      SetPoint_IMU(&Roll_PID_Loop,0);
-//      PID_PosLocM2006(&Roll_PID_Loop,IMU_EulerAngle.EulerAngle[Roll]);
 
-      SetPoint_IMU(&M2006_Position, AngleChange(TargetAngle));
-      PID_PosLocM2006(&M2006_Position,struct_debug1[0].total_angle);
-
-      SetPoint_IMU(&M2006_Speed, M2006_Position.Out_put);
-      PID_PosLocM2006(&M2006_Speed,struct_debug1[0].speed);
-
-      set_current(&hfdcan1,0x200,0,0,0,0);
-//      osDelay(1);
-//      set_current(&hfdcan1,0x200,M2006_Speed.Out_put,0,0,0);
-
-    osDelay(5);
   }
   /* USER CODE END TripodHeadTask */
 }
@@ -376,8 +279,7 @@ void GO_Output_LeftTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      leg_pos_controll02();
-      osDelay(2);
+      GO1_LeftOutput_Task();
   }
   /* USER CODE END GO_Output_LeftTask */
 }
@@ -395,13 +297,7 @@ void PIDTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      for (int i = 1; i < 9; ++i)
-      {
-          SetPoint(&AngleLoop[i], AngleWant_MotorX[i], i);
-          PID_PosLocCalc(&AngleLoop[i], end_pos[i]);
-      }
-
-    osDelay(5);
+      PID_CalcTask();
   }
   /* USER CODE END PIDTask */
 }
@@ -419,8 +315,7 @@ void GO_Output_RightTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      leg_pos_controll();
-      osDelay(2);
+      GO1_RightOutput_Task();
   }
   /* USER CODE END GO_Output_RightTask */
 }
@@ -438,9 +333,7 @@ void DebugTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      usart_printf("%f,%f,%f\n",Radar_FinalData.x_pos,Radar_FinalData.y_pos,Radar_FinalData.yaw);
-
-      osDelay(10);
+      Debug_Task();
   }
   /* USER CODE END DebugTask */
 }

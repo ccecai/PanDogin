@@ -4,7 +4,11 @@
 
 #ifndef MASTER_G4_DEMO_CANMOTOR_H
 #define MASTER_G4_DEMO_CANMOTOR_H
+
 #include "stm32g4xx_hal.h"
+#include "dm4310_drv.h"
+#include "string.h"
+
 typedef struct
 {
     int16_t set_voltage;          //电压
@@ -18,6 +22,8 @@ typedef struct
     uint16_t last_angle;          //abs angle_now range:[0,8191]
     uint32_t msg_cnt;              //消息计数值，收到一次就+1
 }moto_info_t;
+
+
 extern moto_info_t struct_debug1[8];
 extern void motor_info_record(moto_info_t *ptr, uint8_t *data);
 extern void MyFDCan1_config(void);
@@ -25,5 +31,6 @@ extern void MyFDCan2_config(void);
 extern void MyFDCan3_config(void);
 extern void set_current(FDCAN_HandleTypeDef *_hcan, int16_t id_range, int16_t current1, int16_t current2, int16_t current3, int16_t current4);
 float AngleChange(float angle);
+uint8_t canx_send_data(FDCAN_HandleTypeDef *hcan, uint16_t id, uint8_t *data, uint32_t len);
 
 #endif //MASTER_G4_DEMO_CANMOTOR_H
