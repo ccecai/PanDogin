@@ -7,7 +7,7 @@
 
 #include "cmsis_os.h"
 
-#define SpeedMode_JUMPPEDAL 8900 //go1的极限速度
+#define Leg_Back_Angle 85.0f //go1的极限速度
 enum JumpTypes
 {
     Bridge_Jump = 0,

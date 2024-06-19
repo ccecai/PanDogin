@@ -116,7 +116,6 @@ void Handshake(void);
 void StretchPosture(void);
 void SquatPosture(void);
 void FBwAaLitAir(void);
-void Race_Competition(void);
 void Translate(int direction);
 void WarnPosture(void);//¾¯½ä
 void KneelPosture(void);

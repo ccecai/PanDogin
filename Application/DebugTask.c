@@ -5,7 +5,7 @@
 
 void Debug_Task(void )
 {
-    usart_printf("%f,%f,%f\n",Yaw_Data,Roll_Data,Pitch_Data);
+    usart_printf("%f,%f,%f,%f\n",Yaw_Data,Roll_Data,Pitch_Data,Distance);
 
     osDelay(10);
 }

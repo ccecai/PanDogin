@@ -17,6 +17,7 @@ uint8_t x_Rectification = 0,y_Rectification = 1, slope1_Rectification = 0, slope
 
 void StandUp_Posture(void)
 {
+    speed_kp = 0.12f;
     ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
     Get_Target(0,PI);
@@ -35,7 +36,7 @@ void MarkingTime(void)
 {
     NewHeartbeat = 5;
     AllLegsSpeedLimit(SpeedMode_EXTREME);
-    ChangeGainOfPID(8.0f,0.8f,0.6f,0);
+    ChangeGainOfPID(20.0f,1.0f,0.6f,0);
     gait_detached(state_detached_params[2],0.0f, 0.5f, 0.5f, 0.0f,
                   1.0f,1.0f,1.0f,1.0f);
 }
@@ -44,16 +45,29 @@ void Trot(float direction,int8_t kind)
 {
     switch(kind)
     {
-        case 0://小步Trot
-            AllLegsSpeedLimit(SpeedMode_EXTREME);
-            NewHeartbeat = 6;
-            ChangeGainOfPID(12.0f,0.2f,0.6f,0);
-            ChangeYawOfPID(200.0f,2.0f,3000.0f,10.0f);
-            YawControl(yawwant, &state_detached_params[4], direction);
-            gait_detached(state_detached_params[4],0.0f, 0.5f, 0.5f, 0.0f,
+        case 0://障碍赛起步慢走Trot
+            AllLegsSpeedLimit(30.0f);
+            NewHeartbeat = 5;
+            ChangeGainOfPID(15.0f,2.0f,0.6f,0);
+            YawControl(yawwant, &state_detached_params[5], direction);
+            gait_detached(state_detached_params[5],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
             break;
-        case 1://大步Trot
+        case 1://竞速赛Trot
+            if (direction == 1)
+            {
+                Change_SinStateDetachedParams(&state_detached_params[1],1,1,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,2,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,3,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,4,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+            }
+            else if(direction != 1)
+            {
+                Change_SinStateDetachedParams(&state_detached_params[1],1,1,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,2,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,3,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,4,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+            }
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
             ChangeGainOfPID(35.0f,2.0f,0.6f,0);
@@ -64,8 +78,7 @@ void Trot(float direction,int8_t kind)
         case 2://双木桥
             AllLegsSpeedLimit(SpeedMode_EARLYEX);
             NewHeartbeat = 5;
-            ChangeGainOfPID(17.0f,1.0f,0.6f,0);
-            ChangeYawOfPID(0.35f,0.035f,3000.0f,10.0f);
+            ChangeGainOfPID(20.0f,1.0f,0.6f,0);
             YawControl(yawwant, &state_detached_params[4], direction);
             gait_detached(state_detached_params[4],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
@@ -74,9 +87,16 @@ void Trot(float direction,int8_t kind)
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
             ChangeGainOfPID(20.0f,2.0f,0.6f,0);
-            ChangeYawOfPID(0.3f,0.03f,3000.0f,10.0f);
             YawControl(yawwant, &state_detached_params[8], direction);
             gait_detached(state_detached_params[8],0.0f, 0.5f, 0.5f, 0.0f,
+                          direction,direction,direction,direction);
+            break;
+        case 4://障碍赛正常用的Trot
+            AllLegsSpeedLimit(30.0f);
+            NewHeartbeat = 5;
+            ChangeGainOfPID(25.0f,2.0f,0.6f,0);
+            YawControl(yawwant, &state_detached_params[9], direction);
+            gait_detached(state_detached_params[9],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
             break;
         default:
@@ -101,7 +121,7 @@ void Turn(int state_flag,int speed_flag)
 
     if(speed_flag == 'f')
     {
-        length = 16.0f;
+        length = 20.0f;
         state_detached_params[0].detached_params_0.freq = 5.5f;
         state_detached_params[0].detached_params_1.freq = 5.5f;
         state_detached_params[0].detached_params_2.freq = 5.5f;
@@ -109,7 +129,7 @@ void Turn(int state_flag,int speed_flag)
     }
     else if(speed_flag == 's')
     {
-        length = 3.0f;
+        length = 4.0f;
         state_detached_params[0].detached_params_0.freq = 2.5f;
         state_detached_params[0].detached_params_1.freq = 2.5f;
         state_detached_params[0].detached_params_2.freq = 2.5f;
@@ -118,7 +138,7 @@ void Turn(int state_flag,int speed_flag)
 
     NewHeartbeat = 5;
     AllLegsSpeedLimit(SpeedMode_EXTREME);
-    ChangeGainOfPID(17.0f,0.8f,0.6f,0);
+    ChangeGainOfPID(17.0f,1.0f,0.6f,0);
 
     switch (state_flag) {
         case 'l':
@@ -280,81 +300,5 @@ void KneelPosture(void)//跪下
     SetCoupledThetaPositionAll();
     gpstate = STOP;
     osDelay(700);
-}
-
-void Race_Competition(void)
-{
-    if(Distance >= FrontLength_of_Jump && Race_count == 0)
-    {
-        Trot(Forward,1);
-    }
-
-    if(Distance < FrontLength_of_Jump && Race_count == 0)
-    {
-        for (int i = 0; i < 5; ++i)
-        {
-            distance[i] = 300;
-        }
-        Distance = 300.0f;
-        visual.offset = 100;
-        yawwant = 45.0f;
-
-        Front_Camare_flag = 0;
-        Back_Camare_flag = 1;
-
-        Race_count++;
-
-        Turn_Jump(45);
-    }
-    if(Distance >= BackLength_of_Jump && Race_count == 1)
-    {
-        Trot(Backward,1);
-    }
-    if(Distance < BackLength_of_Jump && Race_count == 1)
-    {
-        for (int i = 0; i < 5; ++i) {
-            distance[i] = 300;
-        }
-
-        Distance = 300.0f;
-        visual.offset = 100;
-        yawwant = -90.0f;
-
-        Front_Camare_flag = 1;
-        Back_Camare_flag = 0;
-
-        Race_count++;
-
-        Turn_Jump(45);
-
-    }
-    if(Race_count == 2 && Distance >= FrontLength_of_Jump)
-    {
-        Trot(Forward,1);
-    }
-    if(Race_count == 2 && Distance < FrontLength_of_Jump)
-    {
-        for (int i = 0; i < 5; ++i) {
-            distance[i] = 300;
-        }
-        Distance = 300.0f;
-        visual.offset = 100;
-        yawwant = 45.0f;
-
-        Front_Camare_flag = 0;
-        Back_Camare_flag = 1;
-
-        Race_count++;
-
-        Turn_Jump(-45);
-    }
-    if(Race_count == 3 && Distance >= BackLength_of_Jump)
-    {
-        Trot(Backward,1);
-    }
-    if(Race_count == 3 && Distance < BackLength_of_Jump)
-    {
-        StandUp_Posture();
-    }
 }
 

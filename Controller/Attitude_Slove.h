@@ -17,7 +17,7 @@
 #define L2 22.0f//?®Æ??200mm
 //Õ»≥§œﬁŒª
 #define LegLenthExtremeMax 33.0f //
-#define LegLenthMax 32.0f //
+#define LegLenthMax 31.0f //
 #define LegLenthMin 11.5f //
 #define LegStandLenth 17.5f //
 #define LegSquatLenth 12.0f //

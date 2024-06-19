@@ -87,30 +87,31 @@ void Remote_Controller(void)
             }
             break;
         case 10:
-            if (dpstate == 52)
-                Trot(Forward, 3);
+            if (dpstate == 53)
+                Trot(Forward, 2);
             else
-                Trot(Forward, 1);
+                Trot(Forward, 0);
             break;
         case 11:
-            if (dpstate == 52)
-                Trot(Backward, 3);
+            if (dpstate == 53)
+                Trot(Backward, 2);
             else
-                Trot(Backward, 1);
+                Trot(Backward, 0);
             break;
         case 20:
             ExecuteJump(Bridge_Jump, 72.0f);
             break;
         case 21:
-//            ExecuteJump(StepUp_Jump,76.2f);
-            Turn_Jump(45);
+            ExecuteJump(StepUp_Jump,75.0f);
+//            Turn_Jump(45);
             break;
         case 22:
-//            ExecuteJump(StepDown_Jump,78.0f);
-            Turn_Jump(-45);
+            ExecuteJump(StepUp_Jump,65.0f);
+//            Turn_Jump(-45);
             break;
         case 24://·ÉÌø
-            FrontJump();
+            ExecuteJump(Bridge_Jump, 85.0f);
+//            FrontJump();
             break;
         case 30:
             SquatPosture();//¶×ÏÂ
@@ -123,6 +124,9 @@ void Remote_Controller(void)
             break;
         case 33:
             MarkingTime();//Ì¤²½
+            break;
+        case 36:
+            Barrier_Competition();
             break;
         case 37:
             Race_Competition();

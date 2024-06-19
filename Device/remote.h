@@ -8,6 +8,8 @@
 #include "stdio.h"
 #include "printf.h"
 #include "LED.h"
+#include "Race_Task.h"
+#include "Barrier_Task.h"
 
 #define REMOTE_REC_LEN 50
 #define USART_REC_LEN  			200  	//定义最大接收字节数 200
