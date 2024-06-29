@@ -119,5 +119,6 @@ void FBwAaLitAir(void);
 void Translate(int direction);
 void WarnPosture(void);//¾¯½ä
 void KneelPosture(void);
+void Speed_Competition_Turn(void);
 
 #endif //MY_SCUDOG_ATTITUDE_TASK_H

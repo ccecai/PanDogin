@@ -17,13 +17,12 @@ float Target_Slope = 0.0f;
 float Target_Xpos = -0.26f;
 float Target_Ypos = 0.0f;
 
-float offset_front_0 = 0.647f;
-float offset_front_1 = 0.98f;
-float offset_back_0 = 0.647f;//(-121.9f)
-float offset_back_1 = 0.98f;//207.2f
+float offset_front_0 = 0.49179f;
+float offset_front_1 = 0.989861f;
+float offset_back_0 = 0.49179f;//(-121.9f)
+float offset_back_1 = 0.974f;//207.2f
 
 float normal_step_left = 0,normal_step_right = 0;
-
 
 uint8_t Barrier_flag = 0,Radar_control_flag = 0,FrontJump_flag = 0;
 //用于复制上方状态数组作为永恒基准。
@@ -95,16 +94,16 @@ void SetCoupledThetaPosition(int LegId)
                 AngleWant_MotorX[2] = TargetAngle2 - offset_front_1;
                 break;
             case 1:
-                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - Pitch_Data / 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + Pitch_Data / 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 + Pitch_Data / 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 - Pitch_Data / 180 * PI;
                 break;
             case 2:
                 AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1;//-4.0f
                 AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0;
                 break;
             case 3:
-                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - Pitch_Data / 180 * PI;
-                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + Pitch_Data / 180 * PI;
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 + Pitch_Data / 180 * PI;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 - Pitch_Data / 180 * PI;
                 break;
             default:
                 break;
@@ -114,20 +113,20 @@ void SetCoupledThetaPosition(int LegId)
     {
         switch(LegId) {
             case 0:
-                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - Pitch_Data / 180 * PI;
-                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 +Pitch_Data / 180 * PI;
+                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 + Pitch_Data / 180 * PI;
+                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 - Pitch_Data / 180 * PI;
                 break;
             case 1:
-                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - Pitch_Data/ 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + Pitch_Data/ 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0+ Pitch_Data / 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1- Pitch_Data / 180 * PI;
                 break;
             case 2:
-                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 -Pitch_Data / 180 * PI;//-4.0f
-                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 +Pitch_Data / 180 * PI;
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 +Pitch_Data / 180 * PI;//-4.0f
+                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 -Pitch_Data / 180 * PI;
                 break;
             case 3:
-                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - Pitch_Data/ 180 * PI;
-                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + Pitch_Data/ 180 * PI;
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 + Pitch_Data/ 180 * PI;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 - Pitch_Data/ 180 * PI;
                 break;
             default:
                 break;
@@ -145,12 +144,12 @@ void SetCoupledThetaPosition(int LegId)
                 AngleWant_MotorX[4] = TargetAngle2 - offset_back_1;
                 break;
             case 2:
-                AngleWant_MotorX[5] = -TargetAngle2 + offset_front_1 ;
-                AngleWant_MotorX[6] = -TargetAngle1 + offset_front_0 ;
+                AngleWant_MotorX[5] = -TargetAngle2 + offset_front_1;
+                AngleWant_MotorX[6] = -TargetAngle1 + offset_front_0;
                 break;
             case 3:
-                AngleWant_MotorX[7] = -TargetAngle2 + offset_back_1 ;
-                AngleWant_MotorX[8] = -TargetAngle1 + offset_back_0 ;
+                AngleWant_MotorX[7] = -TargetAngle2 + offset_back_1;
+                AngleWant_MotorX[8] = -TargetAngle1 + offset_back_0;
                 break;
             default:
                 break;
@@ -200,7 +199,7 @@ void CartesianToTheta(void)
     A2=90-(N-M);
     //最终确定电机角度。角度范围分别为0°~360°和-360°~0°。
     TargetAngle1=-(A1-90);
-    TargetAngle2=-(A2-270);//
+    TargetAngle2=-(A2-270);
 
     if(reverse_move_flag == 1)//运动反向控制
     {
@@ -224,7 +223,7 @@ void CartesianToTheta(void)
 */
 void SinTrajectory (float t,GaitParams params, float gaitOffset,float leg_diretion,float angle,int LegId)
 {
-///t=times*5/1000，即每1s变化1
+//tt=times*5/1000，即每1s变化1
     //获取正弦函数的所要配置的参数
     float stanceHeight = params.stance_height;//狗底盘离地高度
     float downAMP = params.down_amp;//负峰值
@@ -326,10 +325,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 
         {
             0,//转弯（在转弯函数中会调整该步态以实现转弯）
-            {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f},
-            {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f},
-            {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
-            {20.0f, 6.25f, 4.0f, 0.3f, 0.2f, 4.0f}
+            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f},
+            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f},
+            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
+            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f}
         },
         {
 
@@ -347,10 +346,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
             2,//原地踏步//出现多种步态基高差距过大是会失效
-            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 2.5f},
-            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 2.5f},
-            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 2.5f},
-            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 2.5f}
+            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 4.0f},
+            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 4.0f},
+            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 4.0f},
+            {18.0f, 0.0f,  4.0f, 0.5f, 0.17f, 4.0f}
         },
         {
             3,//Walk步态（没有调好）
@@ -361,48 +360,56 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
             4,//双木桥上走的步态
-            {17.0f, 20.0f,  6.0f, 1.0f, 0.125f, 2.5f},
-            {17.0f, 20.0f,  6.0f, 1.0f, 0.125f, 2.5f},
-            {17.0f, 20.0f,  6.0f, 1.0f, 0.125f, 2.5f},
-            {17.0f, 20.0f,  6.0f, 1.0f, 0.125f, 2.5f}
+            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f},
+            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f},
+            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f},
+            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f}
         },
         {
 
             5,//障碍赛起步的步态
-            {18.0f, 7.0f,  6.0f, 0.7f, 0.125f, 3.2f},
-            {18.0f, 7.0f,  6.0f, 0.7f, 0.125f, 3.2f},
-            {18.0f, 7.0f,  6.0f, 0.7f, 0.125f, 3.2f},
-            {18.0f, 7.0f,  6.0f, 0.7f, 0.125f, 3.2f}
+            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f},
+            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f},
+            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f},
+            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f}
         },
         {
             6,//左微
-            {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f},
-            {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f},
-            {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f},
-            {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f}
+            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f},
+            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f},
+            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f},
+            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f}
         },
         {
             7,//右微
-            {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f},
-            {19.0f, 0.0f,  4.5f, 0.2f, 0.2f, 2.5f},
-            {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f},
-            {15.0f, 0.0f,  1.0f, 0.2f, 0.2f, 2.5f}
+            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f},
+            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f},
+            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f},
+            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f}
         },
         {
             8,//小步Trot（稳速）
-            {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f},
-            {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f},
-            {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f},
-            {17.0f, 18.0f,  1.3f, 2.5f, 0.125f, 1.3f}
+            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f},
+            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f},
+            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f},
+            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f}
 
         },
         {
 
             9,//障碍赛正常行走的步态
-            {18.0f, 15.0f,  6.0f, 0.7f, 0.125f, 3.2f},
-            {18.0f, 15.0f,  6.0f, 0.7f, 0.125f, 3.2f},
-            {18.0f, 15.0f,  6.0f, 0.7f, 0.125f, 3.2f},
-            {18.0f, 15.0f,  6.0f, 0.7f, 0.125f, 3.2f}
+            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
+            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
+            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
+            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f}
+        },
+        {
+
+                10,//障碍赛正常行走的步态
+                {18.0f, 19.0f,  4.0f, 1.0f, 0.15f, 3.5f},
+                {18.0f, 19.0f,  4.0f, 1.0f, 0.15f, 3.5f},
+                {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
+                {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f}
         },
 };
 
@@ -415,7 +422,7 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
     if(IMU_Control_Flag == 1)
     {
-        ChangeYawOfPID(0.7f,0.1f,3000.0f,10.0f);
+        ChangeYawOfPID(0.85f,0.2f,3000.0f,10.0f);
         /*******IMUのPID相关*******/
         //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
@@ -448,10 +455,13 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
     else if(visual_control_flag == 1)
     {
-        SetPoint_Visual(&VisualLoop,MidPoint);
-        ChangePID(&VisualLoop,0.12f,0.04f,4000.0f,15.0f);
+        ChangePID(&VisualLoop,0.125f,0.04f,4000.0f,15.0f);
+        if (offset_flag == 1)
+            SetPoint_Visual(&VisualLoop,MidPoint + wooden_bridge_offset);
+        else
+            SetPoint_Visual(&VisualLoop,MidPoint);
         PID_Pos(&VisualLoop,visual.offset);
-        ChangeYawOfPID(0.57f,0.1f,3000.0f,10.0f);
+        ChangeYawOfPID(0.6f,0.1f,3000.0f,10.0f);
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
         PID_Pos(&Yaw_PID_Loop,Yaw_Data);
 

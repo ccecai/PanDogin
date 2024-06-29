@@ -16,6 +16,8 @@ void FrontJump_Task(void )
         PID_Set_KP_KI_KD(&AngleLoop[7],50.0f,0,2.0f);
         PID_Set_KP_KI_KD(&AngleLoop[8],50.0f,0,2.0f);
 
+        SetPolarPositionLeg_Delay(60.0f, LegLenthExtremeMax, 0,0);
+        SetPolarPositionLeg_Delay(60.0f, LegLenthExtremeMax, 0,2);
         SetPolarPositionLeg_Delay(Leg_Back_Angle - 20, 13.2f, 0,1);
         SetPolarPositionLeg_Delay(Leg_Back_Angle - 20, 13.2f, 0,3);
     }

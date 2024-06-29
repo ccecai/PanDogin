@@ -5,6 +5,9 @@
 
 void TripodHead_Task(void )
 {
+    if (angle_pitch_flag == 1)
+        TargetAngle = Pitch_Data;
+
     SetPoint_IMU(&M2006_Position, AngleChange(TargetAngle));
     PID_PosLocM2006(&M2006_Position,struct_debug1[0].total_angle);
 

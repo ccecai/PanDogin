@@ -7,6 +7,7 @@
 
 #include "main.h"
 
+#define Point_of_HighSpeed 160.0f
 #define Point_of_Jumpbridge 160.0f
 #define Point_of_JumpDownbridge 100.0f
 #define Point_of_Turn 60.0f
@@ -18,6 +19,11 @@
 #define RightOffsetDistance 120.0f
 #define LeftOffsetDistance 80.0f
 #define Point_of_JumpHighBar 160.0f
+#define Point_of_HighSpeedBar 160.0f
+#define Point_of_HighSpeedStairs 160.0f
+
+extern uint8_t offset_flag;
+extern uint8_t angle_pitch_flag;
 
 void Barrier_of_Double_wooden_bridge(void );
 void Barrier_of_Slope(void );

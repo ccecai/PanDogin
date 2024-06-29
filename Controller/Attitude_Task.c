@@ -48,7 +48,7 @@ void Trot(float direction,int8_t kind)
         case 0://障碍赛起步慢走Trot
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(15.0f,2.0f,0.6f,0);
+            ChangeGainOfPID(25.0f,2.0f,0.6f,0);
             YawControl(yawwant, &state_detached_params[5], direction);
             gait_detached(state_detached_params[5],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
@@ -78,7 +78,7 @@ void Trot(float direction,int8_t kind)
         case 2://双木桥
             AllLegsSpeedLimit(SpeedMode_EARLYEX);
             NewHeartbeat = 5;
-            ChangeGainOfPID(20.0f,1.0f,0.6f,0);
+            ChangeGainOfPID(25.0f,1.0f,0.6f,0);
             YawControl(yawwant, &state_detached_params[4], direction);
             gait_detached(state_detached_params[4],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
@@ -86,7 +86,7 @@ void Trot(float direction,int8_t kind)
         case 3://斜坡
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(20.0f,2.0f,0.6f,0);
+            ChangeGainOfPID(25.0f,2.0f,0.6f,0);
             YawControl(yawwant, &state_detached_params[8], direction);
             gait_detached(state_detached_params[8],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
@@ -103,6 +103,17 @@ void Trot(float direction,int8_t kind)
             break;
     }
 }
+
+void Speed_Competition_Turn(void)
+{
+    AllLegsSpeedLimit(30.0f);
+    NewHeartbeat = 5;
+    ChangeGainOfPID(25.0f,2.0f,0.6f,0);
+    YawControl(yawwant, &state_detached_params[10], Forward);
+    gait_detached(state_detached_params[10],0.0f, 0.5f, 0.5f, 0.0f,
+                  Forward,Forward,Forward,Forward);
+}
+
 
 //慢步
 void Walk(float direction,uint8_t speed)
@@ -163,29 +174,29 @@ void Turn(int state_flag,int speed_flag)
 void EndPosture(void)
 {
     motor_pos_controll(0,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(1,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(2,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(3,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(4,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(5,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(6,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(7,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(8,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(9,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(10,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
     motor_pos_controll(11,0,position);                    //3号电机与0号电机镜像对称
-    HAL_Delay(1);
+    osDelay(1);
 }
 
 void Handshake(void)

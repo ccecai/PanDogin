@@ -181,7 +181,7 @@ void StartDebug(void const * argument)
 
     vTaskResume(GO1Init_TaskHandle);
 
-  /* Infinite loop */
+    /* Infinite loop */
   for(;;)
   {
       Start_Task();

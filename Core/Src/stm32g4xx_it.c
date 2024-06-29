@@ -383,7 +383,6 @@ void USART2_IRQHandler(void)
     uint32_t temp;
     uint16_t rx_len;
     tmp_flag =__HAL_UART_GET_FLAG(&huart2,UART_FLAG_IDLE); //获取IDLE标志位
-//    usart_printf("1\r\n");
 
     __HAL_UART_CLEAR_IDLEFLAG(&huart2);//清除标志位
     HAL_UART_DMAStop(&huart2); //

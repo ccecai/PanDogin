@@ -90,19 +90,20 @@ void Remote_Controller(void)
             if (dpstate == 53)
                 Trot(Forward, 2);
             else
-                Trot(Forward, 0);
+                Trot(Forward, 3);
             break;
         case 11:
             if (dpstate == 53)
                 Trot(Backward, 2);
             else
-                Trot(Backward, 0);
+                Trot(Backward, 3);
             break;
         case 20:
-            ExecuteJump(Bridge_Jump, 72.0f);
+//            ExecuteJump(Bridge_Jump, 72.0f);
+            ExecuteJump(StepUp_Jump,72.2f);
             break;
         case 21:
-            ExecuteJump(StepUp_Jump,75.0f);
+            ExecuteJump(StepUp_Jump,76.0f);
 //            Turn_Jump(45);
             break;
         case 22:
@@ -126,7 +127,8 @@ void Remote_Controller(void)
             MarkingTime();//Ì¤²½
             break;
         case 36:
-            Barrier_Competition();
+            Barrier_of_Double_wooden_bridge();
+//            Barrier_Competition();
             break;
         case 37:
             Race_Competition();
@@ -137,11 +139,11 @@ void Remote_Controller(void)
         default:
             break;
     }
-//    if (Desk_Data[8] == 2 && flag == 0)
+//    if (Desk_Data[19] == 2 && flag == 0)
 //        gpstate = 37;
-//    else if (Desk_Data[8] == 3 && flag == 0)
+//    else if (Desk_Data[19] == 3 && flag == 0)
 //        gpstate = 36;
-//    else if(Desk_Data[8] == 1 && flag == 0)
+//    else if(Desk_Data[19] == 1 && flag == 0)
 //        StandUp_Posture();
 
 }

@@ -24,6 +24,7 @@
 
 #define TrunJump_Length 13.7f
 
+#define wooden_bridge_offset 20.0f
 //×´Ì¬ÊıÉÏÏŞÅäÖÃ
 #define StatesMaxNum 20
 
