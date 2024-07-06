@@ -24,8 +24,9 @@ void GO1_Init(void )
     PID_Init(&M2006_Speed);
     PID_Init(&M2006_Position);
 
-    PID_Set_KP_KI_KD(&M2006_Speed,5.0f,0.05f,0.0f);//2006电机速度环初始化
-    PID_Set_KP_KI_KD(&M2006_Position,0.4f,0.0f,0.9f);//2006电机位置环初始化
+    PID_Set_KP_KI_KD(&M2006_Speed,6.5f,0.07f,0.0f);//2006电机速度环初始化
+    PID_Set_KP_KI_KD(&M2006_Position,0.95f,0.0f,1.3f);//2006电机位置环初始化
+
 
     M2006_Speed.Output_limit = 4000;
     M2006_Position.Output_limit = 10000;

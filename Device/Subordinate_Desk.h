@@ -8,7 +8,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#define Length_of_Desk 34
+#define Length_of_Desk 100
 
 typedef struct {
     float x_pos;

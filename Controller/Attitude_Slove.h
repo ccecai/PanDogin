@@ -24,12 +24,12 @@
 
 #define TrunJump_Length 13.7f
 
-#define wooden_bridge_offset 20.0f
+#define wooden_bridge_offset 2.0f
 //×´Ì¬ÊıÉÏÏŞÅäÖÃ
 #define StatesMaxNum 20
 
-
-#define MidPoint 100
+//#define MidPoint 100.2
+#define MidPoint 98
 
 typedef struct
 {

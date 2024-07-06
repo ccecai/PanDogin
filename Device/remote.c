@@ -75,7 +75,7 @@ void Remote_Controller(void)
             if (dpstate == 53) {
                 Translate('l');
             } else {
-                Turn('l', 's');
+                Speed_Competition_Turn();
             }
 
             break;
@@ -90,25 +90,25 @@ void Remote_Controller(void)
             if (dpstate == 53)
                 Trot(Forward, 2);
             else
-                Trot(Forward, 3);
+                Trot(Forward, 1);
             break;
         case 11:
             if (dpstate == 53)
                 Trot(Backward, 2);
             else
-                Trot(Backward, 3);
+                Trot(Backward, 1);
             break;
         case 20:
 //            ExecuteJump(Bridge_Jump, 72.0f);
-            ExecuteJump(StepUp_Jump,72.2f);
+            ExecuteJump(StepDown_Jump,73.5f);
             break;
         case 21:
-            ExecuteJump(StepUp_Jump,76.0f);
-//            Turn_Jump(45);
+//            ExecuteJump(StepUp_Jump,76.0f);
+            Turn_Jump(45);
             break;
         case 22:
-            ExecuteJump(StepUp_Jump,65.0f);
-//            Turn_Jump(-45);
+//            ExecuteJump(StepUp_Jump,66.0f);
+            Turn_Jump(-45);
             break;
         case 24://·ÉÌø
             ExecuteJump(Bridge_Jump, 85.0f);
@@ -127,7 +127,9 @@ void Remote_Controller(void)
             MarkingTime();//Ì¤²½
             break;
         case 36:
-            Barrier_of_Double_wooden_bridge();
+            Barrier_Competition();
+//            Barrier_of_Stairs();
+//            Test_Barrier_of_Slope();
 //            Barrier_Competition();
             break;
         case 37:
@@ -136,6 +138,8 @@ void Remote_Controller(void)
         case 41://¾¯½ä
             WarnPosture();
             break;
+        case 100:
+            Barrier_of_Slope();
         default:
             break;
     }

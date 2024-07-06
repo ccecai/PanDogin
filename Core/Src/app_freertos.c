@@ -116,7 +116,7 @@ void MX_FREERTOS_Init(void) {
   StartTaskHandle = osThreadCreate(osThread(StartTask), NULL);
 
   /* definition and creation of BlueteethTask */
-  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityRealtime, 0, 3072);
+  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityRealtime, 0, 4096);
   BlueteethTaskHandle = osThreadCreate(osThread(BlueteethTask), NULL);
 
   /* definition and creation of GO1Init_Task */
@@ -225,7 +225,7 @@ void GO1Init(void const * argument)
     vTaskResume(GO_Output_RightHandle);
     vTaskResume(PIDHandle);
     vTaskResume(BlueteethTaskHandle);
-    vTaskResume(TripodHeadHandle);
+//    vTaskResume(TripodHeadHandle);
     vTaskResume(FrontJumpHandle);
     vTaskResume(DebugHandle);
     vTaskResume(IMUHandle);

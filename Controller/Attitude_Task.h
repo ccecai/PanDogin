@@ -15,9 +15,6 @@
 //状态数上限配置
 #define StatesMaxNum 20
 
-#define FrontLength_of_Jump 160.0f
-#define BackLength_of_Jump 160.0f
-
 #define position 1
 #define Zero 0
 /*******通用（GP）姿态命令表*******/
@@ -120,5 +117,6 @@ void Translate(int direction);
 void WarnPosture(void);//警戒
 void KneelPosture(void);
 void Speed_Competition_Turn(void);
+void StandUp_Posture_Slow(void);
 
 #endif //MY_SCUDOG_ATTITUDE_TASK_H

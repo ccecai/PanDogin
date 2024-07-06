@@ -3,56 +3,44 @@
 //
 #include "Barrier_Task.h"
 
-int8_t bridge_count = -1;
-int8_t stairs_count = -1;
-int8_t bar_count = -1;
-int8_t slope_count = -1;
-int8_t automation_flag = 0;
+int bridge_count = -1;
+int stairs_count = -2;
+uint8_t stairs_flag = 0;
+int bar_count = -2;
+int slope_count = -1;
+int automation_flag = 0;
 uint8_t offset_flag = 0;
 uint8_t angle_pitch_flag = 0;
 
 void Barrier_Competition(void )
 {
-    switch (automation_flag)
-    {
-        case 0:
-            Barrier_of_Double_wooden_bridge();
-            break;
-        case 1:
-            Barrier_of_Slope();
-            break;
-        case 2:
-            Barrier_of_Stairs();
-            break;
-        case 3:
-            Barrier_of_High_Bar();
-            break;
-        default:
-            break;
-    }
+    if(automation_flag == 0)
+        Barrier_of_Double_wooden_bridge();
+    else if(automation_flag == 1)
+        Barrier_of_High_Bar();
+    else if(automation_flag == 2)
+        Barrier_of_Slope();
+    else if(automation_flag == 3)
+        Barrier_of_Stairs();
 }
 
-void Barrier_of_Double_wooden_bridge(void )
+void Test_Barrier_of_Double_wooden_bridge(void )
 {
-    if(Distance >= Point_of_HighSpeed && bridge_count == -1)
+    if(visual.distance >= Point_of_HighSpeed && bridge_count == -1)
     {
         offset_flag = 1;
         Trot(Forward,4);
     }
-    else if(Distance < Point_of_HighSpeed && bridge_count == -1)
+    else if(visual.distance < Point_of_HighSpeed && bridge_count == -1)
         bridge_count++;
-    if(Distance >= Point_of_Jumpbridge && bridge_count == 0)
+    if(visual.distance >= Point_of_Jumpbridge && bridge_count == 0)
     {
         offset_flag = 1;
         Trot(Forward,0);
     }
 
-    else if(Distance < Point_of_Jumpbridge && bridge_count == 0)
+    else if(visual.distance < Point_of_Jumpbridge && bridge_count == 0)
     {
-        StandUp_Posture();
-        osDelay(200);
-        MarkingTime();
-        osDelay(1500);
         StandUp_Posture();
         osDelay(200);
 
@@ -62,21 +50,13 @@ void Barrier_of_Double_wooden_bridge(void )
         offset_flag = 0;
     }
 
-    if (Distance >= Point_of_JumpDownbridge && bridge_count == 1)
+    if (visual.distance >= Point_of_JumpDownbridge && bridge_count == 1)
     {
         Trot(Forward,2);
-        while (visual.offset > 115.0f)
-            Translate('l');
-        while (visual.offset < 85.0f)
-            Translate('r');
     }
 
-    else if(Distance < Point_of_JumpDownbridge && bridge_count == 1)
+    else if(visual.distance < Point_of_JumpDownbridge && bridge_count == 1)
     {
-        StandUp_Posture();
-        osDelay(200);
-        MarkingTime();
-        osDelay(1500);
         StandUp_Posture();
         osDelay(200);
 
@@ -85,17 +65,95 @@ void Barrier_of_Double_wooden_bridge(void )
         bridge_count++;
     }
 
-    if(Distance >= Point_of_Turn && bridge_count == 2)
-        Trot(Forward,4);
-    else if(Distance < Point_of_Turn && bridge_count == 2)
+    if(visual.distance >= Point_of_Turn && bridge_count == 2)
     {
-        while (Yaw_Data < 90.0f)
+        Trot(Forward,4);
+    }
+    else if(visual.distance < Point_of_Turn && bridge_count == 2)
+    {
+        if (Yaw_Data < 90.0f)
+        {
             Speed_Competition_Turn();
-        automation_flag++;
+        }
+        else
+        {
+            StandUp_Posture();
+            gpstate = 0;
+            automation_flag++;
+        }
+
     }
 }
 
-void Barrier_of_Slope(void )
+void Barrier_of_Double_wooden_bridge(void )
+{
+    if(visual.distance >= Point_of_HighSpeed && bridge_count == -1)
+    {
+        offset_flag = 1;
+        Trot(Forward,4);
+    }
+    else if(visual.distance < Point_of_HighSpeed && bridge_count == -1)
+        bridge_count++;
+    else if(Laser_distance >= Point_of_Jumpbridge && bridge_count == 0)
+    {
+        offset_flag = 1;
+        Trot(Forward,0);
+    }
+
+    else if(Laser_distance < Point_of_Jumpbridge && bridge_count == 0)
+    {
+        StandUp_Posture();
+        osDelay(50);
+
+        ExecuteJump(Bridge_Jump, 72.0f);
+
+        bridge_count++;
+        offset_flag = 0;
+    }
+
+    else if (visual.distance >= Point_of_JumpDownbridge && bridge_count == 1)
+    {
+        if(Yaw_Data > 0.5f)
+            Turn('r','s');
+        else if(Yaw_Data < -0.5f)
+            Turn('l','s');
+        else if(Yaw_Data < 0.5f && Yaw_Data > -0.5f)
+            bridge_count++;
+    }
+
+    else if (visual.distance >= Point_of_JumpDownbridge && bridge_count == 2)
+    {
+        Trot(Forward,2);
+    }
+
+    else if(visual.distance < Point_of_JumpDownbridge && bridge_count == 2)
+    {
+        StandUp_Posture();
+        osDelay(50);
+
+        ExecuteJump(Bridge_Jump, 72.0f);
+
+        bridge_count++;
+    }
+
+    else if(visual.distance >= Point_of_Turn && bridge_count == 3)
+    {
+        Trot(Forward,4);
+
+        if(Yaw_Data > 85.0f)
+        {
+            automation_flag = 1;
+        }
+    }
+    else if(visual.distance < Point_of_Turn && Yaw_Data < 90.0f && bridge_count == 3)
+    {
+        Speed_Competition_Turn();
+    }
+
+}
+
+
+void Test_Barrier_of_Slope(void )
 {
     if(slope_count == -1)
     {
@@ -103,128 +161,121 @@ void Barrier_of_Slope(void )
         Trot(Forward,3);
     }
 
-    if(Yaw_Data < -10.0f && slope_count == -1)
+    if(Pitch_Data > 15.0f && slope_count == -1)
     {
         Control_Flag(0,1,0);
-        angle_pitch_flag = 1;
         slope_count++;
     }
 
-    if(Distance >= Point_of_Turn && slope_count == 0)
+    if(visual.distance >= Point_of_Turn && slope_count == 0)
         Trot(Forward,4);
-    else if(Distance < Point_of_Turn && slope_count == 0)
+    else if(visual.distance < Point_of_Turn && slope_count == 0)
     {
-        for (int i = 0; i < 2000; ++i) {
+        if (Yaw_Data < 90.0f)
+        {
             Speed_Competition_Turn();
         }
-        while (Yaw_Data < -90.0f)
-            Speed_Competition_Turn();
+        else
+        {
+            StandUp_Posture();
+            gpstate = 0;
+            automation_flag++;
+        }
 
-        angle_pitch_flag = 0;
     }
 }
 
-void Barrier_of_Stairs(void )
+
+void Barrier_of_Slope(void )
 {
-    if(Distance >= Point_of_HighSpeedStairs && stairs_count == -1)
-        Trot(Forward,4);
-    else if(Distance < Point_of_HighSpeedStairs && stairs_count == -1)
-        stairs_count++;
-    if(Distance >= Point_of_OneJumpStairs && stairs_count == 0)
+    if(slope_count == -1 && Pitch_Data < -12.0f)
+    {
+        Control_Flag(1,0,0);
         Trot(Forward,3);
-    else if(Distance < Point_of_OneJumpStairs && stairs_count == 0)
+    }
+    else if(Pitch_Data < 12.0f && slope_count == -1 && Pitch_Data > -12.0f)
+    {
+        Control_Flag(1,0,0);
+        Trot(Forward,4);
+    }
+
+    else if(Pitch_Data > 12.0f && slope_count == -1)
+    {
+        Control_Flag(0,1,0);
+        slope_count++;
+    }
+
+    else if(visual.distance >= Point_of_Turn && slope_count == 0 )
+    {
+        Trot(Forward,3);
+        if(Yaw_Data > 260.0f)
+        {
+            automation_flag = 3;
+            yawwant = 270.0f;
+            StandUp_Posture();
+            osDelay(500);
+        }
+    }
+
+    else if(visual.distance < Point_of_Turn && slope_count == 0)
+    {
+        Speed_Competition_Turn();
+    }
+}
+
+void Test_Barrier_of_Stairs(void )
+{
+    stairs_flag = 1;
+
+    if(visual.distance >= Point_of_HighSpeedStairs && stairs_count == -1)
+        Trot(Forward,4);
+    else if(visual.distance < Point_of_HighSpeedStairs && stairs_count == -1)
+        stairs_count++;
+    if(visual.distance >= Point_of_OneJumpStairs && stairs_count == 0)
+        Trot(Forward,0);
+    else if(visual.distance < Point_of_OneJumpStairs && stairs_count == 0)
     {
         StandUp_Posture();
         osDelay(200);
-        MarkingTime();
-        osDelay(1000);
-        StandUp_Posture();
-        osDelay(200);
 
-        ExecuteJump(StepUp_Jump,75.0f);
+        ExecuteJump(StepUp_Jump,76.0f);
 
         stairs_count++;
     }
 
-    if(Distance >= Point_of_TwoJumpStairs && stairs_count == 1)
+    if (stairs_count == 1 && Yaw_Data > 0.5f)
+        Turn('r','s');
+    else if (stairs_count == 1 && Yaw_Data < -0.5f)
+        Turn('l','s');
+    else if(stairs_count == 1 && Yaw_Data > -0.5f && Yaw_Data < 0.5f)
     {
-        while (visual.offset > RightOffsetDistance)
-            Translate('l');
-        while (visual.offset < LeftOffsetDistance)
-            Translate('r');
-
-        while (Yaw_Data > 0.5f)
-            Turn('r','s');
-        while (Yaw_Data < -0.5f)
-            Turn('l','s');
-
-        StandUp_Posture();
-        osDelay(200);
-        MarkingTime();
-        osDelay(1000);
-        StandUp_Posture();
-        osDelay(200);
-
-        ExecuteJump(StepUp_Jump,65.0f);
-
-        while (Yaw_Data > 0.5f)
-            Turn('r','s');
-        while (Yaw_Data < -0.5f)
-            Turn('l','s');
-
         stairs_count++;
     }
 
     if(stairs_count == 2)
     {
-        while (Distance >= Point_of_ThreeJumpStairs)
-            Trot(Forward,4);
-        while (Distance < Point_of_ThreeJumpStairs)
-            Trot(Backward,4);
-
-        while (visual.offset > RightOffsetDistance)
-            Translate('l');
-        while (visual.offset < LeftOffsetDistance)
-            Translate('r');
-
-        while (Yaw_Data > 0.5f)
-            Turn('r','s');
-        while (Yaw_Data < -0.5f)
-            Turn('l','s');
-
-        StandUp_Posture();
-        osDelay(200);
-        MarkingTime();
-        osDelay(1000);
         StandUp_Posture();
         osDelay(200);
 
-        ExecuteJump(Bridge_Jump, 72.0f);
+        ExecuteJump(StepUp_Jump,64.4f);
+        stairs_count++;
+    }
 
-        while (Yaw_Data > 0.5f)
-            Turn('r','s');
-        while (Yaw_Data < -0.5f)
-            Turn('l','s');
-
-        while (Distance >= Point_of_FourJumpStairs)
-            Trot(Forward,4);
-        while (Distance < Point_of_FourJumpStairs)
-            Trot(Backward,4);
-
-        while (visual.offset > RightOffsetDistance)
-            Translate('l');
-        while (visual.offset < LeftOffsetDistance)
-            Translate('r');
-
-        while (Yaw_Data > 0.5f)
-            Turn('r','s');
-        while (Yaw_Data < -0.5f)
-            Turn('l','s');
-
+    if(stairs_count == 3 && visual.distance < Point_of_ThreeJumpStairs - 2.0f)
+        Trot(Backward,0);
+    else if(stairs_count == 3 && visual.distance > Point_of_ThreeJumpStairs + 2.0f)
+        Trot(Forward,0);
+    else if(stairs_count == 3 && visual.distance < Point_of_ThreeJumpStairs + 2.0f && visual.distance > Point_of_ThreeJumpStairs - 2.0f)
+    {
         StandUp_Posture();
         osDelay(200);
-        MarkingTime();
-        osDelay(1000);
+
+        ExecuteJump(StepUp_Jump, 71.6f);
+
+        stairs_count++;
+    }
+    if(stairs_count == 4)
+    {
         StandUp_Posture();
         osDelay(200);
 
@@ -233,39 +284,129 @@ void Barrier_of_Stairs(void )
         stairs_count++;
     }
 
-    if(Distance >= Point_of_Turn && stairs_count == 3)
+    if(visual.distance >= Point_of_Turn && stairs_count == 5)
         Trot(Forward,4);
-    else if(Distance < Point_of_Turn && stairs_count == 3)
+    else if(visual.distance < Point_of_Turn && stairs_count == 5)
     {
-        Turn_Jump(45);
-        while (Yaw_Data >= -90.0f)
-            Turn('l','f');
-        automation_flag++;
+        StandUp_Posture();
+        gpstate = 0;
 
     }
 }
 
-void Barrier_of_High_Bar(void )
+void Barrier_of_Stairs(void )
 {
-    if(Distance >= Point_of_HighSpeedBar && bar_count == -1)
-        Trot(Forward,4);
-    else if(Distance < Point_of_HighSpeedBar && bar_count == -1)
-        bar_count++;
-    if(Distance >= Point_of_JumpHighBar && bar_count == 0)
+    if(visual.distance < 2.5f && stairs_count == -2)
+    {
+//        Control_Flag(1,0,0);
         Trot(Forward,0);
-    else if(Distance < Point_of_JumpHighBar && bar_count == 0)
+    }
+
+    else if(visual.distance > 2.5f && stairs_count == -2)
+        stairs_count++;
+    else if(visual.distance >= Point_of_HighSpeedStairs && stairs_count == -1)
+    {
+//        Control_Flag(0,1,0);
+        Trot(Forward,6);
+    }
+
+    else if(visual.distance < Point_of_HighSpeedStairs && stairs_count == -1)
+        stairs_count++;
+    else if(Laser_distance >= Point_of_OneJumpStairs && stairs_count == 0)
+        Trot(Forward,0);
+    else if(Laser_distance < Point_of_OneJumpStairs && stairs_count == 0)
+    {
+        if(Yaw_Data > 271.0f)
+            Turn('r','s');
+        else if(Yaw_Data < 269.0f)
+            Turn('l','s');
+        else if(Yaw_Data < 271.0f && Yaw_Data > 269.0f)
+            stairs_count++;
+
+    }
+    else if(stairs_count == 1)
+    {
+        StandUp_Posture();
+        osDelay(50);
+
+        ExecuteJump(StepUp_Jump,76.0f);
+
+        stairs_count++;
+    }
+    else if(stairs_count == 2)
+    {
+        stairs_count++;
+    }
+    else if(stairs_count == 3)
+    {
+        StandUp_Posture();
+        osDelay(50);
+
+        ExecuteJump(StepUp_Jump,67.7f);
+        stairs_count++;
+    }
+    else if(stairs_count == 4 && Pitch_Data < -10.0f)
+    {
+        StandUp_Posture();
+        osDelay(50);
+
+        ExecuteJump(StepUp_Jump,70.0f);
+        stairs_count++;
+    }
+    else if(stairs_count == 4 && Pitch_Data < 3.0f && Pitch_Data > -3.0f)
+    {
+        stairs_count++;
+    }
+
+    else if(stairs_count == 5 && visual.distance > Point_of_ThreeJumpStairs)
+        Trot(Forward,5);
+    else if(stairs_count == 5 && visual.distance <= Point_of_ThreeJumpStairs)
+    {
+        if(Yaw_Data > 271.0f)
+            Turn('r','s');
+        else if(Yaw_Data < 269.0f)
+            Turn('l','s');
+        else if(Yaw_Data < 271.0f && Yaw_Data > 269.0f)
+            stairs_count++;
+    }
+    else if(stairs_count == 6)
     {
         StandUp_Posture();
         osDelay(200);
 
-        while (Yaw_Data > 0.5f)
-            Turn('r','s');
-        while (Yaw_Data < -0.5f)
-            Turn('l','s');
+        ExecuteJump(StepDown_Jump,76.5f);
 
-        MarkingTime();
-        osDelay(1000);
+        stairs_count++;
+    }
+    if(stairs_count == 7)
+    {
+        StandUp_Posture();
+        osDelay(200);
 
+        ExecuteJump(Bridge_Jump, 85.0f);
+        stairs_count++;
+    }
+
+    if(visual.distance >= Point_of_stop && stairs_count == 8)
+        Trot(Forward,4);
+    else if(visual.distance < Point_of_stop && stairs_count == 8)
+    {
+        StandUp_Posture();
+        gpstate = 0;
+    }
+}
+
+
+void Test_Barrier_of_High_Bar(void )
+{
+    if(visual.distance >= Point_of_HighSpeedBar && bar_count == -1)
+        Trot(Forward,4);
+    else if(visual.distance < Point_of_HighSpeedBar && bar_count == -1)
+        bar_count++;
+    if(visual.distance >= Point_of_JumpHighBar && bar_count == 0)
+        Trot(Forward,0);
+    else if(visual.distance < Point_of_JumpHighBar && bar_count == 0)
+    {
         StandUp_Posture();
         osDelay(200);
 
@@ -273,8 +414,67 @@ void Barrier_of_High_Bar(void )
         bar_count++;
     }
 
-    if(Distance >= Point_of_Turn && bar_count == 1)
+    if(visual.distance >= Point_of_Turn && bar_count == 1)
         Trot(Forward,4);
-    else if(Distance < Point_of_Turn && bar_count == 1)
-        gpstate = 1;
+    else if(visual.distance < Point_of_Turn && bar_count == 1)
+    {
+        if (Yaw_Data < 90.0f)
+        {
+            Speed_Competition_Turn();
+        }
+        else
+        {
+            StandUp_Posture();
+            gpstate = 0;
+            automation_flag++;
+        }
+    }
+}
+
+void Barrier_of_High_Bar(void )
+{
+    if(bar_count == -2 && visual.distance < 6.0f)
+        Trot(Forward,4);
+    else if(bar_count == -2 && visual.distance > 6.0f)
+        bar_count++;
+    else if(visual.distance >= Point_of_HighSpeedBar && bar_count == -1)
+        Trot(Forward,4);
+    else if(visual.distance < Point_of_HighSpeedBar && bar_count == -1)
+        bar_count++;
+    else if(Laser_distance >= Point_of_JumpHighBar && bar_count == 0)
+        Trot(Forward,0);
+    else if(Laser_distance < Point_of_JumpHighBar && bar_count == 0)
+    {
+        if(Yaw_Data > 90.5f)
+            Turn('r','s');
+        else if(Yaw_Data < 89.5f)
+            Turn('l','s');
+        else if(Yaw_Data < 90.5f && Yaw_Data > 89.5f)
+            bar_count++;
+    }
+    else if(Laser_distance < Point_of_JumpHighBar && bar_count == 1)
+    {
+        StandUp_Posture();
+        osDelay(50);
+
+        FrontJump();
+        bar_count++;
+    }
+
+    else if(visual.distance >= Point_of_Turn && bar_count == 2)
+    {
+        Trot(Forward,4);
+    }
+
+    else if(visual.distance < Point_of_Turn && bar_count == 2 && Yaw_Data < 170.0f)
+    {
+        Speed_Competition_Turn();
+    }
+    if(Yaw_Data > 170.0f)
+    {
+        automation_flag = 2;
+        yawwant = 180.0f;
+//        StandUp_Posture();
+//        osDelay(300);
+    }
 }

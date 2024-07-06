@@ -14,8 +14,9 @@
 
 extern int8_t BlueTeeth_flag,NRFStart_flag;
 extern TIM_HandleTypeDef htim2;
+extern uint8_t Race_flag , BarrierMode_flag ;
 
 void Myinit(void);
 void RemoteControl_Init(int8_t Blue_flag,int8_t NRF_flag);
-
+void Competiton_init(uint8_t race_flag,uint8_t barrier_flag);
 #endif //MY_SCUDOG_MYINIT_H

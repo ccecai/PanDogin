@@ -17,9 +17,16 @@ uint8_t x_Rectification = 0,y_Rectification = 1, slope1_Rectification = 0, slope
 
 void StandUp_Posture(void)
 {
-    speed_kp = 0.12f;
     ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
+    Get_Target(0,PI);
+    SetCoupledThetaPositionAll();
+}
+
+void StandUp_Posture_Slow(void)
+{
+    ChangeGainOfPID(4.0f,0.5f,0.03f,0.05f);//初始化pid
+    AllLegsSpeedLimit(SpeedMode_VERYFAST - 2.0f);
     Get_Target(0,PI);
     SetCoupledThetaPositionAll();
 }
@@ -54,22 +61,22 @@ void Trot(float direction,int8_t kind)
                           direction,direction,direction,direction);
             break;
         case 1://竞速赛Trot
-            if (direction == 1)
+            if (direction == Forward)
             {
-                Change_SinStateDetachedParams(&state_detached_params[1],1,1,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,2,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,3,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,4,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,1,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,2,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,3,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,4,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
             }
-            else if(direction != 1)
+            else if(direction == Backward)
             {
-                Change_SinStateDetachedParams(&state_detached_params[1],1,1,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,2,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,3,17.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,4,21.0f, 30.0f,  6.0f, 0.8f, 0.22f, 5.5f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,1,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,2,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,3,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,4,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
             }
             AllLegsSpeedLimit(30.0f);
-            NewHeartbeat = 5;
+            NewHeartbeat = 4;
             ChangeGainOfPID(35.0f,2.0f,0.6f,0);
             YawControl(yawwant, &state_detached_params[1], direction);
             gait_detached(state_detached_params[1],0.0f, 0.5f, 0.5f, 0.0f,
@@ -99,6 +106,22 @@ void Trot(float direction,int8_t kind)
             gait_detached(state_detached_params[9],0.0f, 0.5f, 0.5f, 0.0f,
                           direction,direction,direction,direction);
             break;
+        case 5://楼梯慢走步态
+            AllLegsSpeedLimit(30.0f);
+            NewHeartbeat = 5;
+            ChangeGainOfPID(25.0f,2.0f,0.6f,0);
+            YawControl(yawwant, &state_detached_params[11], direction);
+            gait_detached(state_detached_params[11],0.0f, 0.5f, 0.5f, 0.0f,
+                          direction,direction,direction,direction);
+            break;
+        case 6://障碍赛起步慢走Trot
+            AllLegsSpeedLimit(30.0f);
+            NewHeartbeat = 5;
+            ChangeGainOfPID(25.0f,2.0f,0.6f,0);
+            YawControl(yawwant, &state_detached_params[12], direction);
+            gait_detached(state_detached_params[12],0.0f, 0.5f, 0.5f, 0.0f,
+                          direction,direction,direction,direction);
+            break;
         default:
             break;
     }
@@ -109,7 +132,6 @@ void Speed_Competition_Turn(void)
     AllLegsSpeedLimit(30.0f);
     NewHeartbeat = 5;
     ChangeGainOfPID(25.0f,2.0f,0.6f,0);
-    YawControl(yawwant, &state_detached_params[10], Forward);
     gait_detached(state_detached_params[10],0.0f, 0.5f, 0.5f, 0.0f,
                   Forward,Forward,Forward,Forward);
 }

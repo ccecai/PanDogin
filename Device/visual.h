@@ -10,7 +10,7 @@
 #include "cmsis_os.h"
 
 #define Length_of_visual 7
-#define Length_of_distance 20
+#define Length_of_distance 5
 
 typedef struct
 {

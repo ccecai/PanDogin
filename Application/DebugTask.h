@@ -6,6 +6,7 @@
 #define PANDOGIN_DOG_DEBUGTASK_H
 
 #include "main.h"
+#include "Attitude_Slove.h"
 
 void Debug_Task(void );
 

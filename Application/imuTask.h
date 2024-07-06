@@ -7,7 +7,7 @@
 
 #include "Subordinate_Desk.h"
 
-extern float Yaw_Data,Roll_Data,Pitch_Data;
+extern float Yaw_Data,Roll_Data,Pitch_Data,Laser_distance;
 
 void IMU_Task(void );
 

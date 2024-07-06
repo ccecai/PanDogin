@@ -35,39 +35,39 @@ void Change_SinStateDetachedParams(DetachedParam *State,int8_t id,int8_t legid,f
 
     switch (legid) {
         case 1:
-            State[id].detached_params_0.stance_height = stance_height;
-            State[id].detached_params_0.step_length = step_length;
-            State[id].detached_params_0.up_amp = up_amp;
-            State[id].detached_params_0.down_amp = down_amp;
-            State[id].detached_params_0.flight_percent = flight_percent;
-            State[id].detached_params_0.freq = freq;
+            state_detached_params[1].detached_params_0.stance_height = stance_height;
+            state_detached_params[1].detached_params_0.step_length = step_length;
+            state_detached_params[1].detached_params_0.up_amp = up_amp;
+            state_detached_params[1].detached_params_0.down_amp = down_amp;
+            state_detached_params[1].detached_params_0.flight_percent = flight_percent;
+            state_detached_params[1].detached_params_0.freq = freq;
 
             break;
         case 2:
-            State[id].detached_params_1.stance_height = stance_height;
-            State[id].detached_params_1.step_length = step_length;
-            State[id].detached_params_1.up_amp = up_amp;
-            State[id].detached_params_1.down_amp = down_amp;
-            State[id].detached_params_1.flight_percent = flight_percent;
-            State[id].detached_params_1.freq = freq;
+            state_detached_params[1].detached_params_1.stance_height = stance_height;
+            state_detached_params[1].detached_params_1.step_length = step_length;
+            state_detached_params[1].detached_params_1.up_amp = up_amp;
+            state_detached_params[1].detached_params_1.down_amp = down_amp;
+            state_detached_params[1].detached_params_1.flight_percent = flight_percent;
+            state_detached_params[1].detached_params_1.freq = freq;
 
             break;
         case 3:
-            State[id].detached_params_2.stance_height = stance_height;
-            State[id].detached_params_2.step_length = step_length;
-            State[id].detached_params_2.up_amp = up_amp;
-            State[id].detached_params_2.down_amp = down_amp;
-            State[id].detached_params_2.flight_percent = flight_percent;
-            State[id].detached_params_2.freq = freq;
+            state_detached_params[1].detached_params_2.stance_height = stance_height;
+            state_detached_params[1].detached_params_2.step_length = step_length;
+            state_detached_params[1].detached_params_2.up_amp = up_amp;
+            state_detached_params[1].detached_params_2.down_amp = down_amp;
+            state_detached_params[1].detached_params_2.flight_percent = flight_percent;
+            state_detached_params[1].detached_params_2.freq = freq;
 
             break;
         case 4:
-            State[id].detached_params_3.stance_height = stance_height;
-            State[id].detached_params_3.step_length = step_length;
-            State[id].detached_params_3.up_amp = up_amp;
-            State[id].detached_params_3.down_amp = down_amp;
-            State[id].detached_params_3.flight_percent = flight_percent;
-            State[id].detached_params_3.freq = freq;
+            state_detached_params[1].detached_params_3.stance_height = stance_height;
+            state_detached_params[1].detached_params_3.step_length = step_length;
+            state_detached_params[1].detached_params_3.up_amp = up_amp;
+            state_detached_params[1].detached_params_3.down_amp = down_amp;
+            state_detached_params[1].detached_params_3.flight_percent = flight_percent;
+            state_detached_params[1].detached_params_3.freq = freq;
 
             break;
         default:
@@ -325,10 +325,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 
         {
             0,//转弯（在转弯函数中会调整该步态以实现转弯）
-            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f},
-            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f},
-            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
-            {19.0f, 6.25f, 4.0f, 1.0f, 0.2f, 4.0f}
+            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f},
+            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f},
+            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
+            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f}
         },
         {
 
@@ -360,18 +360,18 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
             4,//双木桥上走的步态
-            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f},
-            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f},
-            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f},
-            {17.0f, 23.0f,  4.0f, 1.0f, 0.125f, 4.0f}
+            {17.0f, 21.0f,  6.0f, 1.0f, 0.15f, 2.9f},
+            {17.0f, 21.0f,  6.0f, 1.0f, 0.15f, 2.9f},
+            {17.0f, 21.0f,  6.0f, 1.0f, 0.15f, 2.9f},
+            {17.0f, 21.0f,  6.0f, 1.0f, 0.15f, 2.9f}
         },
         {
 
             5,//障碍赛起步的步态
-            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f},
-            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f},
-            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f},
-            {18.0f, 8.0f,  4.0f, 1.0f, 0.125f, 6.0f}
+            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f},
+            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f},
+            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f},
+            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f}
         },
         {
             6,//左微
@@ -389,27 +389,43 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
             8,//小步Trot（稳速）
-            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f},
-            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f},
-            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f},
-            {17.0f, 8.5f,  4.0f, 1.0f, 0.14f, 4.0f}
+            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f},
+            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f},
+            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f},
+            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f}
 
         },
         {
 
             9,//障碍赛正常行走的步态
-            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
-            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
-            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
-            {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f}
+            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f},
+            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f},
+            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f},
+            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f}
         },
         {
 
                 10,//障碍赛正常行走的步态
-                {18.0f, 19.0f,  4.0f, 1.0f, 0.15f, 3.5f},
-                {18.0f, 19.0f,  4.0f, 1.0f, 0.15f, 3.5f},
-                {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f},
-                {18.0f, 25.0f,  4.0f, 1.0f, 0.15f, 3.5f}
+                {18.0f, 10.0f,  4.0f, 1.0f, 0.15f, 4.5f},
+                {18.0f, 10.0f,  4.0f, 1.0f, 0.15f, 4.5f},
+                {18.0f, 23.0f,  4.0f, 1.0f, 0.15f, 4.5f},
+                {18.0f, 23.0f,  4.0f, 1.0f, 0.15f, 4.5f}
+        },
+        {
+
+                11,//障碍赛正常行走的步态
+                {18.0f, 5.0f,  4.0f, 1.0f, 0.15f, 3.0f},
+                {18.0f, 5.0f,  4.0f, 1.0f, 0.15f, 3.0f},
+                {18.0f, 5.0f,  4.0f, 1.0f, 0.15f, 3.0f},
+                {18.0f, 5.0f,  4.0f, 1.0f, 0.15f, 3.0f}
+        },
+        {
+
+                12,//障碍赛起步的步态
+                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f},
+                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f},
+                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f},
+                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f}
         },
 };
 
@@ -453,21 +469,18 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
     }
 
-    else if(visual_control_flag == 1)
+    else if(visual_control_flag == 1 && Race_flag == 1)
     {
-        ChangePID(&VisualLoop,0.125f,0.04f,4000.0f,15.0f);
-        if (offset_flag == 1)
-            SetPoint_Visual(&VisualLoop,MidPoint + wooden_bridge_offset);
-        else
-            SetPoint_Visual(&VisualLoop,MidPoint);
-        PID_Pos(&VisualLoop,visual.offset);
-        ChangeYawOfPID(0.6f,0.1f,3000.0f,10.0f);
+        ChangeYawOfPID(0.2f,0.05f,3000.0f,10.0f);
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
         PID_Pos(&Yaw_PID_Loop,Yaw_Data);
 
+        ChangePID(&VisualLoop,0.29f,2.8f,4000.0f,15.0f);
+        SetPoint_Visual(&VisualLoop,MidPoint);
+        PID_Pos(&VisualLoop,visual.offset);
+
         if(direction != 1)
         {
-            /**********步态控制*********/
             Yaw_PID_Loop.Out_put = -Yaw_PID_Loop.Out_put;
         }
 
@@ -475,6 +488,39 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
         normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + VisualLoop.Out_put - Yaw_PID_Loop.Out_put;//左腿步长增加
         normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - VisualLoop.Out_put + Yaw_PID_Loop.Out_put;//右腿步长减小
         //步长限幅
+
+        if(normal_step_right > StepLenthMax)
+            normal_step_right = StepLenthMax;
+        else if(normal_step_right < StepLenthMin)
+            normal_step_right = StepLenthMin;
+
+        if(normal_step_left > StepLenthMax)
+            normal_step_left = StepLenthMax;
+        else if(normal_step_left < StepLenthMin)
+            normal_step_left = StepLenthMin;
+
+        //最终赋值（前面的步长限幅保证了步长参数总是在合理的范围内而不会疯掉，从根本上解决了出现IMU控制坏掉BUG的可能性）
+        State_Detached_Params->detached_params_0.step_length = normal_step_left;
+        State_Detached_Params->detached_params_1.step_length = normal_step_left;
+
+        State_Detached_Params->detached_params_2.step_length = normal_step_right;
+        State_Detached_Params->detached_params_3.step_length = normal_step_right;
+    }
+
+    else if(visual_control_flag == 1 && BarrierMode_flag == 1)
+    {
+        ChangePID(&VisualLoop,0.22f,0.5f,4000.0f,15.0f);
+        if(offset_flag == 1)
+            SetPoint_Visual(&VisualLoop,MidPoint + 0.7f);
+        else
+            SetPoint_Visual(&VisualLoop,MidPoint);
+        PID_Pos(&VisualLoop,visual.offset);
+
+        //Yaw输出给步长参数
+        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + VisualLoop.Out_put;//左腿步长增加
+        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - VisualLoop.Out_put;//右腿步长减小
+        //步长限幅
+
         if(normal_step_right > StepLenthMax)
             normal_step_right = StepLenthMax;
         else if(normal_step_right < StepLenthMin)

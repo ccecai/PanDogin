@@ -5,7 +5,7 @@
 #include "string.h"
 
 int8_t BlueTeeth_flag = 0,NRFStart_flag = 0;
-
+uint8_t Race_flag = 0, BarrierMode_flag = 0;
 void Myinit(void)
 {
     MyFDCan1_config();
@@ -13,15 +13,16 @@ void Myinit(void)
     RetargetInit(&huart3);
     HAL_TIM_Base_Start_IT(&htim2);
 
-    visual.offset = 100;//视觉纠偏的值进行初始化
+    visual.offset = 100;
 
     memcpy(StateDetachedParams_Copy,state_detached_params,100*StatesMaxNum);//state_detached_params每个元素（DetachedParam型,即每种步态，外加一个u8的ID号）。
     //实际占据的字节数为4*6*4+4=96+4=100（＋4而不是加1是因为要4字节对齐）。
     //设定StatesMaxNum，则拷贝的上限为100*StateMaxNum，不要少拷贝，可以多拷贝，但多拷贝的不要用。
     //该复制操作不要在任务中进行，而要在操作系统初始化之前进行，否则将给操作系统的运行造成奇怪的问题。
 
+    Competiton_init(1,0);
     RemoteControl_Init(1,0); //选择要使用的远程控制模式
-    Control_Flag(0,0,0);//选择是否开启陀螺仪与视觉纠偏开关(竞速赛用的）
+    Control_Flag(0,1,0);//选择是否开启陀螺仪与视觉纠偏开关(竞速赛用的）
     IMU_Slove(0,0);//是否开启障碍时腿时刻保持竖直（障碍赛用的）
 
     usart_printf("Init_Ready\n");
@@ -54,4 +55,15 @@ void RemoteControl_Init(int8_t Blue_flag,int8_t NRF_flag)
     }
 
     BlueTeeth_flag = Blue_flag;
+}
+void Competiton_init(uint8_t race_flag,uint8_t barrier_flag)
+{
+    if(race_flag == 1)
+        Race_flag = 1;
+    else if(race_flag == 0)
+        Race_flag = 0;
+    if(barrier_flag == 1)
+        BarrierMode_flag = 1;
+    else if(barrier_flag == 0)
+        BarrierMode_flag = 0;
 }

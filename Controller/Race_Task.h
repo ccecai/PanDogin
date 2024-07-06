@@ -7,6 +7,10 @@
 
 #include "main.h"
 
+#define FrontLength_of_Jump 1.31f
+#define BackLength_of_Jump 1.31f
+//#define BackLength_of_Jump 1.43f
+
 void Race_Competition(void);
 
 #endif //PANDOGIN_DOG_RACE_TASK_H
