@@ -17,15 +17,16 @@ uint8_t x_Rectification = 0,y_Rectification = 1, slope1_Rectification = 0, slope
 
 void StandUp_Posture(void)
 {
-    ChangeGainOfPID(5.0f,0.8f,0.03f,0.05f);//初始化pid
+    ChangeGainOfPID(4.8f,0.6f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(SpeedMode_VERYFAST);
     Get_Target(0,PI);
     SetCoupledThetaPositionAll();
 }
 
+
 void StandUp_Posture_Slow(void)
 {
-    ChangeGainOfPID(4.0f,0.5f,0.03f,0.05f);//初始化pid
+    ChangeGainOfPID(3.8f,0.2f,0.03f,0.05f);//初始化pid
     AllLegsSpeedLimit(SpeedMode_VERYFAST - 2.0f);
     Get_Target(0,PI);
     SetCoupledThetaPositionAll();
@@ -63,17 +64,17 @@ void Trot(float direction,int8_t kind)
         case 1://竞速赛Trot
             if (direction == Forward)
             {
-                Change_SinStateDetachedParams(&state_detached_params[1],1,1,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,2,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,3,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,4,18.0f, 25.0f,  6.0f, 0.8f, 0.13f, 3.8f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,1,20.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.7f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,2,20.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.7f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,3,20.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.7f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,4,20.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.7f);
             }
             else if(direction == Backward)
             {
-                Change_SinStateDetachedParams(&state_detached_params[1],1,1,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,2,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,3,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
-                Change_SinStateDetachedParams(&state_detached_params[1],1,4,18.0f, 15.0f,  5.0f, 2.2f, 0.15f, 3.0f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,1,20.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.7f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,2,20.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.7f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,3,20.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.7f);
+                Change_SinStateDetachedParams(&state_detached_params[1],1,4,20.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.7f);
             }
             AllLegsSpeedLimit(30.0f);
             NewHeartbeat = 4;
@@ -154,19 +155,19 @@ void Turn(int state_flag,int speed_flag)
 
     if(speed_flag == 'f')
     {
-        length = 20.0f;
-        state_detached_params[0].detached_params_0.freq = 5.5f;
-        state_detached_params[0].detached_params_1.freq = 5.5f;
-        state_detached_params[0].detached_params_2.freq = 5.5f;
-        state_detached_params[0].detached_params_3.freq = 5.5f;
+        length = 15.0f;
+        state_detached_params[0].detached_params_0.freq = 3.8f;
+        state_detached_params[0].detached_params_1.freq = 3.8f;
+        state_detached_params[0].detached_params_2.freq = 3.8f;
+        state_detached_params[0].detached_params_3.freq = 3.8f;
     }
     else if(speed_flag == 's')
     {
-        length = 4.0f;
-        state_detached_params[0].detached_params_0.freq = 2.5f;
-        state_detached_params[0].detached_params_1.freq = 2.5f;
-        state_detached_params[0].detached_params_2.freq = 2.5f;
-        state_detached_params[0].detached_params_3.freq = 2.5f;
+        length = 7.0f;
+        state_detached_params[0].detached_params_0.freq = 3.5f;
+        state_detached_params[0].detached_params_1.freq = 3.5f;
+        state_detached_params[0].detached_params_2.freq = 3.5f;
+        state_detached_params[0].detached_params_3.freq = 3.5f;
     }
 
     NewHeartbeat = 5;
@@ -297,9 +298,9 @@ void Translate(int direction)
 {
     switch (direction) {
         case 'r':
-            AllLegsSpeedLimit(15.0f);
+            AllLegsSpeedLimit(25.0f);
             NewHeartbeat = 5;
-            ChangeGainOfPID(15.0f,2.0f,0.6f,0);
+            ChangeGainOfPID(23.0f,0.8f,0.6f,0);
             gait_detached(state_detached_params[6],0.5f, 0.5f, 0.0f, 0.0f,
                           direction,direction,direction,direction);
             break;

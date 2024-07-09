@@ -35,36 +35,10 @@ void IMU_AUTO_PID_SET(float kp,float ki,float kd,float SumError_limit)
 
 void IMU_Data_Process(uint16_t rx_len)
 {
-    static uint8_t SystematicErrorFlag = 0;
-    static float Yaw_ErrorCorrection = 0;
-    static float Pitch_ErrorCorrection = 0;
-    static float Roll_ErrorCorrection = 0;
-    //发送的欧拉角数据中，前0-5个字节是header，我们可以不管；6-8字节为PID，用其进行判断。
-    if(IMU_RX_BUF[6]==0x01 && IMU_RX_BUF[7]==0xb0 && IMU_RX_BUF[8]==0x10)//对于欧拉角，PID是0xB001，由于是LSB传输，故实际先收到01，后收到B0。PID之后是PL，即载荷大小，0x10表示16字节的数据
-    {
-        //将串口数据放到欧拉角联合体中
-        for(uint8_t i=9;i<21;i++) IMU_EulerAngle.raw_data[i-9] = IMU_RX_BUF[i];//角度数据不包括0 1 2位置的内容（作为三个帧头），而包括3-14共4（元素）*3（组）数据。
-        //将初始测到的值作为误差修正值
-        switch(SystematicErrorFlag)//利用switcg-case可以实现非常简洁高效了非阻塞延时
-        {
-            case 10:
-            {
-                //系统误差修正值计算
-                Yaw_ErrorCorrection = IMU_EulerAngle.EulerAngle[Yaw];
-                Pitch_ErrorCorrection = IMU_EulerAngle.EulerAngle[Pitch];
-                Roll_ErrorCorrection = IMU_EulerAngle.EulerAngle[Roll];
-                SystematicErrorFlag++;
-            }
-            case 11:break;
-            default:
-                SystematicErrorFlag++;
-                break;
-        }
-        //误差修正后角度值
-        IMU_EulerAngle.EulerAngle[Yaw]  -= Yaw_ErrorCorrection;
-        IMU_EulerAngle.EulerAngle[Pitch]-= Pitch_ErrorCorrection;
-        IMU_EulerAngle.EulerAngle[Roll] -=Roll_ErrorCorrection;
-    }
+
+        if((yawwant == 180.0f || yawwant == 270.0f) && Yaw_Data < 0)
+            Yaw_Data = Yaw_Data + 360.0f;
+
 }
 
 void Control_Flag(uint8_t IMU_Flag,uint8_t Visual_flag,uint8_t Radar_flag)

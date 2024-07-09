@@ -29,7 +29,7 @@
 #define StatesMaxNum 20
 
 //#define MidPoint 100.2
-#define MidPoint 98
+
 
 typedef struct
 {
@@ -59,7 +59,7 @@ extern float x,y,Target_Slope,Target_Xpos,Target_Ypos;
 extern float offset_front_0,offset_front_1,offset_back_0,offset_back_1;
 extern uint8_t Barrier_flag,Radar_control_flag,FrontJump_flag;
 extern float normal_step_left ,normal_step_right ;
-
+extern float MidPoint;
 void Get_Target(float theta1,float theta2);
 void SetCoupledThetaPositionAll(void);
 void SetCoupledThetaPosition(int LegId);

@@ -28,7 +28,7 @@ uint8_t REMOTE_RX_BUF[REMOTE_REC_LEN];
 uint8_t TestFlag = 0;
 uint8_t RestartFlag = 0;
 uint8_t DebugData = 0;
-
+uint8_t once_flag = 0;
 //遥控快速调节步态参数以实现最佳步态的确定
 float Leg1Delay = 0;
 float Leg2Delay = 0.5;
@@ -72,17 +72,23 @@ void Remote_Controller(void)
             LieDown_Posture();
             break;
         case 6:
-            if (dpstate == 53) {
+            if (dpstate == 53)
+            {
                 Translate('l');
-            } else {
+            }
+            else
+            {
                 Speed_Competition_Turn();
             }
 
             break;
         case 7:
-            if (dpstate == 53) {
+            if (dpstate == 53)
+            {
                 Translate('r');
-            } else {
+            }
+            else
+            {
                 Turn('r', 's');
             }
             break;
@@ -90,29 +96,32 @@ void Remote_Controller(void)
             if (dpstate == 53)
                 Trot(Forward, 2);
             else
-                Trot(Forward, 1);
+                Trot(Forward, 3);
             break;
         case 11:
             if (dpstate == 53)
                 Trot(Backward, 2);
             else
-                Trot(Backward, 1);
+                Trot(Backward, 3);
             break;
         case 20:
-//            ExecuteJump(Bridge_Jump, 72.0f);
-            ExecuteJump(StepDown_Jump,73.5f);
+            ExecuteJump(Bridge_Jump, 71.2f);
+//            ExecuteJump(StepDown_Jump,73.5f);
             break;
         case 21:
+//            ExecuteJump(StepUp_LowJump,72.0f);
 //            ExecuteJump(StepUp_Jump,76.0f);
-            Turn_Jump(45);
+            ExecuteJump(StepUp_Jump,71.2f);
             break;
         case 22:
+//            ExecuteJump(StepUp_LowJump,72.0f);
 //            ExecuteJump(StepUp_Jump,66.0f);
-            Turn_Jump(-45);
+//            Turn_Jump(-45);
+            ExecuteJump(StepUp_LowJump,69.0f);
             break;
         case 24://飞跳
-            ExecuteJump(Bridge_Jump, 85.0f);
-//            FrontJump();
+//            ExecuteJump(Bridge_Jump, 85.0f);
+            FrontJump();
             break;
         case 30:
             SquatPosture();//蹲下
@@ -143,12 +152,60 @@ void Remote_Controller(void)
         default:
             break;
     }
-//    if (Desk_Data[19] == 2 && flag == 0)
-//        gpstate = 37;
-//    else if (Desk_Data[19] == 3 && flag == 0)
-//        gpstate = 36;
-//    else if(Desk_Data[19] == 1 && flag == 0)
-//        StandUp_Posture();
+    if (Desk_Data[25] == 2)
+        gpstate = 37;
+    else if (Desk_Data[25] == 3)
+        gpstate = 36;
+    else if(Desk_Data[25] == 1)
+        gpstate = 1;
+    else if(Desk_Data[25] == 4 && once_flag == 0)
+    {
+        once_flag = 1;
+        gpstate = 36;
+    }
+    else if(Desk_Data[25] == 5 && once_flag == 0)
+    {
+        once_flag = 2;
+        gpstate = 36;
+    }
+    else if(Desk_Data[25] == 6 && once_flag == 0)
+    {
+        once_flag = 3;
+        gpstate = 36;
+    }
+    else if(Desk_Data[25] == 7 && once_flag == 0)
+    {
+        once_flag = 4;
+        gpstate = 36;
+    }
+
+    if(once_flag == 1)
+    {
+        automation_flag = 0;
+        bridge_count = -1;
+        once_flag = 10;
+    }
+    else if(once_flag == 2)
+    {
+        automation_flag = 1;
+        bar_count = -2;
+        once_flag = 10;
+    }
+    else if(once_flag == 3)
+    {
+        automation_flag = 2;
+        slope_count = -1;
+        yawwant = 180.0f;
+        once_flag = 10;
+    }
+    else if(once_flag == 4)
+    {
+        automation_flag = 3;
+        stairs_count = -2;
+        yawwant = 270.0f;
+        once_flag = 10;
+    }
+
 
 }
 
@@ -171,8 +228,7 @@ void RemoteCtrl(uint16_t rx_len)
                     break;
                 case 2:
                     state_detached_params[9].detached_params_0.step_length =
-                    state_detached_params[9].detached_params_1.step_length =
-                    state_detached_params[9].detached_params_2.step_length =
+                    state_detached_params[9].detached_params_1.step_length =state_detached_params[9].detached_params_2.step_length =
                     state_detached_params[9].detached_params_3.step_length = REMOTE_RX_BUF[0] / 5.6f;
                     break;
                 case 3:

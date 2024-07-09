@@ -13,7 +13,7 @@ enum JumpTypes
     Bridge_Jump = 0,
     StepUp_Jump = 1,
     StepDown_Jump = 2,
-
+    StepUp_LowJump = 3,
 };
 
 extern uint8_t Jump_flag;

@@ -3,20 +3,20 @@
 //
 #include "imuTask.h"
 
-int32_t Yaw_iData,Roll_iData,Pitch_iData,Laser_idistance;
-float Yaw_Data,Roll_Data,Pitch_Data,Laser_distance;
+int32_t Yaw_iData = 0,Roll_iData = 0,Pitch_iData = 0,Laser_idistance = 0;
+float Yaw_Data = 0,Roll_Data = 0,Pitch_Data = 0,Laser_distance = 0;
+int32_t Last_Yaw_Data = 0,Last_Roll_Data = 0,Last_Pitch_Data = 0;
+int32_t error_Yaw = 0,error_Roll = 0,error_Pitch = 0;
 
 void IMU_Task(void )
 {
-    visual_process();
-
     if(Desk_Data[28] == 0x1a && Desk_Data[41] == 0xb1)
     {
         Yaw_iData   = Desk_Data[29] | Desk_Data[30] << 8 | Desk_Data[31] << 16 | Desk_Data[32] << 24;
         Roll_iData  = Desk_Data[33] | Desk_Data[34] << 8 | Desk_Data[35] << 16 | Desk_Data[36] << 24;
         Pitch_iData = Desk_Data[37] | Desk_Data[38] << 8 | Desk_Data[39] << 16 | Desk_Data[40] << 24;
 
-        Yaw_Data = Yaw_iData / 1000.0f;
+        Yaw_Data = Yaw_iData / 1000.0f ;
         Roll_Data = Roll_iData / 1000.0f;
         Pitch_Data = Pitch_iData / 1000.0f;
 

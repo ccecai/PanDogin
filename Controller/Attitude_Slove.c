@@ -9,6 +9,9 @@ float step_angle[4] = {0};
 float times = 0.0f;
 float x,y;
 
+//float MidPoint = 97.6f;
+float MidPoint = 100.0f;
+
 uint8_t reverse_move_flag = 0;
 
 float StepLenthMin = 0.0f;
@@ -68,7 +71,6 @@ void Change_SinStateDetachedParams(DetachedParam *State,int8_t id,int8_t legid,f
             state_detached_params[1].detached_params_3.down_amp = down_amp;
             state_detached_params[1].detached_params_3.flight_percent = flight_percent;
             state_detached_params[1].detached_params_3.freq = freq;
-
             break;
         default:
             break;
@@ -117,12 +119,12 @@ void SetCoupledThetaPosition(int LegId)
                 AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 - Pitch_Data / 180 * PI;
                 break;
             case 1:
-                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0+ Pitch_Data / 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1- Pitch_Data / 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 + Pitch_Data / 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 - Pitch_Data / 180 * PI;
                 break;
             case 2:
-                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 +Pitch_Data / 180 * PI;//-4.0f
-                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 -Pitch_Data / 180 * PI;
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 + Pitch_Data / 180 * PI;//-4.0f
+                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 - Pitch_Data / 180 * PI;
                 break;
             case 3:
                 AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 + Pitch_Data/ 180 * PI;
@@ -325,10 +327,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 
         {
             0,//转弯（在转弯函数中会调整该步态以实现转弯）
-            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f},
-            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f},
-            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
-            {19.0f, 5.0f, 4.0f, 1.0f, 0.2f, 3.5f}
+            {19.0f, 5.0f, 6.0f, 1.0f, 0.17f, 3.5f},
+            {19.0f, 5.0f, 6.0f, 1.0f, 0.17f, 3.5f},
+            {19.0f, 5.0f, 6.0f, 1.0f, 0.17f, 3.5f},// 6个参数变量为stance_height; step_length; up_amp; down_amp; flight_percent; freq
+            {19.0f, 5.0f, 6.0f, 1.0f, 0.17f, 3.5f}
         },
         {
 
@@ -368,10 +370,10 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         {
 
             5,//障碍赛起步的步态
-            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f},
-            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f},
-            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f},
-            {18.0f, 5.0f,  6.5f, 1.0f, 0.19f, 3.5f}
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f},
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f},
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f},
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f}
         },
         {
             6,//左微
@@ -382,34 +384,34 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         },
         {
             7,//右微
-            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f},
-            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f},
-            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f},
-            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f}
+            {21.0f, 0.0f,  10.0f, 0.9f, 0.1f, 5.0f},
+            {21.0f, 0.0f,  10.0f, 0.9f, 0.1f, 5.0f},
+            {14.0f, 0.0f,  1.0f, 0.9f, 0.1f, 5.0f},
+            {14.0f, 0.0f,  1.0f, 0.9f, 0.1f, 5.0f}
         },
         {
             8,//小步Trot（稳速）
-            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f},
-            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f},
-            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f},
-            {17.2f, 15.0f, 6.5f, 1.0f, 0.1f, 4.0f}
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f},
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f},
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f},
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f}
 
         },
         {
 
             9,//障碍赛正常行走的步态
-            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f},
-            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f},
-            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f},
-            {18.0f, 17.5f,  6.5f, 1.0f, 0.18f, 4.5f}
+            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f},
+            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f},
+            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f},
+            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f}
         },
         {
 
                 10,//障碍赛正常行走的步态
-                {18.0f, 10.0f,  4.0f, 1.0f, 0.15f, 4.5f},
-                {18.0f, 10.0f,  4.0f, 1.0f, 0.15f, 4.5f},
-                {18.0f, 23.0f,  4.0f, 1.0f, 0.15f, 4.5f},
-                {18.0f, 23.0f,  4.0f, 1.0f, 0.15f, 4.5f}
+                {18.0f, 9.0f,  6.0f, 1.0f, 0.2f, 4.5f},
+                {18.0f, 9.0f,  6.0f, 1.0f, 0.2f, 4.5f},
+                {18.0f, 24.0f,  6.0f, 1.0f, 0.2f, 4.5f},
+                {18.0f, 24.0f,  6.0f, 1.0f, 0.2f, 4.5f}
         },
         {
 
@@ -438,7 +440,7 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
     if(IMU_Control_Flag == 1)
     {
-        ChangeYawOfPID(0.85f,0.2f,3000.0f,10.0f);
+        ChangeYawOfPID(1.7f,0.5f,3000.0f,10.0f);
         /*******IMUのPID相关*******/
         //PID目标设定（一般都是0，除了Pitch有时要求它是一定角度）
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
@@ -471,11 +473,11 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
     else if(visual_control_flag == 1 && Race_flag == 1)
     {
-        ChangeYawOfPID(0.2f,0.05f,3000.0f,10.0f);
+        ChangeYawOfPID(1.5f,2.0f,3000.0f,10.0f);
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
         PID_Pos(&Yaw_PID_Loop,Yaw_Data);
 
-        ChangePID(&VisualLoop,0.29f,2.8f,4000.0f,15.0f);
+        ChangePID(&VisualLoop,1.0f,0.2f,4000.0f,15.0f);
         SetPoint_Visual(&VisualLoop,MidPoint);
         PID_Pos(&VisualLoop,visual.offset);
 
@@ -509,9 +511,9 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
     else if(visual_control_flag == 1 && BarrierMode_flag == 1)
     {
-        ChangePID(&VisualLoop,0.22f,0.5f,4000.0f,15.0f);
+        ChangePID(&VisualLoop,1.5f,0.7f,4000.0f,15.0f);
         if(offset_flag == 1)
-            SetPoint_Visual(&VisualLoop,MidPoint + 0.7f);
+            SetPoint_Visual(&VisualLoop,MidPoint );
         else
             SetPoint_Visual(&VisualLoop,MidPoint);
         PID_Pos(&VisualLoop,visual.offset);

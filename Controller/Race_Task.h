@@ -7,8 +7,8 @@
 
 #include "main.h"
 
-#define FrontLength_of_Jump 1.31f
-#define BackLength_of_Jump 1.31f
+#define FrontLength_of_Jump 0.909f
+#define BackLength_of_Jump 0.9288f
 //#define BackLength_of_Jump 1.43f
 
 void Race_Competition(void);

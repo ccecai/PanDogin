@@ -39,7 +39,7 @@ void Myinit(void)
 //        enable_motor_mode(&hfdcan2, motor.para.id, POS_MODE);//使能电机
 //        osDelay(20);
 //    }
-    osDelay(1500); //在调试的时候延迟3秒用来打开急停开关
+    osDelay(2000); //在调试的时候延迟3秒用来打开急停开关
 
 
 }

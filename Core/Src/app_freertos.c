@@ -116,7 +116,7 @@ void MX_FREERTOS_Init(void) {
   StartTaskHandle = osThreadCreate(osThread(StartTask), NULL);
 
   /* definition and creation of BlueteethTask */
-  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityRealtime, 0, 4096);
+  osThreadDef(BlueteethTask, BlueTeeth_RemoteControl, osPriorityAboveNormal, 0, 4096);
   BlueteethTaskHandle = osThreadCreate(osThread(BlueteethTask), NULL);
 
   /* definition and creation of GO1Init_Task */
@@ -148,7 +148,7 @@ void MX_FREERTOS_Init(void) {
   DebugHandle = osThreadCreate(osThread(Debug), NULL);
 
   /* definition and creation of IMU */
-  osThreadDef(IMU, IMUTask, osPriorityAboveNormal, 0, 512);
+  osThreadDef(IMU, IMUTask, osPriorityAboveNormal, 0, 1024);
   IMUHandle = osThreadCreate(osThread(IMU), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */

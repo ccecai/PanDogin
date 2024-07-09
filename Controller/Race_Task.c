@@ -12,52 +12,64 @@ void Race_Competition(void)
 
     else if(visual.distance < FrontLength_of_Jump && Race_count == 0)
     {
-        Turn_Jump(45);
+        if(Yaw_Data < 45.0f)
+            Turn('l','f');
+        else if(Yaw_Data >= 29.5f)
+        {
+            Front_Camare_flag = 0;
+            Back_Camare_flag = 1;
+            Race_count++;
+            yawwant = 45.0f;
 
-        Front_Camare_flag = 0;
-        Back_Camare_flag = 1;
+            StandUp_Posture();
+            osDelay(300);
+        }
 
-        yawwant = -45.0f;
-
-        Race_count++;
     }
+
     else if(visual.distance >= BackLength_of_Jump && Race_count == 1)
     {
         Trot(Backward,1);
     }
     else if(visual.distance < BackLength_of_Jump && Race_count == 1)
     {
-        Turn_Jump(45);
+        if(Yaw_Data < 90.0f)
+            Turn('l','f');
+        else if(Yaw_Data >= 74.5f)
+        {
+            Race_count++;
+            Front_Camare_flag = 1;
+            Back_Camare_flag = 0;
+            yawwant = 90.0f;
 
-        Front_Camare_flag = 1;
-        Back_Camare_flag = 0;
-
-        yawwant = -90.0f;
-
-        Race_count++;
+            StandUp_Posture();
+            osDelay(300);
+        }
     }
-    else if(Race_count == 2 && visual.distance >= FrontLength_of_Jump + 0.08)
+
+    else if(visual.distance >= FrontLength_of_Jump && Race_count == 2)
     {
         Trot(Forward,1);
     }
-    else if(Race_count == 2 && visual.distance < FrontLength_of_Jump + 0.08)
+    else if(visual.distance < FrontLength_of_Jump && Race_count == 2)
     {
-        Turn_Jump(-45);
+        if(Yaw_Data > 45.0f)
+            Turn('r','f');
+        else if(Yaw_Data < 61.5f)
+        {
+            Race_count++;
+            Front_Camare_flag = 0;
+            Back_Camare_flag = 1;
+            yawwant = 45.0f;
 
-        Front_Camare_flag = 0;
-        Back_Camare_flag = 1;
-
-        yawwant = -45.0f;
-
-        Race_count++;
-
+            StandUp_Posture();
+            osDelay(300);
+        }
     }
-    else if(Race_count == 3 && visual.distance >= FrontLength_of_Jump)
+
+    else if(Race_count == 3)
     {
         Trot(Backward,1);
     }
-    else if(Race_count == 3 && visual.distance < FrontLength_of_Jump)
-    {
-        StandUp_Posture();
-    }
+
 }
