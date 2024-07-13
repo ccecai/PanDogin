@@ -16,14 +16,20 @@ void IMU_Task(void )
         Roll_iData  = Desk_Data[33] | Desk_Data[34] << 8 | Desk_Data[35] << 16 | Desk_Data[36] << 24;
         Pitch_iData = Desk_Data[37] | Desk_Data[38] << 8 | Desk_Data[39] << 16 | Desk_Data[40] << 24;
 
-        Yaw_Data = Yaw_iData / 1000.0f ;
-        Roll_Data = Roll_iData / 1000.0f;
-        Pitch_Data = Pitch_iData / 1000.0f;
-
-        if ((yawwant == 180.0f || yawwant == 270.0f) && Yaw_Data < 0)
-        {
-            Yaw_Data = Yaw_Data + 360.0f;
-        }
+//        if(Yaw_iData < -20000)
+//        {
+//            Yaw_Data = Yaw_iData / 1000.0f + 360.0f;
+//            Roll_Data = Roll_iData / 1000.0f;
+//            Pitch_Data = Pitch_iData / 1000.0f;
+//        }
+//        else
+//        {
+            Yaw_Data = Yaw_iData / 1000.0f;
+            Roll_Data = Roll_iData / 1000.0f;
+            Pitch_Data = Pitch_iData / 1000.0f;
+//        }
+            if(Yaw_Data < -20.0f)
+                Yaw_Data = Yaw_Data + 360.0f;
 
     }
 

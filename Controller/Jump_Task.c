@@ -20,7 +20,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
         const uint16_t prep_time = 800;       //准备时间，即收缩退准备起跳的时间  [s]  0.4
         const uint16_t launch_time = 260;    //伸展腿的持续时间                  [s]  0.2
-        const uint16_t fall_time = 100;      //在空中飞翔的时间                 [s]  0.25（这个时间最好设置的小点）
+        const uint16_t fall_time = 150;      //在空中飞翔的时间                 [s]  0.25（这个时间最好设置的小点）
         const uint16_t strech_time = 400;  //落地并用力支撑的时间              [s]  0.3（这个时间结束后就会立刻进入站立态了）
         /*跳跃的姿态把控（调节时，可按0.1的整数倍进行加减调整，如（LegSquatLenth-0.4））*/
         const float stance_height = LegLenthMin;  //跳跃之前腿的高度  [cm]，理论上应等于LegSquatLenth 11.2f，这里测试跳跃时可以使用LegLenthMin 10.7f
@@ -47,12 +47,14 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         SetPolarPositionAll_Delay(-34.0f, stance_height, fall_time);
 
         //脚用力准备站起来
-//        ChangeGainOfPID(5.0f,0.5f, 0, 0);//使用刚度小，阻尼大的增益
-//        SetPolarPositionAll_Delay(-70, jump_landlegheight, strech_time);
+        ChangeGainOfPID(5.0f,0.5f, 0, 0);//使用刚度小，阻尼大的增益
+        SetPolarPositionAll_Delay(-70, jump_landlegheight, strech_time);
         //差不多站好了，执行
 
-        StandUp_Posture_Slow();
+        StandUp_Posture();
         osDelay(500);
+
+        gpstate = 1;
     }
     else if(JumpType == StepUp_Jump)
     {
@@ -62,8 +64,8 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
 
         /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
         const uint16_t prep_time = 800;       //准备时间，即收缩退准备起跳的时间  [s]  0.4
-        const uint16_t launch_time = 190;    //伸展腿的持续时间                  [s]  0.2
-        const uint16_t fall_time = 750;      //在空中飞翔的时间                 [s]  0.25（这个时间最好设置的小点）
+        const uint16_t launch_time = 100;    //伸展腿的持续时间                  [s]  0.2
+        const uint16_t fall_time = 100;      //在空中飞翔的时间                 [s]  0.25（这个时间最好设置的小点）
         const uint16_t strech_time = 400;  //落地并用力支撑的时间              [s]  0.3（这个时间结束后就会立刻进入站立态了）
         /*跳跃的姿态把控（调节时，可按0.1的整数倍进行加减调整，如（LegSquatLenth-0.4））*/
         const float stance_height = LegLenthMin;  //跳跃之前腿的高度  [cm]，理论上应等于LegSquatLenth 11.2f，这里测试跳跃时可以使用LegLenthMin 10.7f
@@ -76,11 +78,11 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         SetPolarPositionAll_Delay(JumpAngle, stance_height, prep_time);
 
         //芜湖起飞（核心），持续时间为launch_time
-        AllLegsSpeedLimit(30.0f);//速度拉
-        AngleLoop[5].Output_limit = 27.2f;
-        AngleLoop[6].Output_limit = 27.2f;
-        AngleLoop[7].Output_limit = 27.2f;
-        AngleLoop[8].Output_limit = 27.2f;
+        AllLegsSpeedLimit(25.0f);//速度拉
+//        AngleLoop[5].Output_limit = 27.2f;
+//        AngleLoop[6].Output_limit = 27.2f;
+//        AngleLoop[7].Output_limit = 27.2f;
+//        AngleLoop[8].Output_limit = 27.2f;
 
         ChangeGainOfPID(50.0f,3.0f,0, 0);//使用刚度小，阻尼大的增益0
         SetPolarPositionAll_Delay(JumpAngle, jump_extension, launch_time);
@@ -88,12 +90,13 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         //飞翔过程（也即降落过程）中的姿态（核心），持续时间为fall_time
         AllLegsSpeedLimit(20.0f);
         ChangeGainOfPID(15.0f, 3.0f, 0, 0);//使用刚度小，阻尼大的增益
-        SetPolarPositionAll_Delay(-70, jump_flylegheight, fall_time);
+        SetPolarPositionAll_Delay(-80, jump_flylegheight, fall_time);
 
         //脚用力准备站起来
-        StandUp_Posture_Slow();
+        StandUp_Posture();
         osDelay(300);
 
+        gpstate = 1;
     }
     else if(JumpType == StepDown_Jump)//简单跳个远（要求地面摩擦较大）
     {
@@ -104,7 +107,7 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         /*跳跃过程的时间把控（以实测为主设置何时的时间，保证运动过程分段的合理性）*/
         const uint16_t prep_time = 800;       //准备时间，即收缩退准备起跳的时间  [s]  0.4
         const uint16_t launch_time = 190;    //伸展腿的持续时间                  [s]  0.2
-        const uint16_t fall_time = 800;      //在空中飞翔的时间                 [s]  0.25（这个时间最好设置的小点）
+        const uint16_t fall_time = 200;      //在空中飞翔的时间                 [s]  0.25（这个时间最好设置的小点）
         const uint16_t strech_time = 400;  //落地并用力支撑的时间              [s]  0.3（这个时间结束后就会立刻进入站立态了）
         /*跳跃的姿态把控（调节时，可按0.1的整数倍进行加减调整，如（LegSquatLenth-0.4））*/
         const float stance_height = LegLenthMin;  //跳跃之前腿的高度  [cm]，理论上应等于LegSquatLenth 11.2f，这里测试跳跃时可以使用LegLenthMin 10.7f
@@ -134,6 +137,8 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         //脚用力准备站起来
         StandUp_Posture_Slow();
         osDelay(800);
+
+        gpstate = 1;
     }
 
     else if(JumpType == StepUp_LowJump)
@@ -171,7 +176,9 @@ int ExecuteJump(uint8_t JumpType,float JumpAngle)
         StandUp_Posture_Slow();
         osDelay(1100);
 
+        gpstate = 1;
     }
+
 }
 /**
  * 前空翻的函数
@@ -245,9 +252,11 @@ int FrontJump(void )
 
     IMU_Slove(0,0);
     //等待命令执行
-    StandUp_Posture_Slow();
+    StandUp_Posture();
 //    gpstate = 0;
     osDelay(500);
+
+    gpstate = 1;
 }
 
 void Turn_Jump(int16_t Jump_angle)

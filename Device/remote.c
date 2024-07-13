@@ -74,53 +74,75 @@ void Remote_Controller(void)
         case 6:
             if (dpstate == 53)
             {
-                Translate('l');
+                Translate('r');
+            }
+            else if(dpstate == 54 || dpstate == 55)
+            {
+                Turn('l','s');
             }
             else
             {
-                Speed_Competition_Turn();
+                Turn('l', 'f');
             }
 
             break;
         case 7:
             if (dpstate == 53)
             {
-                Translate('r');
+                Translate('l');
+            }
+            else if(dpstate == 54 || dpstate == 55)
+            {
+                Turn('r','s');
             }
             else
             {
-                Turn('r', 's');
+                Turn('r', 'f');
             }
             break;
         case 10:
             if (dpstate == 53)
-                Trot(Forward, 2);
+                Trot(Forward, 6);
+            else if(dpstate == 52)
+                Trot(Forward,3);
+            else if(dpstate == 54)
+            {
+                IMU_Slove(1,0);
+                Trot(Forward,6);
+            }
             else
-                Trot(Forward, 3);
+            {
+                IMU_Slove(0,0);
+                Trot(Forward, 4);
+            }
+
             break;
         case 11:
             if (dpstate == 53)
-                Trot(Backward, 2);
+                Trot(Backward, 6);
+            else if(dpstate == 52)
+                Trot(Backward,3);
+            else if(dpstate == 54)
+            {
+                IMU_Slove(1,0);
+                Trot(Backward,6);
+            }
             else
-                Trot(Backward, 3);
+            {
+                IMU_Slove(0,0);
+                Trot(Backward, 4);
+            }
             break;
         case 20:
-            ExecuteJump(Bridge_Jump, 71.2f);
-//            ExecuteJump(StepDown_Jump,73.5f);
+            ExecuteJump(Bridge_Jump, 72.0f);
             break;
         case 21:
-//            ExecuteJump(StepUp_LowJump,72.0f);
-//            ExecuteJump(StepUp_Jump,76.0f);
-            ExecuteJump(StepUp_Jump,71.2f);
+            ExecuteJump(StepUp_Jump,73.0f);
             break;
         case 22:
-//            ExecuteJump(StepUp_LowJump,72.0f);
-//            ExecuteJump(StepUp_Jump,66.0f);
-//            Turn_Jump(-45);
-            ExecuteJump(StepUp_LowJump,69.0f);
+            ExecuteJump(StepUp_Jump,69.0f);
             break;
         case 24://·ÉÌø
-//            ExecuteJump(Bridge_Jump, 85.0f);
             FrontJump();
             break;
         case 30:
@@ -137,9 +159,6 @@ void Remote_Controller(void)
             break;
         case 36:
             Barrier_Competition();
-//            Barrier_of_Stairs();
-//            Test_Barrier_of_Slope();
-//            Barrier_Competition();
             break;
         case 37:
             Race_Competition();
@@ -179,32 +198,32 @@ void Remote_Controller(void)
         gpstate = 36;
     }
 
-    if(once_flag == 1)
-    {
-        automation_flag = 0;
-        bridge_count = -1;
-        once_flag = 10;
-    }
-    else if(once_flag == 2)
-    {
-        automation_flag = 1;
-        bar_count = -2;
-        once_flag = 10;
-    }
-    else if(once_flag == 3)
-    {
-        automation_flag = 2;
-        slope_count = -1;
-        yawwant = 180.0f;
-        once_flag = 10;
-    }
-    else if(once_flag == 4)
-    {
-        automation_flag = 3;
-        stairs_count = -2;
-        yawwant = 270.0f;
-        once_flag = 10;
-    }
+//    if(once_flag == 1)
+//    {
+//        automation_flag = 0;
+//        bridge_count = -1;
+//        once_flag = 10;
+//    }
+//    else if(once_flag == 2)
+//    {
+//        automation_flag = 1;
+//        bar_count = -2;
+//        once_flag = 10;
+//    }
+//    else if(once_flag == 3)
+//    {
+//        automation_flag = 2;
+//        slope_count = -1;
+//        yawwant = 180.0f;
+//        once_flag = 10;
+//    }
+//    else if(once_flag == 4)
+//    {
+//        automation_flag = 3;
+//        stairs_count = -2;
+//        yawwant = 270.0f;
+//        once_flag = 10;
+//    }
 
 
 }

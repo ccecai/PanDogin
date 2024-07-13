@@ -10,7 +10,7 @@ float times = 0.0f;
 float x,y;
 
 //float MidPoint = 97.6f;
-float MidPoint = 100.0f;
+float MidPoint = 94.0f;
 
 uint8_t reverse_move_flag = 0;
 
@@ -96,16 +96,16 @@ void SetCoupledThetaPosition(int LegId)
                 AngleWant_MotorX[2] = TargetAngle2 - offset_front_1;
                 break;
             case 1:
-                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 + Pitch_Data / 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - Pitch_Data / 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + Pitch_Data / 180 * PI;
                 break;
             case 2:
                 AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1;//-4.0f
                 AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0;
                 break;
             case 3:
-                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 + Pitch_Data / 180 * PI;
-                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + Pitch_Data / 180 * PI;
                 break;
             default:
                 break;
@@ -115,20 +115,20 @@ void SetCoupledThetaPosition(int LegId)
     {
         switch(LegId) {
             case 0:
-                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 + Pitch_Data / 180 * PI;
-                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[1] = TargetAngle1 - offset_front_0 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[2] = TargetAngle2 - offset_front_1 + Pitch_Data / 180 * PI;
                 break;
             case 1:
-                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 + Pitch_Data / 180 * PI;//+5.0f
-                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[3] = TargetAngle1 - offset_back_0 - Pitch_Data / 180 * PI;//+5.0f
+                AngleWant_MotorX[4] = TargetAngle2 - offset_back_1 + Pitch_Data / 180 * PI;
                 break;
             case 2:
-                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 + Pitch_Data / 180 * PI;//-4.0f
-                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 - Pitch_Data / 180 * PI;
+                AngleWant_MotorX[5] =-TargetAngle2 + offset_front_1 - Pitch_Data / 180 * PI;//-4.0f
+                AngleWant_MotorX[6] =-TargetAngle1 + offset_front_0 + Pitch_Data / 180 * PI;
                 break;
             case 3:
-                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 + Pitch_Data/ 180 * PI;
-                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 - Pitch_Data/ 180 * PI;
+                AngleWant_MotorX[7] =-TargetAngle2 + offset_back_1 - Pitch_Data/ 180 * PI;
+                AngleWant_MotorX[8] =-TargetAngle1 + offset_back_0 + Pitch_Data/ 180 * PI;
                 break;
             default:
                 break;
@@ -335,16 +335,11 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         {
 
                 1,//大步Trot（快速）,竞速赛用的步态参数
-                {21.0f, 28.0f,  6.0f, 0.8f, 0.2f, 5.5f},
-                {17.0f, 28.0f,  6.0f, 0.8f, 0.2f, 5.5f},
-                {21.0f, 28.0f,  6.0f, 0.8f, 0.2f, 5.5f},
-                {17.0f, 28.0f,  6.0f, 0.8f, 0.2f, 5.5f}
+                {18.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.5f},
+                {18.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.5f},
+                {18.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.5f},
+                {18.0f, 20.0f,  8.0f, 0.8f, 0.13f, 3.5f}
 
-//            1,//大步Trot（快速）,现在最高点y轴坐标应该大于15，最大不超过32
-//            {19.0f, 9.0f,  3.5f, 1.2f, 0.125f, 2.0f},
-//            {19.0f, 9.0f,  3.5f, 1.2f, 0.125f, 2.0f},
-//            {19.0f, 9.0f,  3.5f, 1.2f, 0.125f, 2.0f},
-//            {19.0f, 9.0f,  3.5f, 1.2f, 0.125f, 2.0f}
         },
         {
             2,//原地踏步//出现多种步态基高差距过大是会失效
@@ -370,40 +365,40 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         {
 
             5,//障碍赛起步的步态
-            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f},
-            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f},
-            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f},
-            {18.0f, 11.0f,  6.5f, 1.0f, 0.19f, 3.8f}
+            {18.0f, 4.0f,  6.5f, 1.0f, 0.19f, 2.0f},
+            {18.0f, 4.0f,  6.5f, 1.0f, 0.19f, 2.0f},
+            {18.0f, 4.0f,  6.5f, 1.0f, 0.19f, 2.0f},
+            {18.0f, 4.0f,  6.5f, 1.0f, 0.19f, 2.0f}
         },
         {
             6,//左微
-            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f},
-            {15.0f, 0.0f,  0.6f, 0.2f, 0.2f, 2.5f},
-            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f},
-            {19.0f, 0.0f,  4.0f, 0.2f, 0.2f, 2.5f}
+            {14.0f, 0.0f,  0.6f, 0.9f, 0.1f, 3.5f},
+            {14.0f, 0.0f,  0.6f, 0.9f, 0.1f, 3.5f},
+            {21.0f, 0.0f,  8.0f, 0.9f, 0.1f, 3.5f},
+            {21.0f, 0.0f,  8.0f, 0.9f, 0.1f, 3.5f}
         },
         {
             7,//右微
-            {21.0f, 0.0f,  10.0f, 0.9f, 0.1f, 5.0f},
-            {21.0f, 0.0f,  10.0f, 0.9f, 0.1f, 5.0f},
-            {14.0f, 0.0f,  1.0f, 0.9f, 0.1f, 5.0f},
-            {14.0f, 0.0f,  1.0f, 0.9f, 0.1f, 5.0f}
+            {21.0f, 0.0f,  8.0f, 0.9f, 0.1f, 3.5f},
+            {21.0f, 0.0f,  8.0f, 0.9f, 0.1f, 3.5f},
+            {14.0f, 0.0f,  0.6f, 0.9f, 0.1f, 3.5f},
+            {14.0f, 0.0f,  0.6f, 0.9f, 0.1f, 3.5f}
         },
         {
             8,//小步Trot（稳速）
-            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f},
-            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f},
-            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f},
-            {18.0f, 13.5f, 6.5f, 0.9f, 0.115f, 2.8f}
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.11f, 2.5f},
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.11f, 2.5f},
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.11f, 2.5f},
+            {18.0f, 13.5f, 6.5f, 0.9f, 0.11f, 2.5f}
 
         },
         {
 
             9,//障碍赛正常行走的步态
-            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f},
-            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f},
-            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f},
-            {18.0f, 19.0f,  6.5f, 1.0f, 0.18f, 4.7f}
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.18f, 3.0f},
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.18f, 3.0f},
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.18f, 3.0f},
+            {18.0f, 11.0f,  6.5f, 1.0f, 0.18f, 3.0f}
         },
         {
 
@@ -424,10 +419,18 @@ DetachedParam state_detached_params[StatesMaxNum] = {
         {
 
                 12,//障碍赛起步的步态
-                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f},
-                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f},
-                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f},
-                {18.0f, 8.0f,  6.5f, 1.0f, 0.19f, 4.8f}
+                {18.0f, 6.0f, 4.0f, 1.0f, 0.19f, 2.5f},
+                {18.0f, 6.0f, 4.0f, 1.0f, 0.19f, 2.5f},
+                {18.0f, 6.0f, 4.0f, 1.0f, 0.19f, 2.5f},
+                {18.0f, 6.0f,4.0f,  1.0f, 0.19f, 2.5f}
+        },
+        {
+
+                13,//障碍赛起步的步态
+                {18.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.5f},
+                {18.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.5f},
+                {18.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.5f},
+                {18.0f, 20.0f,  8.0f, 1.7f, 0.11f,3.5f}
         },
 };
 
@@ -435,8 +438,8 @@ DetachedParam state_detached_params[StatesMaxNum] = {
 //新版IMU控制基于一个复制的基准进行IMU调节，避免了各种非归零造成的BUG。
 void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction)
 {
-    StepLenthMin = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - 5.0f;
-    StepLenthMax = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + 5.0f;
+    StepLenthMin = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - 7.0f;
+    StepLenthMax = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + 7.0f;
 
     if(IMU_Control_Flag == 1)
     {
@@ -473,11 +476,12 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
 
     else if(visual_control_flag == 1 && Race_flag == 1)
     {
-        ChangeYawOfPID(1.5f,2.0f,3000.0f,10.0f);
+        ChangeYawOfPID(0.6f,0.6f,3000.0f,10.0f);
         SetPoint_IMU(&Yaw_PID_Loop,yaw_set);
         PID_Pos(&Yaw_PID_Loop,Yaw_Data);
 
-        ChangePID(&VisualLoop,1.0f,0.2f,4000.0f,15.0f);
+        ChangePID(&VisualLoop,0.265f,0.0f,4400.0f,25.0f);
+        VisualLoop.I = 0.3f;
         SetPoint_Visual(&VisualLoop,MidPoint);
         PID_Pos(&VisualLoop,visual.offset);
 
@@ -486,9 +490,12 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
             Yaw_PID_Loop.Out_put = -Yaw_PID_Loop.Out_put;
         }
 
+        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + VisualLoop.Out_put;///左腿步长增加
+        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - VisualLoop.Out_put;//
+
         //Yaw输出给步长参数
-        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + VisualLoop.Out_put - Yaw_PID_Loop.Out_put;//左腿步长增加
-        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - VisualLoop.Out_put + Yaw_PID_Loop.Out_put;//右腿步长减小
+//        normal_step_left  = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length + VisualLoop.Out_put - Yaw_PID_Loop.Out_put;//左腿步长增加
+//        normal_step_right = StateDetachedParams_Copy[State_Detached_Params->GaitID].detached_params_0.step_length - VisualLoop.Out_put + Yaw_PID_Loop.Out_put;//右腿步长减小
         //步长限幅
 
         if(normal_step_right > StepLenthMax)
@@ -512,10 +519,7 @@ void YawControl(float yaw_set,DetachedParam *State_Detached_Params,int direction
     else if(visual_control_flag == 1 && BarrierMode_flag == 1)
     {
         ChangePID(&VisualLoop,1.5f,0.7f,4000.0f,15.0f);
-        if(offset_flag == 1)
-            SetPoint_Visual(&VisualLoop,MidPoint );
-        else
-            SetPoint_Visual(&VisualLoop,MidPoint);
+        SetPoint_Visual(&VisualLoop,MidPoint );
         PID_Pos(&VisualLoop,visual.offset);
 
         //Yaw输出给步长参数

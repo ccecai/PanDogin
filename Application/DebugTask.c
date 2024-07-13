@@ -14,6 +14,7 @@ void Debug_Task(void )
     usart_printf("%f,%f,%f,%f,%f,%f,%f,%d,%d,%d\n",visual.offset,visual.distance,Laser_distance
             ,normal_step_left,normal_step_right,Yaw_Data,Pitch_Data,automation_flag,stairs_count,Race_count);
 
+//    usart_printf("%d,%d,%f\n",gpstate,dpstate,Yaw_Data);
 
     osDelay(10);
 }

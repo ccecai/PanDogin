@@ -16,7 +16,7 @@ void GO1_Init(void )
     ChangeYawOfPID(0.2f,0.1f,4000.0f,15.0f);//Õ”¬›“«PID≥ı ºªØ
 
     PID_Init(&VisualLoop);
-    ChangePID(&VisualLoop,0.12f,0.04f,4000.0f,15.0f);
+    ChangePID(&VisualLoop,0.12f,0.04f,4400.0f,25.0f);
 
     PID_Init(&RadarController);
     ChangePID(&RadarController,0.2f,0.1f,4000.0f,15.0f);
